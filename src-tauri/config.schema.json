@@ -12,30 +12,104 @@
       "exclusiveMinimum": 0
     },
     "initial_time": {
-      "description": "Initial simulation time since epoch (Julian)",
+      "description": "Simulation starting time/date (restricted to J2000 so no dates before Jan 1 2000 @ noon)",
       "type": "object",
       "properties": {
-        "days": {
-          "description": "Days since epoch (Julian)",
+        "year": {
+          "description": "CE year, must be 2000 or later",
           "type": "integer",
-          "minimum": 0
+          "minimum": 2000
         },
-        "seconds": {
-          "description": "Seconds of day",
+        "month": {
+          "description": "Month of year, 1-12",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "day": {
+          "description": "Day of month, will not restrict you to legal days (i.e., 30th of Feb will not be caught), so be careful!",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 31
+        },
+        "hour": {
+          "description": "Hour of day, 24hour-based (0-23)",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 23
+        },
+        "minute": {
+          "description": "Minute of hour, 0-based",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 59
+        },
+        "second": {
+          "description": "Second of minute, 0-based",
           "type": "number",
           "minimum": 0,
-          "maximum": 86400
+          "exclusiveMaximum": 60
         }
       },
       "required": [
-        "days",
-        "seconds"
+        "year",
+        "month",
+        "day",
+        "hour",
+        "minute",
+        "second"
       ]
+    },
+    "initial_position_ecef_km": {
+      "description": "Initial orbital position in ECEF coordinates, km",
+      "type":"array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "type": "number" }
+    },
+    "initial_velocity_ecef_km_s": {
+      "description": "Initial orbital velocity in ECEF coordinates, km/s",
+      "type":"array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "type": "number" }
+    },
+    "spacecraft_mass_kg": {
+      "description": "Dry mass of the simulated spacecraft, kg",
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "spacecraft_aero_drag_area_m2": {
+      "description": "Simplified aero drag pressure effective area, m^2",
+      "type": "number",
+      "minimum": 0
+    },
+    "spacecraft_areo_drag_coef": {
+      "description": "Aero drag coefficient, unitless",
+      "type": "number",
+      "minimum": 0
+    },
+    "spacecraft_solar_rad_pres_area_m2": {
+      "description": "Simplified solar radiation pressure effective area, m^2",
+      "type": "number",
+      "minimum": 0
+    },
+    "spacecraft_solar_rad_pres_coef": {
+      "description": "Solar radiation pressure reflectivity coefficient, unitless",
+      "type": "number",
+      "minimum": 0
     }
   },
   "required": [
     "base_rate_hz",
     "frontend_update_rate_hz",
-    "initial_time"
+    "initial_time",
+    "initial_position_ecef_km",
+    "initial_velocity_ecef_km_s",
+    "spacecraft_mass_kg",
+    "spacecraft_aero_drag_area_m2",
+    "spacecraft_areo_drag_coef",
+    "spacecraft_solar_rad_pres_area_m2",
+    "spacecraft_solar_rad_pres_coef"
   ]
 }

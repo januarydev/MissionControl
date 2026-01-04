@@ -2,5 +2,12 @@
   "$schema": "config.schema.json",
   "base_rate_hz": 100,
   "frontend_update_rate_hz": 1,
-  "initial_time": {"days": 26001, "seconds": 28800}
+  "initial_time": {"year": 2022, "month": 1, "day": 3, "hour": 12, "minute": 0, "second": 0},
+  "initial_position_ecef_km": [-1325.896391725290, 5492.890955896010, 3762.423747679220],
+  "initial_velocity_ecef_km_s": [-4.87470128630892, -4.10251688094599, 4.26428812476909],
+  "spacecraft_mass_kg": 459023,
+  "spacecraft_aero_drag_area_m2": 1951,
+  "spacecraft_areo_drag_coef": 2,
+  "spacecraft_solar_rad_pres_area_m2": 1500,
+  "spacecraft_solar_rad_pres_coef": 1.8
 }

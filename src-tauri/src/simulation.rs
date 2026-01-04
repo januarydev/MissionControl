@@ -2,9 +2,10 @@ mod config;
 mod psuedo_real_time;
 mod epoch;
 mod simulation_state;
+mod vec3;
 
-/// Main program state object
-/// Collection of all components and handles passing data between them
+/// Main program state object.
+/// Collection of all components and handles passing data between them.
 #[derive(Debug)]
 pub struct Simulation {
     frontend_update_rate_hz: f64,
@@ -13,21 +14,28 @@ pub struct Simulation {
 }
 
 impl Simulation {
-    /// Create a new Simulation object
-    /// Read parameters from config file and pass to applicable components
+    /// Create a new Simulation object.
+    /// Read parameters from config file and pass to applicable components.
     pub fn new(config_filename: &str) -> Self {
         let config = config::Config::from_file(config_filename);
         Self {
             frontend_update_rate_hz: config.frontend_update_rate_hz as f64,
             time_source: psuedo_real_time::PseudoRealTime::new(config.base_rate_hz as f64),
-            simulated_time: epoch::Epoch::new(config.initial_time.days, config.initial_time.seconds),
+            simulated_time: epoch::Epoch::from_calendar(
+                config.initial_time.year,
+                config.initial_time.month,
+                config.initial_time.day,
+                config.initial_time.hour,
+                config.initial_time.minute,
+                config.initial_time.second
+            ),
         }
     }
 
-    /// Step the simulation
-    /// Pend on pseudo-real-time sync clock
-    /// Run all components at their desired rates
-    /// Return current SimulationState at desired rate
+    /// Step the simulation.
+    /// Pend on pseudo-real-time sync clock.
+    /// Run all components at their desired rates.
+    /// Return current SimulationState at desired rate.
     pub fn step(&mut self) -> Option<simulation_state::SimulationState> {
         self.time_source.wait_for_sync();
 
@@ -36,7 +44,7 @@ impl Simulation {
         if self.time_source.check_run_tick(self.frontend_update_rate_hz) { Some(self.frontend_update()) } else { None }
     }
 
-    /// Create current SimulationState object from component data
+    /// Create current SimulationState object from component data.
     fn frontend_update(&self) -> simulation_state::SimulationState {
         simulation_state::SimulationState {
             elapsed_time_ms: self.time_source.get_elapsed_time_ms(),

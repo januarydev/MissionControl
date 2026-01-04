@@ -4,10 +4,10 @@ use tauri::{Emitter, Manager};
 
 const CONFIG_FILENAME: &str = "config.json";
 
-/// Invoked on frontend mount
-/// Spawn the main execution thread
+/// Invoked on frontend mount.
+/// Spawn the main execution thread.
 /// Thread continuously steps the Simulation and emits current SimulationState
-///     to the frontend at configured regular intervals
+///     to the frontend at configured regular intervals.
 #[tauri::command]
 fn start_simulation(app: tauri::AppHandle) {
     std::thread::spawn(move || {
@@ -19,10 +19,10 @@ fn start_simulation(app: tauri::AppHandle) {
     });
 }
 
-/// Main entry point of the program
-/// Create the Tauri instance
-/// Create a Simulation instance managed by Tauri
-/// Setup all command callbacks
+/// Main entry point of the program.
+/// Create the Tauri instance.
+/// Create a Simulation instance managed by Tauri.
+/// Setup all command callbacks.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
