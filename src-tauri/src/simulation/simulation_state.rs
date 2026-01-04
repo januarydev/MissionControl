@@ -1,3 +1,4 @@
+/// Data transfer from backend to frontend to update simulation state in UI
 #[derive(Clone, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SimulationState {
