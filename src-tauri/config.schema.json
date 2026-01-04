@@ -1,0 +1,41 @@
+{
+  "$schema":"https://json-schema.org/draft-07/schema#",
+  "properties": {
+    "base_rate_hz": {
+      "description": "Simulation base step rate, hz",
+      "type": "integer",
+      "exclusiveMinimum": 0
+    },
+    "frontend_update_rate_hz": {
+      "description": "Frontend data update rate, hz",
+      "type": "integer",
+      "exclusiveMinimum": 0
+    },
+    "initial_time": {
+      "description": "Initial simulation time since epoch (Julian)",
+      "type": "object",
+      "properties": {
+        "days": {
+          "description": "Days since epoch (Julian)",
+          "type": "integer",
+          "minimum": 0
+        },
+        "seconds": {
+          "description": "Seconds of day",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 86400
+        }
+      },
+      "required": [
+        "days",
+        "seconds"
+      ]
+    }
+  },
+  "required": [
+    "base_rate_hz",
+    "frontend_update_rate_hz",
+    "initial_time"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "$schema": "config.schema.json",
+  "base_rate_hz": 100,
+  "frontend_update_rate_hz": 1,
+  "initial_time": {"days": 26001, "seconds": 28800}
+}

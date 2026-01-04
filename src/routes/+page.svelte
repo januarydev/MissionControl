@@ -1,24 +1,24 @@
 <script lang="ts">
 
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   import { invoke } from "@tauri-apps/api/core"
   import { listen } from "@tauri-apps/api/event";
 
+  import type { SimulationState } from "./SimulationState.ts"
   import LinePlot from "./LinePlot.svelte";
 
-  type SimulationState = {
-    elapsedTimeMs: number
-  };
-
   let elapsedTimeMsArr: number[] = $state([]);
+  let simulatedTimeDays: number = $state(0.0);
+  let simulatedTimeSeconds: number = $state(0.0);
 
   listen<SimulationState>('update', (event) => {
     elapsedTimeMsArr.push(event.payload.elapsedTimeMs);
-    if (elapsedTimeMsArr.length > 100) { elapsedTimeMsArr.shift(); }
+    if (elapsedTimeMsArr.length > 60) { elapsedTimeMsArr.shift(); }
+    simulatedTimeDays = event.payload.simulatedTimeDays;
+    simulatedTimeSeconds = event.payload.simulatedTimeSeconds;
   });
 
   onMount(() => { invoke("start_simulation"); });
-  onDestroy(() => { invoke("stop_simulation"); })
 
 </script>
 
@@ -27,6 +27,7 @@
   <h1>MissionControl</h1>
   <LinePlot data = {elapsedTimeMsArr}/>
   <p>Current elapsed time: {elapsedTimeMsArr.at(-1)} ms</p>
+  <p>Current simulated time: {simulatedTimeDays} days, {simulatedTimeSeconds.toFixed(2)} seconds</p>
 
 </main>
 

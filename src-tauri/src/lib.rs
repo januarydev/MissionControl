@@ -1,30 +1,26 @@
 mod simulation;
 
-use tauri::{Manager, Emitter};
+use tauri::{Emitter, Manager};
 
-const BASE_RATE_HZ: u32 = 100;
+const CONFIG_FILENAME: &str = "config.json";
 
 #[tauri::command]
 fn start_simulation(app: tauri::AppHandle) {
     std::thread::spawn(move || {
         loop {
-            app.emit("update", app.state::<std::sync::Mutex<simulation::Simulation>>().lock().unwrap().iterate()).unwrap();
+            if let Some(state) = app.state::<std::sync::Mutex<simulation::Simulation>>().lock().unwrap().step() {
+                app.emit("update", state).unwrap();
+            }
         }
     });
-}
-
-#[tauri::command]
-fn stop_simulation(simulation: tauri::State<std::sync::Mutex<simulation::Simulation>>) {
-    // unsure what we want to do here
-    // simulation.lock().unwrap().stop();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .manage(std::sync::Mutex::new(simulation::Simulation::new(BASE_RATE_HZ as f64)))
-        .invoke_handler(tauri::generate_handler![start_simulation, stop_simulation])
+        .manage(std::sync::Mutex::new(simulation::Simulation::new(CONFIG_FILENAME)))
+        .invoke_handler(tauri::generate_handler![start_simulation])
         .run(tauri::generate_context!())
         .expect("Error while running tauri application");
 }

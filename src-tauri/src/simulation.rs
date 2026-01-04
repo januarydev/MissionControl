@@ -1,28 +1,38 @@
+mod config;
 mod psuedo_real_time;
-
-#[derive(Clone, serde::Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SimulationState {
-    elapsed_time_ms: f64
-}
+mod epoch;
+mod simulation_state;
 
 #[derive(Debug)]
 pub struct Simulation {
+    frontend_update_rate_hz: f64,
     time_source: psuedo_real_time::PseudoRealTime,
+    simulated_time: epoch::Epoch,
 }
 
 impl Simulation {
-    pub fn new(base_rate_hz: f64) -> Self {
+    pub fn new(config_filename: &str) -> Self {
+        let config = config::Config::from_file(config_filename);
         Self {
-            time_source: psuedo_real_time::PseudoRealTime::new(base_rate_hz)
+            frontend_update_rate_hz: config.frontend_update_rate_hz as f64,
+            time_source: psuedo_real_time::PseudoRealTime::new(config.base_rate_hz as f64),
+            simulated_time: epoch::Epoch::new(config.initial_time.days, config.initial_time.seconds),
         }
     }
 
-    pub fn iterate(&mut self) -> SimulationState {
+    pub fn step(&mut self) -> Option<simulation_state::SimulationState> {
         self.time_source.wait_for_sync();
 
-        SimulationState {
-            elapsed_time_ms: self.time_source.get_elapsed_time_ms()
+        if self.time_source.check_run_tick(epoch::UPDATE_RATE_HZ) {self.simulated_time.update(self.time_source.get_tick_period_s());}
+
+        if self.time_source.check_run_tick(self.frontend_update_rate_hz) { Some(self.frontend_update()) } else { None }
+    }
+
+    fn frontend_update(&self) -> simulation_state::SimulationState {
+        simulation_state::SimulationState {
+            elapsed_time_ms: self.time_source.get_elapsed_time_ms(),
+            simulated_time_days: self.simulated_time.get_current_days(),
+            simulated_time_seconds: self.simulated_time.get_current_seconds(),
         }
     }
 }

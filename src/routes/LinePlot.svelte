@@ -1,4 +1,5 @@
 <script>
+  // @ts-nocheck
 
   import * as d3 from 'd3';
 
@@ -28,7 +29,7 @@
     <path fill="none" stroke="currentColor" stroke-width="1.5" d={line(data)} />
     <g fill="white" stroke="currentColor" stroke-width="1.5">
       {#each data as d, i}
-        <circle key={i} cx={x(i)} cy={y(d)} r="0.5" />
+        <circle key={i} cx={x(i)} cy={y(d)} r="1.0" />
       {/each}
     </g>
   </svg>
