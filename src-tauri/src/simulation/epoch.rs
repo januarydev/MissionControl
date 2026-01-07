@@ -1,4 +1,7 @@
 pub const UPDATE_RATE_HZ: f64 = 100.0;
+pub const MINUTES_PER_HOUR: u8 = 60;
+pub const SECONDS_PER_MINUTE: u8 = 60;
+pub const SECONDS_PER_DAY: u32 = 86400;
 
 const DAYS_PER_YEAR: f64 = 365.25;
 const DAYS_PER_MONTH_INDEX: f64 = 30.6001;
@@ -8,9 +11,6 @@ const CORRECTION_400_YEAR: f64 = 0.25;
 const CORRECTION_4000_YEAR: f64 = 0.025;
 const J2000_JULIAN_DATE: u32 = 2451545;
 const CORRECTION_24_HOUR: u8 = 12;
-const MINUTE_PER_HOUR: u8 = 60;
-const SECOND_PER_MINUTE: u8 = 60;
-const SECONDS_PER_DAY: u32 = 86400;
 
 /// Simulated Julian time/date epoch (J2000) tracking and propagation object.
 #[derive(Debug)]
@@ -30,20 +30,20 @@ impl Epoch {
         julian_day -= century - (CORRECTION_400_YEAR * century as f64).floor() as u32 - (CORRECTION_4000_YEAR * century as f64).floor() as u32;
         Self {
             days: julian_day - J2000_JULIAN_DATE,
-            seconds: (hour - CORRECTION_24_HOUR) as f64 * MINUTE_PER_HOUR as f64 * SECOND_PER_MINUTE as f64 + minute as f64 * SECOND_PER_MINUTE as f64 + second,
+            seconds: (hour - CORRECTION_24_HOUR) as f64 * MINUTES_PER_HOUR as f64 * SECONDS_PER_MINUTE as f64 + minute as f64 * SECONDS_PER_MINUTE as f64 + second,
         }
     }
 
-    /// Accessor for days (Julian) member.
+    /// Accessor for days (J2000) member.
     pub fn get_current_days(&self) -> u32 { self.days }
 
-    /// Accessor for seconds member.
+    /// Accessor for seconds of day member.
     pub fn get_current_seconds(&self) -> f64 { self.seconds }
 
     /// Propagate seconds of day by given step size.
     /// Roll over days at correct time point.
-    pub fn update(&mut self, step_size_s: f64) {
-        self.seconds += step_size_s;
+    pub fn update(&mut self) {
+        self.seconds += 1.0 / UPDATE_RATE_HZ;
         if self.seconds > SECONDS_PER_DAY as f64 {
             self.days += 1;
             self.seconds -= SECONDS_PER_DAY as f64;

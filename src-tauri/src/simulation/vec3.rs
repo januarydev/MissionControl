@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 /// Simple Vector3 implementation including basic math operations.
-#[derive(Copy, Clone, Debug, PartialEq, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Vec3 {
     pub x: f64,
     pub y: f64,
@@ -47,8 +47,8 @@ impl Vec3 {
 }
 
 impl std::ops::Add<Vec3> for Vec3 {
-    type Output = Vec3;
-    fn add(self, rhs: Vec3) -> Self::Output {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self::Output {
         Self {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
@@ -57,9 +57,19 @@ impl std::ops::Add<Vec3> for Vec3 {
     }
 }
 
+impl std::ops::AddAssign<Vec3> for Vec3 {
+    fn add_assign(&mut self, rhs: Self) {
+        *self = Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
 impl std::ops::Sub<Vec3> for Vec3 {
-    type Output = Vec3;
-    fn sub(self, rhs: Vec3) -> Self::Output {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
         Self {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
@@ -68,12 +78,28 @@ impl std::ops::Sub<Vec3> for Vec3 {
     }
 }
 
+impl std::ops::SubAssign<Vec3> for Vec3 {
+    fn sub_assign(&mut self, rhs: Self) {
+        *self = Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
 impl std::ops::Mul<f64> for Vec3 {
-    type Output = Vec3;
+    type Output = Self;
     fn mul(self, rhs: f64) -> Self::Output {
         let mut retval = self;
         retval.scale(rhs);
         retval
+    }
+}
+
+impl std::ops::MulAssign<f64> for Vec3 {
+    fn mul_assign(&mut self, rhs: f64) {
+        self.scale(rhs);
     }
 }
 
@@ -87,11 +113,17 @@ impl std::ops::Mul<Vec3> for f64 {
 }
 
 impl std::ops::Div<f64> for Vec3 {
-    type Output = Vec3;
+    type Output = Self;
     fn div(self, rhs: f64) -> Self::Output {
         let mut retval = self;
         retval.scale(1.0 / rhs);
         retval
+    }
+}
+
+impl std::ops::DivAssign<f64> for Vec3 {
+    fn div_assign(&mut self, rhs: f64) {
+        self.scale(1.0 / rhs);
     }
 }
 

@@ -20,9 +20,6 @@ impl PseudoRealTime {
         }
     }
 
-    /// Accessor for base tick period in seconds.
-    pub fn get_tick_period_s(&self) -> f64 { self.tick_period.as_secs_f64() }
-
     /// Accessor for simulation elapsed time in milliseconds.
     pub fn get_elapsed_time_ms(&self) -> f64 { self.elapsed_time_ms }
 
