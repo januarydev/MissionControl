@@ -3,11 +3,36 @@
   "base_rate_hz": 100,
   "frontend_update_rate_hz": 1,
   "initial_time": {"year": 2022, "month": 1, "day": 3, "hour": 12, "minute": 0, "second": 0},
-  "initial_position_ecef_km": [-1325.896391725290, 5492.890955896010, 3762.423747679220],
-  "initial_velocity_ecef_km_s": [-4.87470128630892, -4.10251688094599, 4.26428812476909],
-  "spacecraft_mass_kg": 459023,
-  "spacecraft_aero_drag_area_m2": 1951,
-  "spacecraft_areo_drag_coef": 2,
-  "spacecraft_solar_rad_pres_area_m2": 1500,
-  "spacecraft_solar_rad_pres_coef": 1.8
+  "bodies": [
+    {
+      "name": "Sun",
+      "mass_kg": 1.989e+30,
+      "position_j2000_km": [3.12641188e+07, -1.31885928e+08, -5.71723857e+07],
+      "velocity_j2000_km_s": [29.60534526,  5.91568088,  2.56335503]
+    },
+    {
+      "name": "Mars",
+      "mass_kg": 641.9e+21,
+      "position_j2000_km": [-9.47912941e+07, -3.07465391e+08, -1.34305768e+08],
+      "velocity_j2000_km_s": [50.76155452, -4.08904415, -2.59641757]
+    },
+    {
+      "name": "Jupiter",
+      "mass_kg": 1.899e+27,
+      "position_j2000_km": [7.28873213e+08, -3.70425664e+08, -1.76398088e+08],
+      "velocity_j2000_km_s": [34.11353284, 17.75243955,  7.52718526]
+    },
+    {
+      "name": "Moon",
+      "mass_kg": 7.348e+22,
+      "position_j2000_km": [95588.51403895, -307826.35251934, -158261.2686987],
+      "velocity_j2000_km_s": [1.05971864, 0.27971128, 0.04331688]
+    },
+    {
+      "name": "Spacecraft (ISS)",
+      "mass_kg": 459023,
+      "position_j2000_km": [-1325.896391725290, 5492.890955896010, 3762.423747679220],
+      "velocity_j2000_km_s": [-4.87470128630892, -4.10251688094599, 4.26428812476909]
+    }
+  ]
 }

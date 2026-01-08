@@ -4,7 +4,7 @@ use crate::simulation::vec3::Vec3;
 
 /// Simulated time epoch sub-config object schema.
 #[derive(Debug, serde::Deserialize)]
-pub struct Epoch {
+pub struct EpochConfig {
     pub year: u32,
     pub month: u8,
     pub day: u8,
@@ -13,20 +13,23 @@ pub struct Epoch {
     pub second: f64,
 }
 
+/// Body definition sub-config object schema.
+#[derive(Debug, serde::Deserialize)]
+pub struct BodyConfig {
+    pub name: String,
+    pub mass_kg: f64,
+    pub position_j2000_km: Vec3,
+    pub velocity_j2000_km_s: Vec3,
+}
+
 /// Config file schema for load.
 /// Should match exactly config JSON schema.
 #[derive(Debug, serde::Deserialize)]
 pub struct Config {
     pub base_rate_hz: u32,
     pub frontend_update_rate_hz: u32,
-    pub initial_time: Epoch,
-    pub initial_position_ecef_km: Vec3,
-    pub initial_velocity_ecef_km_s: Vec3,
-    pub spacecraft_mass_kg: f64,
-    pub spacecraft_aero_drag_area_m2: f64,
-    pub spacecraft_areo_drag_coef: f64,
-    pub spacecraft_solar_rad_pres_area_m2: f64,
-    pub spacecraft_solar_rad_pres_coef: f64,
+    pub initial_time: EpochConfig,
+    pub bodies: Vec<BodyConfig>,
 }
 
 impl Config {

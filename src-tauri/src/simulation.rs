@@ -1,7 +1,7 @@
 mod config;
 mod psuedo_real_time;
 mod epoch;
-mod four_body;
+mod n_body;
 mod simulation_state;
 mod vec3;
 
@@ -12,7 +12,7 @@ pub struct Simulation {
     frontend_update_rate_hz: f64,
     time_source: psuedo_real_time::PseudoRealTime,
     simulated_time: epoch::Epoch,
-    orbit_propagator: four_body::FourBody,
+    orbit_propagator: n_body::NBody,
 }
 
 impl Simulation {
@@ -20,27 +20,18 @@ impl Simulation {
     /// Read parameters from config file and pass to applicable components.
     pub fn new(config_filename: &str) -> Self {
         let config = config::Config::from_file(config_filename);
-        let simulated_time = epoch::Epoch::from_calendar(
-            config.initial_time.year,
-            config.initial_time.month,
-            config.initial_time.day,
-            config.initial_time.hour,
-            config.initial_time.minute,
-            config.initial_time.second,
-        );
-        let initial_time_days = simulated_time.get_current_days();
-        let initial_time_seconds = simulated_time.get_current_seconds();
         Self {
             frontend_update_rate_hz: config.frontend_update_rate_hz as f64,
             time_source: psuedo_real_time::PseudoRealTime::new(config.base_rate_hz as f64),
-            simulated_time,
-            orbit_propagator: four_body::FourBody::new(
-                initial_time_days,
-                initial_time_seconds,
-                config.initial_position_ecef_km,
-                config.initial_velocity_ecef_km_s,
-                config.spacecraft_mass_kg,
+                simulated_time: epoch::Epoch::from_calendar(
+                config.initial_time.year,
+                config.initial_time.month,
+                config.initial_time.day,
+                config.initial_time.hour,
+                config.initial_time.minute,
+                config.initial_time.second,
             ),
+            orbit_propagator: n_body::NBody::new(&config.bodies),
         }
     }
 
@@ -52,7 +43,7 @@ impl Simulation {
         self.time_source.wait_for_sync();
 
         if self.time_source.check_run_tick(epoch::UPDATE_RATE_HZ) {self.simulated_time.update();}
-        if self.time_source.check_run_tick(four_body::UPDATE_RATE_HZ) {self.orbit_propagator.update();}
+        if self.time_source.check_run_tick(n_body::UPDATE_RATE_HZ) {self.orbit_propagator.update();}
 
         if self.time_source.check_run_tick(self.frontend_update_rate_hz) { Some(self.frontend_update()) } else { None }
     }

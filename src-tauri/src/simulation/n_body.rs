@@ -1,20 +1,14 @@
 use crate::simulation::vec3::{self, Vec3};
-use crate::simulation::epoch::SECONDS_PER_DAY;
+use crate::simulation::config;
 
 pub const UPDATE_RATE_HZ: f64 = 10.0;
 
 const GRAVITATIONAL_CONSTANT: f64 = 6.67259e-20;
-const THREE_BODY_PROPAGATION_RATE_HZ: f64 = 1.0 / 10.0;
-const SUN_EPOCH_POSITION_KM: Vec3 = Vec3 { x: 2.52128392e+7, y: -1.32968699e+8, z: -5.76483146e+7 };
-const SUN_EPOCH_VELOCITY_KM_S: Vec3 = Vec3 { x: 29.83976734, y: 4.77829212, z: 2.07157574 };
-const MOON_EPOCH_POSITION_KM: Vec3 = Vec3 { x: -317575.10336463, y: -236504.22146683, z: -62693.60375344 };
-const MOON_EPOCH_VELOCITY_KM_S: Vec3 = Vec3 { x: 0.56091175, y: -0.73317161, z: -0.31967135 };
 const EARTH_MASS_KG: f64 = 5.974e+24;
-const SUN_MASS_KG: f64 = 1.989e+30;
-const MOON_MASS_KG: f64 = 7.348e+22;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 struct Body {
+    pub name: String,
     pub mass_kg: f64,
     pub position_eci_km: Vec3,
     pub velocity_eci_km_s: Vec3,
@@ -54,7 +48,12 @@ impl Body {
         let accelerations = Self::newtonian_grav_accels(bodies);
         let mut dxdt_dvdt = vec![];
         for idx in 0..bodies.len() {
-            dxdt_dvdt.push(Self { mass_kg: bodies[idx].mass_kg, position_eci_km: bodies[idx].velocity_eci_km_s + accelerations[idx] * dt, velocity_eci_km_s: accelerations[idx] });
+            dxdt_dvdt.push(Self {
+                name: bodies[idx].name.clone(),
+                mass_kg: bodies[idx].mass_kg,
+                position_eci_km: bodies[idx].velocity_eci_km_s + accelerations[idx] * dt,
+                velocity_eci_km_s: accelerations[idx]
+            });
         }
         dxdt_dvdt
     }
@@ -80,6 +79,7 @@ impl Body {
         let mut k2_y = vec![];
         for idx in 0..bodies.len() {
             k2_y.push(Self {
+                name: bodies[idx].name.clone(),
                 mass_kg: bodies[idx].mass_kg,
                 position_eci_km: bodies[idx].position_eci_km + h * k1[idx].position_eci_km / 2.0,
                 velocity_eci_km_s: bodies[idx].velocity_eci_km_s + h * k1[idx].velocity_eci_km_s / 2.0
@@ -90,6 +90,7 @@ impl Body {
         let mut k3_y = vec![];
         for idx in 0..bodies.len() {
             k3_y.push(Self {
+                name: bodies[idx].name.clone(),
                 mass_kg: bodies[idx].mass_kg,
                 position_eci_km: bodies[idx].position_eci_km + h * k2[idx].position_eci_km / 2.0,
                 velocity_eci_km_s: bodies[idx].velocity_eci_km_s + h * k2[idx].velocity_eci_km_s / 2.0
@@ -100,6 +101,7 @@ impl Body {
         let mut k4_y = vec![];
         for idx in 0..bodies.len() {
             k4_y.push(Self {
+                name: bodies[idx].name.clone(),
                 mass_kg: bodies[idx].mass_kg,
                 position_eci_km: bodies[idx].position_eci_km + h * k3[idx].position_eci_km,
                 velocity_eci_km_s: bodies[idx].velocity_eci_km_s + h * k3[idx].velocity_eci_km_s
@@ -114,113 +116,45 @@ impl Body {
     }
 }
 
-/// **Very** rough Newtonian 3-body 3D orbit propagator.
-/// Used to estimate initial sun and moon positions at given 4-body initial time.
-#[derive(Debug)]
-struct ThreeBody {
-    pub propagation_steps: u64,
-    pub j2000_days: u32,
-    pub j2000_seconds: f64,
-    pub sun: Body,
-    pub earth: Body,
-    pub moon: Body,
-}
-
-impl ThreeBody {
-    /// Create the default J2000 epoch-initialized propagator.
-    fn new() -> Self {
-        Self {
-            propagation_steps: 0,
-            j2000_days: 0,
-            j2000_seconds: 0.0,
-            sun: Body { mass_kg: SUN_MASS_KG, position_eci_km: SUN_EPOCH_POSITION_KM, velocity_eci_km_s: SUN_EPOCH_VELOCITY_KM_S },
-            earth: Body { mass_kg: EARTH_MASS_KG, position_eci_km: vec3::ZERO, velocity_eci_km_s: vec3::ZERO },
-            moon: Body { mass_kg: MOON_MASS_KG, position_eci_km: MOON_EPOCH_POSITION_KM, velocity_eci_km_s: MOON_EPOCH_VELOCITY_KM_S },
-        }
-    }
-
-    /// Correct the state of all bodies so that Earth is inertially centered in the coordinate frame.
-    /// Subtract Earth's position and velocity from all bodies (including Earth).
-    fn correct_earth_inertial_frame(&mut self) {
-        for body in vec![&mut self.sun, &mut self.moon] {
-            body.position_eci_km -= self.earth.position_eci_km;
-            body.velocity_eci_km_s -= self.earth.velocity_eci_km_s;
-        }
-        self.earth.position_eci_km = vec3::ZERO;
-        self.earth.velocity_eci_km_s = vec3::ZERO;
-    }
-
-    /// Propagate sun and moon orbits forward in rough steps until we've hit the desired time.
-    /// Enable the commented out lines to export the positions at each step to a csv for analysis.
-    fn propagate_until(&mut self, j2000_days: u32, j2000_seconds: f64) {
-        // let mut file = std::fs::File::create("data.csv").unwrap();
-        while self.j2000_days < j2000_days || self.j2000_seconds < j2000_seconds {
-            self.propagation_steps += 1;
-            let delta_seconds = 1.0 / THREE_BODY_PROPAGATION_RATE_HZ;
-
-            self.j2000_seconds += delta_seconds;
-            if self.j2000_seconds > SECONDS_PER_DAY as f64 {
-                self.j2000_days += 1;
-                self.j2000_seconds -= SECONDS_PER_DAY as f64;
-            }
-
-            Body::rk4_integrator(&mut vec![&mut self.sun, &mut self.earth, &mut self.moon], delta_seconds);
-            self.correct_earth_inertial_frame();
-
-            // file.write_fmt(format_args!("{days},{seconds},{sunposx},{sunposy},{sunposz},{moonposx},{moonposy},{moonposz},{earthposx},{earthposy},{earthposz}\n",
-            //     days = self.j2000_days, seconds = self.j2000_seconds,
-            //     sunposx = self.sun.position_eci_km.x, sunposy = self.sun.position_eci_km.y, sunposz = self.sun.position_eci_km.z,
-            //     moonposx = self.moon.position_eci_km.x, moonposy = self.moon.position_eci_km.y, moonposz = self.moon.position_eci_km.z,
-            //     earthposx = self.earth.position_eci_km.x, earthposy = self.earth.position_eci_km.y, earthposz = self.earth.position_eci_km.z)).unwrap();
-        }
-    }
-}
-
 /// Extremely basic Newtonian 4-body 3D orbit propagator object.
 /// All masses are assumed to be point masses.
 /// All calculations done in ECI J2000.
 /// Four included bodies are sun, earth, moon, and spacecraft.
 #[derive(Debug)]
-pub struct FourBody {
-    sun: Body,
+pub struct NBody {
     earth: Body,
-    moon: Body,
-    spacecraft: Body,
+    bodies: Vec<Body>
 }
 
-impl FourBody {
+impl NBody {
     /// Create a new FourBody object from given ICV.
     /// Sun and moon positions are propagated forward from epoch to correct time point.
     /// Spacecraft ECEF state vector is then converted to ECI J2000.
-    pub fn new(j2000_days: u32, j2000_seconds: f64, spacecraft_pos_ecef_km: Vec3, spacecraft_vel_ecef_km_s: Vec3, spacecraft_mass_kg: f64) -> Self {
-        println!("Initializing new sun-earth-moon system and propagating orbits to julian date {j2000_days} days, {j2000_seconds} seconds...");
-        let mut three_body = ThreeBody::new();
-        let start = std::time::Instant::now();
-        three_body.propagate_until(j2000_days, j2000_seconds);
-        let finish = std::time::Instant::now();
-        println!("...complete. Three-body propagation results:\n{three_body:#?}");
-        println!("Time elapsed: {time} s", time = (finish - start).as_secs_f64());
-        Self {
-            sun: three_body.sun,
-            earth: three_body.earth,
-            moon: three_body.moon,
-            spacecraft: Body {
-                mass_kg: spacecraft_mass_kg,
-                position_eci_km: Self::ecef_to_eci(j2000_days, j2000_seconds, spacecraft_pos_ecef_km),
-                velocity_eci_km_s: Self::ecef_to_eci(j2000_days, j2000_seconds, spacecraft_vel_ecef_km_s),
-            }
+    pub fn new(bodies: &Vec<config::BodyConfig>) -> Self {
+        let mut converted_bodies = vec![];
+        for body in bodies {
+            converted_bodies.push(Body {
+                name: body.name.clone(),
+                mass_kg: body.mass_kg,
+                position_eci_km: body.position_j2000_km,
+                velocity_eci_km_s: body.velocity_j2000_km_s
+            })
         }
-    }
-
-    /// TODO: Convert vector from ECEF to J2000 ECI.
-    fn ecef_to_eci(_j2000_days: u32, _j2000_seconds: f64, ecef_vec: Vec3) -> Vec3 {
-        ecef_vec
+        Self {
+            earth: Body {
+                name: "Earth".to_string(),
+                mass_kg: EARTH_MASS_KG,
+                position_eci_km: vec3::ZERO,
+                velocity_eci_km_s: vec3::ZERO,
+            },
+            bodies: converted_bodies,
+        }
     }
 
     /// Correct the state of all bodies so that Earth is inertially centered in the coordinate frame.
     /// Subtract Earth's position and velocity from all bodies (including Earth).
     fn correct_earth_inertial_frame(&mut self) {
-        for body in vec![&mut self.sun, &mut self.moon, &mut self.spacecraft] {
+        for body in &mut self.bodies {
             body.position_eci_km -= self.earth.position_eci_km;
             body.velocity_eci_km_s -= self.earth.velocity_eci_km_s;
         }
@@ -230,7 +164,20 @@ impl FourBody {
 
     /// Step the integrator by the update rate timestep and correct the inertial frame coordinates.
     pub fn update(&mut self) {
-        Body::rk4_integrator(&mut vec![&mut self.sun, &mut self.earth, &mut self.moon, &mut self.spacecraft], 1.0 / UPDATE_RATE_HZ);
+        let start_time = std::time::Instant::now();
+        let mut bodies = vec![&mut self.earth];
+        for body in &mut self.bodies {
+            bodies.push(body);
+        }
+        Body::rk4_integrator(&mut bodies, 1.0 / UPDATE_RATE_HZ);
         self.correct_earth_inertial_frame();
+        let execution_time = std::time::Instant::now() - start_time;
+        println!("Orbit update: {time} us ({percent:.3}%)", time = execution_time.as_micros(), percent = execution_time.as_secs_f64() * UPDATE_RATE_HZ);
     }
 }
+
+// Storing ISS stuff for later
+// "spacecraft_aero_drag_area_m2": 1951,
+// "spacecraft_areo_drag_coef": 2,
+// "spacecraft_solar_rad_pres_area_m2": 1500,
+// "spacecraft_solar_rad_pres_coef": 1.8

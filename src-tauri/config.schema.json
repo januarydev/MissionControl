@@ -18,7 +18,8 @@
         "year": {
           "description": "CE year, must be 2000 or later",
           "type": "integer",
-          "minimum": 2000
+          "minimum": 2000,
+          "maximum": 2150
         },
         "month": {
           "description": "Month of year, 1-12",
@@ -60,56 +61,50 @@
         "second"
       ]
     },
-    "initial_position_ecef_km": {
-      "description": "Initial orbital position in ECEF coordinates, km",
+    "bodies": {
+      "description": "Array of bodies to include in simulation EXCLUDING EARTH (always included by default)",
       "type":"array",
-      "minItems": 3,
-      "maxItems": 3,
-      "items": { "type": "number" }
-    },
-    "initial_velocity_ecef_km_s": {
-      "description": "Initial orbital velocity in ECEF coordinates, km/s",
-      "type":"array",
-      "minItems": 3,
-      "maxItems": 3,
-      "items": { "type": "number" }
-    },
-    "spacecraft_mass_kg": {
-      "description": "Dry mass of the simulated spacecraft, kg",
-      "type": "number",
-      "exclusiveMinimum": 0
-    },
-    "spacecraft_aero_drag_area_m2": {
-      "description": "Simplified aero drag pressure effective area, m^2",
-      "type": "number",
-      "minimum": 0
-    },
-    "spacecraft_areo_drag_coef": {
-      "description": "Aero drag coefficient, unitless",
-      "type": "number",
-      "minimum": 0
-    },
-    "spacecraft_solar_rad_pres_area_m2": {
-      "description": "Simplified solar radiation pressure effective area, m^2",
-      "type": "number",
-      "minimum": 0
-    },
-    "spacecraft_solar_rad_pres_coef": {
-      "description": "Solar radiation pressure reflectivity coefficient, unitless",
-      "type": "number",
-      "minimum": 0
+      "minItems": 1,
+      "items": {
+        "type":"object",
+        "properties": {
+          "name": {
+            "description": "Body name",
+            "type": "string"
+          },
+          "mass_kg": {
+            "description": "Body mass, kg",
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "position_j2000_km": {
+            "description": "Position of the body at simulation start in J2000 ECI, km",
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {"type": "number"}
+          },
+          "velocity_j2000_km_s": {
+            "description": "Velocity of the body at simulation start in J2000 ECI, km/s",
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {"type": "number"}
+          }
+        },
+        "required": [
+          "name",
+          "mass_kg",
+          "position_j2000_km",
+          "velocity_j2000_km_s"
+        ]
+      }
     }
   },
   "required": [
     "base_rate_hz",
     "frontend_update_rate_hz",
     "initial_time",
-    "initial_position_ecef_km",
-    "initial_velocity_ecef_km_s",
-    "spacecraft_mass_kg",
-    "spacecraft_aero_drag_area_m2",
-    "spacecraft_areo_drag_coef",
-    "spacecraft_solar_rad_pres_area_m2",
-    "spacecraft_solar_rad_pres_coef"
+    "bodies"
   ]
 }
