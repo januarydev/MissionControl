@@ -77,14 +77,14 @@
             "type": "number",
             "exclusiveMinimum": 0
           },
-          "position_j2000_km": {
+          "position_eci_km": {
             "description": "Position of the body at simulation start in J2000 ECI, km",
             "type": "array",
             "minItems": 3,
             "maxItems": 3,
             "items": {"type": "number"}
           },
-          "velocity_j2000_km_s": {
+          "velocity_eci_km_s": {
             "description": "Velocity of the body at simulation start in J2000 ECI, km/s",
             "type": "array",
             "minItems": 3,
@@ -95,8 +95,8 @@
         "required": [
           "name",
           "mass_kg",
-          "position_j2000_km",
-          "velocity_j2000_km_s"
+          "position_eci_km",
+          "velocity_eci_km_s"
         ]
       }
     }

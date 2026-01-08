@@ -18,8 +18,8 @@ pub struct EpochConfig {
 pub struct BodyConfig {
     pub name: String,
     pub mass_kg: f64,
-    pub position_j2000_km: Vec3,
-    pub velocity_j2000_km_s: Vec3,
+    pub position_eci_km: Vec3,
+    pub velocity_eci_km_s: Vec3,
 }
 
 /// Config file schema for load.

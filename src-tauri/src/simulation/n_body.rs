@@ -7,7 +7,7 @@ const GRAVITATIONAL_CONSTANT: f64 = 6.67259e-20;
 const EARTH_MASS_KG: f64 = 5.974e+24;
 
 #[derive(Clone, Debug, PartialEq)]
-struct Body {
+pub struct Body {
     pub name: String,
     pub mass_kg: f64,
     pub position_eci_km: Vec3,
@@ -136,8 +136,8 @@ impl NBody {
             converted_bodies.push(Body {
                 name: body.name.clone(),
                 mass_kg: body.mass_kg,
-                position_eci_km: body.position_j2000_km,
-                velocity_eci_km_s: body.velocity_j2000_km_s
+                position_eci_km: body.position_eci_km,
+                velocity_eci_km_s: body.velocity_eci_km_s
             })
         }
         Self {
@@ -164,15 +164,23 @@ impl NBody {
 
     /// Step the integrator by the update rate timestep and correct the inertial frame coordinates.
     pub fn update(&mut self) {
-        let start_time = std::time::Instant::now();
+        // let start_time = std::time::Instant::now();
         let mut bodies = vec![&mut self.earth];
         for body in &mut self.bodies {
             bodies.push(body);
         }
         Body::rk4_integrator(&mut bodies, 1.0 / UPDATE_RATE_HZ);
         self.correct_earth_inertial_frame();
-        let execution_time = std::time::Instant::now() - start_time;
-        println!("Orbit update: {time} us ({percent:.3}%)", time = execution_time.as_micros(), percent = execution_time.as_secs_f64() * UPDATE_RATE_HZ);
+        // let execution_time = std::time::Instant::now() - start_time;
+        // println!("Orbit update: {time} us ({percent:.3}%)", time = execution_time.as_micros(), percent = execution_time.as_secs_f64() * UPDATE_RATE_HZ);
+    }
+
+    pub fn get_bodies(&self) -> Vec<&Body> {
+        let mut bodies = vec![&self.earth];
+        for body in &self.bodies {
+            bodies.push(body);
+        }
+        bodies
     }
 }
 

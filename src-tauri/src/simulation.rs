@@ -1,3 +1,5 @@
+use crate::simulation::simulation_state::OrbitState;
+
 mod config;
 mod psuedo_real_time;
 mod epoch;
@@ -23,7 +25,7 @@ impl Simulation {
         Self {
             frontend_update_rate_hz: config.frontend_update_rate_hz as f64,
             time_source: psuedo_real_time::PseudoRealTime::new(config.base_rate_hz as f64),
-                simulated_time: epoch::Epoch::from_calendar(
+            simulated_time: epoch::Epoch::from_calendar(
                 config.initial_time.year,
                 config.initial_time.month,
                 config.initial_time.day,
@@ -50,10 +52,15 @@ impl Simulation {
 
     /// Create current SimulationState object from component data.
     fn frontend_update(&self) -> simulation_state::SimulationState {
+        let mut bodies = vec![];
+        for body in self.orbit_propagator.get_bodies() {
+            bodies.push(OrbitState { name: body.name.clone(), position_eci_km: body.position_eci_km, velocity_eci_km_s: body.velocity_eci_km_s });
+        }
         simulation_state::SimulationState {
             elapsed_time_ms: self.time_source.get_elapsed_time_ms(),
             simulated_time_days: self.simulated_time.get_current_days(),
             simulated_time_seconds: self.simulated_time.get_current_seconds(),
+            orbits: bodies,
         }
     }
 }
