@@ -4,14 +4,25 @@
   line-height: 24px;
   font-weight: 400;
 
-  color: #0f0f0f;
-  background-color: #f6f6f6;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+
+  --background-color-accent-1: #0D1F2D;
+  --text-color-accent-1: white;
+  --background-color-accent-2: #546A7B;
+  --text-color-accent-2: white;
+  --background-color-accent-3: #9EA3B0;
+  --text-color-accent-3: white;
+  --background-color-accent-4: #FAE1DF;
+  --text-color-accent-4: black;
+  --background-color-accent-5: #E4C3AD;
+  --text-color-accent-5: black;
+
+  color: var(--text-color-accent-1);
+  background-color: var(--background-color-accent-1);
 }
 
 .container {
@@ -19,13 +30,6 @@
   flex-direction: row;
   min-width: 100vw;
   min-height: 100vh;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
-  }
 }
 
 .ToolBar {
@@ -39,17 +43,12 @@
   padding: 0.25em;
 }
 
-/* .Title {
-
-} */
-
-.TitleSeparator {
-  background-color: white;
-  height: 2px;
-  margin: 0.1em 0;
+.ToolBarTitle {
+  color: var(--text-color-accent-2);
+  background-color: var(--background-color-accent-2);
 }
 
-.ButtonPanel {
+.ToolBarButtons {
   display: flex;
   flex-direction: column;
 }
@@ -73,6 +72,8 @@
 .WorkAreaMenuBar {
   display: flex;
   justify-content: flex-end;
+  color: var(--text-color-accent-2);
+  background-color: var(--background-color-accent-2);
 }
 
 .TimeControls {
@@ -86,4 +87,34 @@
 .DisplayArea {
   display: flex;
   flex-grow: 1;
+}
+
+.Panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 20ch;
+  margin: 0.1em;
+  border-color: white;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 5px;
+  padding: 0.25em;
+}
+
+.PanelTitleBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  color: var(--text-color-accent-2);
+  background-color: var(--background-color-accent-2);
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid white;
+  padding: 0.25em;
+  font-size: 0.9em;
 }
