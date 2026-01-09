@@ -1,0 +1,89 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color: #0f0f0f;
+  background-color: #f6f6f6;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f6f6f6;
+    background-color: #2f2f2f;
+  }
+}
+
+.ToolBar {
+  display: flex;
+  flex-direction: column;
+  margin: 0.1em;
+  border-color: white;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 5px;
+  padding: 0.25em;
+}
+
+/* .Title {
+
+} */
+
+.TitleSeparator {
+  background-color: white;
+  height: 2px;
+  margin: 0.1em 0;
+}
+
+.ButtonPanel {
+  display: flex;
+  flex-direction: column;
+}
+
+/* .ToolButton {
+
+} */
+
+.WorkArea {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  margin: 0.1em;
+  border-color: white;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 5px;
+  padding: 0.25em;
+}
+
+.WorkAreaMenuBar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.TimeControls {
+  display: flex;
+}
+
+/* .TimeControlButton {
+
+} */
+
+.DisplayArea {
+  display: flex;
+  flex-grow: 1;
+}

@@ -1,6 +1,6 @@
 # MissionControl
 
-A cross-platform spacecraft mission control simulator implemented with Tauri, SvelteKit, and D3.
+A cross-platform spacecraft mission control simulator implemented with Tauri, React, and D3.
 
 ## Orbit Propagator and Initial Conditions
 
