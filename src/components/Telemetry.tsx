@@ -1,7 +1,7 @@
 import { SimulationState } from "../types/SimulationState";
 
 interface TelemetryProps {
-  telemetryState?: SimulationState;
+  state?: SimulationState;
 }
 
 interface RowProps {
@@ -30,8 +30,8 @@ export function Telemetry(props: TelemetryProps) {
           </tr>
         </thead>
         <tbody>
-          <Row mnemonic="Elapsed Time" value={props.telemetryState?.elapsedTimeMs} unit="ms" />
-          {props.telemetryState?.orbits.filter(body => body.name !== "Earth").flatMap((orbit, index) => [
+          <Row mnemonic="Elapsed Time" value={props.state?.elapsedTimeMs} unit="ms" />
+          {props.state?.orbits.filter(body => body.name !== "Earth").flatMap((orbit, index) => [
             <Row key={index * 2 + 0} mnemonic={`${orbit.name} Position ECI`} value={
               [orbit.positionEciKm.x.toExponential(3), orbit.positionEciKm.y.toExponential(3), orbit.positionEciKm.z.toExponential(3)].toString()
             } unit="km" />,

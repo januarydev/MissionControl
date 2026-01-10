@@ -4,12 +4,16 @@ import { listen } from "@tauri-apps/api/event";
 import "./App.css";
 import { Panel } from "./components/Panel";
 import { Telemetry } from "./components/Telemetry";
+import { Graphing } from "./components/Graphing";
 import { SimulationState } from "./types/SimulationState";
+import { IconButton } from "./components/IconButton";
+import { Constants } from "./types/Constants";
 
 let lastPanelId: number = 0;
 
 enum PanelType {
-  TelemetryPanel
+  TelemetryPanel,
+  GraphingPanel
 }
 
 interface PanelData {
@@ -32,10 +36,11 @@ function App() {
     <main className="container">
       <div className="ToolBar">
         <div className="ToolBarTitle">MissionControl</div>
+        <div className="Separator"></div>
         <div className="ToolBarButtons">
           <button className="ToolButton">Commanding</button>
           <button className="ToolButton" onClick={() => addToPanelArray(PanelType.TelemetryPanel)}>Telemetry</button>
-          <button className="ToolButton">Graphing</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.GraphingPanel)}>Graphing</button>
           <button className="ToolButton">Mapping</button>
           <button className="ToolButton">AttitudeVis</button>
         </div>
@@ -46,20 +51,27 @@ function App() {
             {simulationState?.paused ? "Paused" :  `Running (${simulationState?.timeMultiplier}x)`}
           </div>
           <div className="TimeControls">
-            <button className="TimeControlButton" onClick={() => invoke("pause_time")}>Pause</button>
-            <button className="TimeControlButton" onClick={() => invoke("run_time", { timeMultiplier: 1.0 })}>1x</button>
-            <button className="TimeControlButton" onClick={() => invoke("run_time", { timeMultiplier: 2.0 })}>2x</button>
-            <button className="TimeControlButton" onClick={() => invoke("run_time", { timeMultiplier: 4.0 })}>4x</button>
-            <button className="TimeControlButton" onClick={() => invoke("run_time", { timeMultiplier: 8.0 })}>8x</button>
+            <IconButton id="pause" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("pause_time")} />
+            <IconButton id="play" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("run_time", { timeMultiplier: 1.0 })} />
+            <IconButton id="fast-forward" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("run_time", { timeMultiplier: 2.0 })} />
+            <IconButton id="fast-forward" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("run_time", { timeMultiplier: 4.0 })} />
+            <IconButton id="fast-forward" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("run_time", { timeMultiplier: 8.0 })} />
           </div>
         </div>
+        <div className="Separator"></div>
         <div className="DisplayArea">
           {panelArray.map((panelData, index) => {
             switch (panelData.panelType) {
               case PanelType.TelemetryPanel:
                 return(
                   <Panel key={index} title="Telemetry" onClose={() => removeFromPanelArray(panelData.id)}>
-                    <Telemetry telemetryState={simulationState} />
+                    <Telemetry state={simulationState} />
+                  </Panel>
+                );
+              case PanelType.GraphingPanel:
+                return(
+                  <Panel key={index} title="Graphing" onClose={() => removeFromPanelArray(panelData.id)}>
+                    <Graphing state={simulationState} />
                   </Panel>
                 );
               default:
