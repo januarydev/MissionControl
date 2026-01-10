@@ -13,6 +13,8 @@ export type OrbitState = {
 // Should match exactly with backend SimulationState object
 //  (members camelCase-ified)
 export type SimulationState = {
+  paused: boolean,
+  timeMultiplier: number,
   elapsedTimeMs: number,
   simulatedTimeDays: number,
   simulatedTimeSeconds: number,

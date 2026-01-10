@@ -45,4 +45,5 @@ print(earth.at(t).observe(sun).xyz.km)              # [2.52128392e+07 -1.3296869
 print(earth.at(t).observe(sun).velocity.km_per_s)   # [29.83976734 4.77829212 2.07157574]
 print(earth.at(t).observe(moon).xyz.km)             # [-317575.10336463 -236504.22146683 -62693.60375344]
 print(earth.at(t).observe(moon).velocity.km_per_s)  # [ 0.56091175 -0.73317161 -0.31967135]
+# ...
 ```

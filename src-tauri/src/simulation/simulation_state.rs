@@ -13,6 +13,8 @@ pub struct OrbitState {
 #[derive(Clone, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SimulationState {
+    pub paused: bool,
+    pub time_multiplier: f64,
     pub elapsed_time_ms: f64,
     pub simulated_time_days: u32,
     pub simulated_time_seconds: f64,

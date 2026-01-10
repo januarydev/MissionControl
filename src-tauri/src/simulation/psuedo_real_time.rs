@@ -3,6 +3,7 @@
 pub struct PseudoRealTime {
     elapsed_ticks: u64,
     tick_period: std::time::Duration,
+    time_multiplier: f64,
     elapsed_time_ms: f64,
     next_tick_time: std::time::Instant,
     sleeper: spin_sleep::SpinSleeper,
@@ -14,11 +15,18 @@ impl PseudoRealTime {
         Self {
             elapsed_ticks: 0,
             tick_period: std::time::Duration::from_secs_f64(1.0 / base_rate_hz),
+            time_multiplier: 1.0,
             elapsed_time_ms: 0.0,
             next_tick_time: std::time::Instant::now(),
             sleeper: spin_sleep::SpinSleeper::default(),
         }
     }
+
+    /// Accessor for the time multipler.
+    pub fn set_time_multiplier(&mut self, time_multiplier: f64) { self.time_multiplier = time_multiplier; }
+
+    /// Accessor for the time multipler.
+    pub fn get_time_multiplier(&self) -> f64 { self.time_multiplier }
 
     /// Accessor for simulation elapsed time in milliseconds.
     pub fn get_elapsed_time_ms(&self) -> f64 { self.elapsed_time_ms }
@@ -35,7 +43,7 @@ impl PseudoRealTime {
     /// Shouldn't drift from wallclock time over long period, but ticks themselves may adjust back or forth
     ///     so that makes the simulation pseudo-real-time rather than real-time.
     pub fn wait_for_sync(&mut self) {
-        self.next_tick_time += self.tick_period;
+        self.next_tick_time += self.tick_period.div_f64(self.time_multiplier);
         self.sleeper.sleep_s((self.next_tick_time - std::time::Instant::now()).as_secs_f64());
         self.elapsed_ticks += 1;
         self.elapsed_time_ms += self.tick_period.as_millis() as f64;

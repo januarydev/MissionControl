@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import "./App.css";
 import { Panel } from "./components/Panel";
@@ -41,12 +42,15 @@ function App() {
       </div>
       <div className="WorkArea">
         <div className="WorkAreaMenuBar">
+          <div className="RunState">
+            {simulationState?.paused ? "Paused" :  `Running (${simulationState?.timeMultiplier}x)`}
+          </div>
           <div className="TimeControls">
-            <button className="TimeControlButton">Pause</button>
-            <button className="TimeControlButton">1x</button>
-            <button className="TimeControlButton">2x</button>
-            <button className="TimeControlButton">4x</button>
-            <button className="TimeControlButton">8x</button>
+            <button className="TimeControlButton" onClick={() => invoke("pause_time")}>Pause</button>
+            <button className="TimeControlButton" onClick={() => invoke("run_time", { timeMultiplier: 1.0 })}>1x</button>
+            <button className="TimeControlButton" onClick={() => invoke("run_time", { timeMultiplier: 2.0 })}>2x</button>
+            <button className="TimeControlButton" onClick={() => invoke("run_time", { timeMultiplier: 4.0 })}>4x</button>
+            <button className="TimeControlButton" onClick={() => invoke("run_time", { timeMultiplier: 8.0 })}>8x</button>
           </div>
         </div>
         <div className="DisplayArea">

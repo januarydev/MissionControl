@@ -46,6 +46,7 @@
 .ToolBarTitle {
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
+  padding: 0 0.25em;
 }
 
 .ToolBarButtons {
@@ -71,7 +72,8 @@
 
 .WorkAreaMenuBar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  padding: 0 0.25em;
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
 }
@@ -105,6 +107,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  padding: 0 0.25em;
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
 }
@@ -113,8 +116,15 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th {
   border: 1px solid white;
   padding: 0.25em;
   font-size: 0.9em;
+}
+
+td {
+  border: 1px solid white;
+  padding: 0.25em;
+  font-size: 0.9em;
+  text-align: end;
 }

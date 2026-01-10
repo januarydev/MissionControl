@@ -1,5 +1,7 @@
 use crate::simulation::simulation_state::OrbitState;
 
+const PAUSE_LOOP_HZ: f64 = 10.0;
+
 mod config;
 mod psuedo_real_time;
 mod epoch;
@@ -11,6 +13,7 @@ mod vec3;
 /// Collection of all components and handles passing data between them.
 #[derive(Debug)]
 pub struct Simulation {
+    paused: bool,
     frontend_update_rate_hz: f64,
     time_source: psuedo_real_time::PseudoRealTime,
     simulated_time: epoch::Epoch,
@@ -23,6 +26,7 @@ impl Simulation {
     pub fn new(config_filename: &str) -> Self {
         let config = config::Config::from_file(config_filename);
         Self {
+            paused: false,
             frontend_update_rate_hz: config.frontend_update_rate_hz as f64,
             time_source: psuedo_real_time::PseudoRealTime::new(config.base_rate_hz as f64),
             simulated_time: epoch::Epoch::from_calendar(
@@ -37,11 +41,26 @@ impl Simulation {
         }
     }
 
+    /// Set the pause state to true.
+    pub fn pause(&mut self) { self.paused = true; }
+
+    /// Set the pause state to false and pass the time multipler to pseudo_real_time.
+    pub fn run(&mut self, time_multiplier: f64) {
+        self.paused = false;
+        self.time_source.set_time_multiplier(time_multiplier);
+    }
+
     /// Step the simulation.
     /// Pend on pseudo-real-time sync clock.
     /// Run all components at their desired rates.
     /// Return current SimulationState at desired rate.
+    /// If paused exit early with a short sleep to prevent freewheeling.
     pub fn step(&mut self) -> Option<simulation_state::SimulationState> {
+        if self.paused {
+            std::thread::sleep(std::time::Duration::from_secs_f64(1.0 / PAUSE_LOOP_HZ));
+            return Some(self.frontend_update());
+        }
+
         self.time_source.wait_for_sync();
 
         if self.time_source.check_run_tick(epoch::UPDATE_RATE_HZ) {self.simulated_time.update();}
@@ -57,6 +76,8 @@ impl Simulation {
             bodies.push(OrbitState { name: body.name.clone(), position_eci_km: body.position_eci_km, velocity_eci_km_s: body.velocity_eci_km_s });
         }
         simulation_state::SimulationState {
+            paused: self.paused,
+            time_multiplier: self.time_source.get_time_multiplier(),
             elapsed_time_ms: self.time_source.get_elapsed_time_ms(),
             simulated_time_days: self.simulated_time.get_current_days(),
             simulated_time_seconds: self.simulated_time.get_current_seconds(),
