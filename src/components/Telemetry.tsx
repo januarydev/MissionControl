@@ -32,8 +32,12 @@ export function Telemetry(props: TelemetryProps) {
         <tbody>
           <Row mnemonic="Elapsed Time" value={props.telemetryState?.elapsedTimeMs} unit="ms" />
           {props.telemetryState?.orbits.filter(body => body.name !== "Earth").flatMap((orbit, index) => [
-            <Row key={index * 2 + 0} mnemonic={`${orbit.name} Position ECI`} value={[orbit.positionEciKm.x.toExponential(3), orbit.positionEciKm.y.toExponential(3), orbit.positionEciKm.z.toExponential(3)].toString()} unit="km" />,
-            <Row key={index * 6 + 3} mnemonic={`${orbit.name} Velocity ECI`} value={[orbit.positionEciKm.x.toExponential(3), orbit.positionEciKm.y.toExponential(3), orbit.positionEciKm.z.toExponential(3)].toString()} unit="km/s" />,
+            <Row key={index * 2 + 0} mnemonic={`${orbit.name} Position ECI`} value={
+              [orbit.positionEciKm.x.toExponential(3), orbit.positionEciKm.y.toExponential(3), orbit.positionEciKm.z.toExponential(3)].toString()
+            } unit="km" />,
+            <Row key={index * 2 + 1} mnemonic={`${orbit.name} Velocity ECI`} value={
+              [orbit.positionEciKm.x.toExponential(3), orbit.positionEciKm.y.toExponential(3), orbit.positionEciKm.z.toExponential(3)].toString()
+            } unit="km/s" />,
           ])}
         </tbody>
       </table>

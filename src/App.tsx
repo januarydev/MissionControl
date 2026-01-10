@@ -26,7 +26,7 @@ function App() {
     id: lastPanelId++,
     panelType: panelType
   }));
-  const removeFromPanelArray = (id: number) => setPanelArray(panelArray.filter(p => p.id !== id))
+  const removeFromPanelArray = (id: number) => setPanelArray(panelArray.filter(panel => panel.id !== id))
 
   return (
     <main className="container">
