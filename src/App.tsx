@@ -29,6 +29,14 @@ interface PanelData {
   panelType: PanelType;
 }
 
+function generateTestData() {
+  const data: [number, number, number][] = [];
+  for (let pt = 0; pt < 1000; ++pt) {
+    data.push([(pt / 1000.0) * 720 - 180, 15 * Math.cos((pt / 1000.0) * Math.PI * 2), (pt / 1000.0) * 2000000]);
+  }
+  return data;
+}
+
 function App() {
   const [simulationState, setSimulationState] = useState<SimulationState | undefined>(undefined);
   listen<SimulationState>("update", (event) => { setSimulationState(event.payload); });
@@ -39,6 +47,7 @@ function App() {
     panelType: panelType
   }));
   const removeFromPanelArray = (id: number) => setPanelArray(panelArray.filter(panel => panel.id !== id))
+  const testData = generateTestData();
 
   return (
     <main className="container">
@@ -90,13 +99,13 @@ function App() {
               case PanelType.MappingPanel:
                 return(
                   <Panel key={index} title="Mapping" onClose={() => removeFromPanelArray(panelData.id)}>
-                    <Mapping state={simulationState} />
+                    <Mapping data={testData} />
                   </Panel>
                 );
               case PanelType.OrbitVisPanel:
                 return(
                   <Panel key={index} title="OrbitVis" onClose={() => removeFromPanelArray(panelData.id)}>
-                    <OrbitVis state={simulationState} />
+                    <OrbitVis data={testData} />
                   </Panel>
                 );
               case PanelType.AttitudeVisPanel:
