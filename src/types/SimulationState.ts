@@ -2,7 +2,7 @@ export type Vec3 = {
   x: number,
   y: number,
   z: number
-}
+};
 
 export type OrbitState = {
   name: string,

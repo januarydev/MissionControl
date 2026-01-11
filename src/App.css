@@ -60,6 +60,13 @@ button:hover {
   min-height: 100vh;
 }
 
+.SvgIcon {
+  display: inline;
+  height: 1em;
+  vertical-align: middle;
+  padding: 0.0em 0.3em 0.1em 0.1em;
+}
+
 .ToolBar {
   display: flex;
   flex-direction: column;
@@ -84,6 +91,10 @@ button:hover {
   padding: 0.2em;
   display: flex;
   flex-direction: column;
+}
+
+.ToolButton {
+  text-align: end;
 }
 
 .WorkArea {

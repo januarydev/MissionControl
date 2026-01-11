@@ -11,7 +11,7 @@ import { OrbitVis } from "./components/OrbitVis";
 import { AttitudeVis } from "./components/AttitudeVis";
 import { SimulationState } from "./types/SimulationState";
 import { IconButton } from "./components/IconButton";
-import { Constants } from "./types/Constants";
+import { SvgIcon } from "./components/SvgIcon";
 
 let lastPanelId: number = 0;
 
@@ -46,7 +46,8 @@ function App() {
     id: lastPanelId++,
     panelType: panelType
   }));
-  const removeFromPanelArray = (id: number) => setPanelArray(panelArray.filter(panel => panel.id !== id))
+  const removeFromPanelArray = (id: number) => setPanelArray(panelArray.filter(panel => panel.id !== id));
+
   const testData = generateTestData();
 
   return (
@@ -54,12 +55,12 @@ function App() {
       <div className="ToolBar">
         <div className="ToolBarTitle">MissionControl</div>
         <div className="ToolBarButtons">
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.CommandingPanel)}>Commanding</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.TelemetryPanel)}>Telemetry</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.GraphingPanel)}>Graphing</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.MappingPanel)}>Mapping</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.OrbitVisPanel)}>OrbitVis</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.AttitudeVisPanel)}>AttitudeVis</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.CommandingPanel)}>Commanding {SvgIcon("satellite-uplink")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.TelemetryPanel)}>Telemetry {SvgIcon("table")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.GraphingPanel)}>Graphing {SvgIcon("chart-line")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.MappingPanel)}>Mapping {SvgIcon("map")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.OrbitVisPanel)}>OrbitVis {SvgIcon("earth")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.AttitudeVisPanel)}>AttitudeVis {SvgIcon("target")}</button>
         </div>
       </div>
       <div className="WorkArea">
@@ -68,11 +69,11 @@ function App() {
             {simulationState?.paused ? "Status: Paused" :  `Status: Running (${simulationState?.timeMultiplier}x)`}
           </div>
           <div className="TimeControls">
-            <IconButton id="pause" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("pause_time")} />
-            <IconButton id="play" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("run_time", { timeMultiplier: 1.0 })} />
-            <IconButton id="fast-forward" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("run_time", { timeMultiplier: 2.0 })} />
-            <IconButton id="fast-forward" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("run_time", { timeMultiplier: 4.0 })} />
-            <IconButton id="fast-forward" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("run_time", { timeMultiplier: 8.0 })} />
+            <IconButton id="pause" onClick={() => invoke("pause_time")} />
+            <IconButton id="play" onClick={() => invoke("run_time", { timeMultiplier: 1.0 })} />
+            <IconButton id="fast-forward" onClick={() => invoke("run_time", { timeMultiplier: 2.0 })} />
+            <IconButton id="fast-forward" onClick={() => invoke("run_time", { timeMultiplier: 4.0 })} />
+            <IconButton id="fast-forward" onClick={() => invoke("run_time", { timeMultiplier: 8.0 })} />
           </div>
         </div>
         <div className="DisplayArea">
@@ -80,37 +81,37 @@ function App() {
             switch (panelData.panelType) {
               case PanelType.CommandingPanel:
                 return(
-                  <Panel key={index} title="Commanding" onClose={() => removeFromPanelArray(panelData.id)}>
-                    <Commanding state={simulationState} />
+                  <Panel key={index} iconId="satellite-uplink" title="Commanding" onClose={() => removeFromPanelArray(panelData.id)}>
+                    <Commanding />
                   </Panel>
                 );
               case PanelType.TelemetryPanel:
                 return(
-                  <Panel key={index} title="Telemetry" onClose={() => removeFromPanelArray(panelData.id)}>
+                  <Panel key={index} iconId="table" title="Telemetry" onClose={() => removeFromPanelArray(panelData.id)}>
                     <Telemetry state={simulationState} />
                   </Panel>
                 );
               case PanelType.GraphingPanel:
                 return(
-                  <Panel key={index} title="Graphing" onClose={() => removeFromPanelArray(panelData.id)}>
+                  <Panel key={index} iconId="chart-line" title="Graphing" onClose={() => removeFromPanelArray(panelData.id)}>
                     <Graphing state={simulationState} />
                   </Panel>
                 );
               case PanelType.MappingPanel:
                 return(
-                  <Panel key={index} title="Mapping" onClose={() => removeFromPanelArray(panelData.id)}>
+                  <Panel key={index} iconId="map" title="Mapping" onClose={() => removeFromPanelArray(panelData.id)}>
                     <Mapping data={testData} />
                   </Panel>
                 );
               case PanelType.OrbitVisPanel:
                 return(
-                  <Panel key={index} title="OrbitVis" onClose={() => removeFromPanelArray(panelData.id)}>
+                  <Panel key={index} iconId="earth" title="OrbitVis" onClose={() => removeFromPanelArray(panelData.id)}>
                     <OrbitVis data={testData} />
                   </Panel>
                 );
               case PanelType.AttitudeVisPanel:
                 return(
-                  <Panel key={index} title="AttitudeVis" onClose={() => removeFromPanelArray(panelData.id)}>
+                  <Panel key={index} iconId="target" title="AttitudeVis" onClose={() => removeFromPanelArray(panelData.id)}>
                     <AttitudeVis state={simulationState} />
                   </Panel>
                 );

@@ -1,10 +1,4 @@
-import { SimulationState } from "../types/SimulationState";
-
-interface CommandingProps {
-  state?: SimulationState;
-}
-
-export function Commanding(props: CommandingProps) {
+export function Commanding() {
   return (
     <div className="CommandingContainer">
     </div>
