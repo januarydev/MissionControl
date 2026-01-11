@@ -46,7 +46,6 @@ button {
   padding: 0.1em;
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
-  border-color: var(--background-color-accent-3);
 }
 
 button:hover {
@@ -86,10 +85,6 @@ button:hover {
   display: flex;
   flex-direction: column;
 }
-
-/* .ToolButton {
-
-} */
 
 .WorkArea {
   display: flex;
@@ -150,6 +145,7 @@ button:hover {
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
   overflow: hidden;
+  box-shadow: 0.1em 0.1em 0.5em rgba(0, 0, 0, 0.5);
 }
 
 .PanelTitleBar {
