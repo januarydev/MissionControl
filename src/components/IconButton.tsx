@@ -23,7 +23,7 @@ export function IconButton(props: IconButtonProps) {
         viewBox="0 0 24 24"
       ><path
         d={SvgPaths.paths.find(obj => obj.id === props.id)?.path}
-        fill={isHovered ? props.id === "close-box" ? Constants.exitButtonHoverFill : Constants.iconButtonHoverFill : Constants.iconButtonFill}
+        fill={isHovered ? (props.id === "close-box" ? Constants.exitButtonHoverFill : Constants.iconButtonHoverFill) : Constants.iconButtonFill}
       /></svg>
     </div>
   );
