@@ -102,7 +102,7 @@ function App() {
               case PanelType.GraphingPanel:
                 return(
                   <Panel key={index} iconId="chart-line" title="Graphing" onClose={() => removeFromPanelArray(panelData.id)}>
-                    <Graphing state={simulationState} />
+                    <Graphing />
                   </Panel>
                 );
               case PanelType.MappingPanel:
@@ -120,7 +120,7 @@ function App() {
               case PanelType.AttitudeVisPanel:
                 return(
                   <Panel key={index} iconId="target" title="AttitudeVis" onClose={() => removeFromPanelArray(panelData.id)}>
-                    <AttitudeVis state={simulationState} />
+                    <AttitudeVis />
                   </Panel>
                 );
               default:

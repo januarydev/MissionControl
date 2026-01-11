@@ -1,10 +1,4 @@
-import { SimulationState } from "../types/SimulationState";
-
-interface AttitudeVisProps {
-  state?: SimulationState;
-}
-
-export function AttitudeVis(props: AttitudeVisProps) {
+export function AttitudeVis() {
   return (
     <div className="AttitudeVisContainer">
     </div>
