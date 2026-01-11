@@ -140,7 +140,7 @@ export function OrbitVis(props: OrbitVisProps) {
     const earthHeight = halfHeight * earthScalar;
     const dx = (projected[0] - halfWidth) / earthWidth;
     const dy = (projected[1] - halfHeight) / earthHeight;
-    
+
     const orbitZ = (pt[2] + earthRadiusMeters) / earthRadiusMeters * earthWidth;
 
     const rv: [number, number] = [

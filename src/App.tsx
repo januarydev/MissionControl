@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { listen, Event as TauriEvent } from "@tauri-apps/api/event";
 import "./App.css";
 import { Panel } from "./components/Panel";
 import { Commanding } from "./components/Commanding";
@@ -29,17 +29,27 @@ interface PanelData {
   panelType: PanelType;
 }
 
-function generateTestData() {
-  const data: [number, number, number][] = [];
-  for (let pt = 0; pt < 1000; ++pt) {
-    data.push([(pt / 1000.0) * 720 - 180, 15 * Math.cos((pt / 1000.0) * Math.PI * 2), (pt / 1000.0) * 2000000]);
-  }
-  return data;
-}
-
 function App() {
   const [simulationState, setSimulationState] = useState<SimulationState | undefined>(undefined);
-  listen<SimulationState>("update", (event) => { setSimulationState(event.payload); });
+  const [mapCoordinates, setMapCoordinates] = useState<[number, number, number][]>([]);
+
+  const handleSimulationUpdate = useCallback((event: TauriEvent<SimulationState>) => {
+    setSimulationState(event.payload);
+
+    const llaPosition: [number, number, number] = [event.payload.spacecraftPositionLla.x - 180, event.payload.spacecraftPositionLla.y, event.payload.spacecraftPositionLla.z * 1000];
+    if (mapCoordinates.length === 0) {
+      setMapCoordinates([llaPosition]);
+      return;
+    }
+    if (Math.sqrt(Math.pow(mapCoordinates[mapCoordinates.length - 1][0] - llaPosition[0], 2) + Math.pow(mapCoordinates[mapCoordinates.length - 1][1] - llaPosition[1], 2)) > 0.5) {
+      setMapCoordinates(mapCoordinates.concat([llaPosition]));
+    }
+  }, [mapCoordinates]);
+
+  useEffect(() => {
+    const unlistenPromise = listen<SimulationState>("update", handleSimulationUpdate);
+    return () => { unlistenPromise.then(unlisten => unlisten()); };
+  }, [handleSimulationUpdate]);
 
   const [panelArray, setPanelArray] = useState<PanelData[]>([]);
   const addToPanelArray = (panelType: PanelType) => setPanelArray(panelArray.concat({
@@ -47,8 +57,6 @@ function App() {
     panelType: panelType
   }));
   const removeFromPanelArray = (id: number) => setPanelArray(panelArray.filter(panel => panel.id !== id));
-
-  const testData = generateTestData();
 
   return (
     <main className="container">
@@ -100,13 +108,13 @@ function App() {
               case PanelType.MappingPanel:
                 return(
                   <Panel key={index} iconId="map" title="Mapping" onClose={() => removeFromPanelArray(panelData.id)}>
-                    <Mapping data={testData} />
+                    <Mapping data={mapCoordinates} />
                   </Panel>
                 );
               case PanelType.OrbitVisPanel:
                 return(
                   <Panel key={index} iconId="earth" title="OrbitVis" onClose={() => removeFromPanelArray(panelData.id)}>
-                    <OrbitVis data={testData} />
+                    <OrbitVis data={mapCoordinates} />
                   </Panel>
                 );
               case PanelType.AttitudeVisPanel:
