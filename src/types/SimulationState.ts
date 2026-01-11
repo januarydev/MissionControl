@@ -18,5 +18,10 @@ export type SimulationState = {
   elapsedTimeMs: number,
   simulatedTimeDays: number,
   simulatedTimeSeconds: number,
-  orbits: OrbitState[]
+  orbits: OrbitState[],
+  spacecraftPositionEciKm: Vec3,
+  spacecraftVelocityEciKmS: Vec3,
+  spacecraftPositionEcefKm: Vec3,
+  spacecraftVelocityEcefKmS: Vec3,
+  spacecraftPositionLla: Vec3
 };

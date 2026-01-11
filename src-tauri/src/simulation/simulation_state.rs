@@ -19,4 +19,9 @@ pub struct SimulationState {
     pub simulated_time_days: u32,
     pub simulated_time_seconds: f64,
     pub orbits: Vec<OrbitState>,
+    pub spacecraft_position_eci_km: Vec3,
+    pub spacecraft_velocity_eci_km_s: Vec3,
+    pub spacecraft_position_ecef_km: Vec3,
+    pub spacecraft_velocity_ecef_km_s: Vec3,
+    pub spacecraft_position_lla: Vec3,
 }

@@ -181,6 +181,7 @@ button:hover {
 
 table {
   border-collapse: collapse;
+  min-width: 30ch;
   color: var(--text-color-accent-1);
   background-color: var(--background-color-accent-1);
 }
