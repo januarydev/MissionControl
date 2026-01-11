@@ -199,3 +199,16 @@ td {
   font-size: 0.9em;
   text-align: end;
 }
+
+.Mapping {
+  width: 100%;
+  min-width: 800px;
+  background-color: var(--background-color-accent-1);
+}
+
+.OrbitVis {
+  width: 100%;
+  min-width: 600px;
+  background-color: var(--background-color-accent-1);
+  cursor: grab;
+}

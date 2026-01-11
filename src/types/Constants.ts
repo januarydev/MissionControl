@@ -1,5 +1,11 @@
 export const Constants = {
   iconButtonFill: "white",
   iconButtonHoverFill: "#18122B",
-  exitButtonHoverFill: "red"
-};
+  exitButtonHoverFill: "red",
+  mapCountryFillColor: "none",
+  mapCountryStrokeColor: "white",
+  mapWorldOutlineColor: "#c5b7cd",
+  mapGraticuleStrokeColor: "#bcbcbc",
+  mapOrbitStrokeColor: "#d5e8ff",
+  mapOrbitWidth: 0.25
+}
