@@ -20,7 +20,7 @@ function Row(props: RowProps) {
 }
 
 export function Telemetry(props: TelemetryProps) {
-  return(
+  return (
     <div className="TelemetryContainer">
       <table>
         <thead>

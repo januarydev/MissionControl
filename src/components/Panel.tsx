@@ -8,7 +8,7 @@ interface PanelProps {
 }
 
 export function Panel(props: PropsWithChildren<PanelProps>) {
-  return(
+  return (
     <div className="PanelContainer">
       <div className="Panel">
         <div className="PanelTitleBar">

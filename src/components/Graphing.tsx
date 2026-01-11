@@ -5,7 +5,7 @@ interface GraphingProps {
 }
 
 export function Graphing(props: GraphingProps) {
-  return(
+  return (
     <div className="GraphingContainer">
     </div>
   );
