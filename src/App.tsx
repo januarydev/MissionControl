@@ -11,7 +11,7 @@ import { OrbitVis } from "./components/OrbitVis";
 import { AttitudeVis } from "./components/AttitudeVis";
 import { SimulationState } from "./types/SimulationState";
 import { IconButton } from "./components/IconButton";
-import { DrawIcon } from "./components/DrawIcon";
+import { SvgIcon } from "./components/SvgIcon";
 
 let lastPanelId: number = 0;
 
@@ -55,12 +55,12 @@ function App() {
       <div className="ToolBar">
         <div className="ToolBarTitle">MissionControl</div>
         <div className="ToolBarButtons">
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.CommandingPanel)}>Commanding {DrawIcon("satellite-uplink")}</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.TelemetryPanel)}>Telemetry {DrawIcon("table")}</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.GraphingPanel)}>Graphing {DrawIcon("chart-line")}</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.MappingPanel)}>Mapping {DrawIcon("map")}</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.OrbitVisPanel)}>OrbitVis {DrawIcon("earth")}</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.AttitudeVisPanel)}>AttitudeVis {DrawIcon("target")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.CommandingPanel)}>Commanding {SvgIcon("satellite-uplink")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.TelemetryPanel)}>Telemetry {SvgIcon("table")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.GraphingPanel)}>Graphing {SvgIcon("chart-line")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.MappingPanel)}>Mapping {SvgIcon("map")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.OrbitVisPanel)}>OrbitVis {SvgIcon("earth")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.AttitudeVisPanel)}>AttitudeVis {SvgIcon("target")}</button>
         </div>
       </div>
       <div className="WorkArea">
