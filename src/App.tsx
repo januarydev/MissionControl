@@ -38,7 +38,7 @@ function App() {
     id: lastPanelId++,
     panelType: panelType
   }));
-  const removeFromPanelArray = (id: number) => setPanelArray(panelArray.filter(panel => panel.id !== id))
+  const removeFromPanelArray = (id: number) => setPanelArray(panelArray.filter(panel => panel.id !== id));
 
   return (
     <main className="container">
@@ -72,7 +72,7 @@ function App() {
               case PanelType.CommandingPanel:
                 return(
                   <Panel key={index} iconId="satellite-uplink" title="Commanding" onClose={() => removeFromPanelArray(panelData.id)}>
-                    <Commanding state={simulationState} />
+                    <Commanding />
                   </Panel>
                 );
               case PanelType.TelemetryPanel:
