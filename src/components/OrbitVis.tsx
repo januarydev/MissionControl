@@ -9,18 +9,15 @@ interface OrbitVisProps {
   data: [number, number, number][];
 }
 
-function wrapMax(x: number, max: number)
-{
+function wrapMax(x: number, max: number) {
   return (max + (x % max)) % max;
 }
 
-function wrap(min: number, max: number, x: number)
-{
+function wrap(min: number, max: number, x: number) {
   return min + wrapMax(x - min, max - min);
 }
 
-function limit(min: number, max: number, x: number)
-{
+function limit(min: number, max: number, x: number) {
   return Math.max(min, Math.min(max, x));
 }
 
