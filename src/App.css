@@ -31,6 +31,8 @@
 
   color: var(--text-color-accent-1);
   background-color: var(--background-color-accent-1);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 button {
@@ -59,32 +61,28 @@ button:hover {
   min-height: 100vh;
 }
 
-.Separator {
-  border-radius: 3px;
-  width: 100%;
-  margin: 0.1em 0;
-}
-
 .ToolBar {
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   margin: 0.1em;
   border-color: var(--background-color-accent-2);
   border-style: solid;
   border-width: 2px;
   border-radius: 5px;
-  padding: 0.25em;
+  overflow: hidden;
 }
 
 .ToolBarTitle {
   font-size: 1.25rem;
   color: var(--text-color-accent-4);
   background-color: var(--background-color-accent-4);
-  border-radius: 3px;
   padding: 0.25em;
+  cursor: default;
 }
 
 .ToolBarButtons {
+  padding: 0.2em;
   display: flex;
   flex-direction: column;
 }
@@ -102,16 +100,22 @@ button:hover {
   border-style: solid;
   border-width: 2px;
   border-radius: 5px;
-  padding: 0.25em;
+  overflow: hidden;
+  max-height: 100vh;
 }
 
 .WorkAreaMenuBar {
   display: flex;
   justify-content: space-between;
-  border-radius: 3px;
   padding: 0 0.25em;
   color: var(--text-color-accent-4);
   background-color: var(--background-color-accent-4);
+}
+
+.RunState {
+  padding: 0.1em;
+  margin-left: 0.1em;
+  cursor: default;
 }
 
 .TimeControls {
@@ -124,33 +128,48 @@ button:hover {
 }
 
 .IconButton {
-  width: 1em;
+  width: 1.25em;
 }
 
 .DisplayArea {
   display: flex;
   flex-grow: 1;
+  overflow: auto;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  width: 100%;
+  height: 100%;
 }
 
 .Panel {
   display: flex;
   flex-direction: column;
-  min-width: 20ch;
-  margin: 0.1em;
-  border-radius: 5px;
-  padding: 0.25em;
+  min-width: 30ch;
+  margin: 0.4em 0.0em 0.0em 0.3em;
+  border-radius: 3px;
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
+  overflow: hidden;
 }
 
 .PanelTitleBar {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  border-radius: 3px;
   padding: 0 0.25em;
   color: var(--text-color-accent-4);
   background-color: var(--background-color-accent-4);
+}
+
+.PanelTitle {
+  padding: 0.1em;
+  margin-left: 0.1em;
+  cursor: default;
+}
+
+.PanelArea {
+  padding: 2px;
+  margin-top: 0.2em;
 }
 
 table {

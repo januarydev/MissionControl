@@ -36,7 +36,6 @@ function App() {
     <main className="container">
       <div className="ToolBar">
         <div className="ToolBarTitle">MissionControl</div>
-        <div className="Separator"></div>
         <div className="ToolBarButtons">
           <button className="ToolButton">Commanding</button>
           <button className="ToolButton" onClick={() => addToPanelArray(PanelType.TelemetryPanel)}>Telemetry</button>
@@ -48,7 +47,7 @@ function App() {
       <div className="WorkArea">
         <div className="WorkAreaMenuBar">
           <div className="RunState">
-            {simulationState?.paused ? "Paused" :  `Running (${simulationState?.timeMultiplier}x)`}
+            {simulationState?.paused ? "Status: Paused" :  `Status: Running (${simulationState?.timeMultiplier}x)`}
           </div>
           <div className="TimeControls">
             <IconButton id="pause" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("pause_time")} />
@@ -58,7 +57,6 @@ function App() {
             <IconButton id="fast-forward" fill={Constants.iconButtonFill} hoverFill={Constants.iconButtonHoverFill} onClick={() => invoke("run_time", { timeMultiplier: 8.0 })} />
           </div>
         </div>
-        <div className="Separator"></div>
         <div className="DisplayArea">
           {panelArray.map((panelData, index) => {
             switch (panelData.panelType) {

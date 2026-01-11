@@ -15,7 +15,6 @@ export function Panel(props: PropsWithChildren<PanelProps>) {
           <div className="PanelTitle">{props.title}</div>
           <IconButton id="close-box" fill={Constants.iconButtonFill} hoverFill={Constants.exitButtonHoverFill} onClick={() => props.onClose()} />
         </div>
-        <div className="Separator"></div>
         <div className="PanelArea">{props.children}</div>
       </div>
     </div>
