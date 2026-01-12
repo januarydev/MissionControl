@@ -1,10 +1,15 @@
+use std::ops::Neg;
+
 use crate::simulation::vec3::{self, Vec3};
-use crate::simulation::config;
+use crate::simulation::mat3::Mat3;
+use crate::simulation::{config, epoch};
 
 pub const UPDATE_RATE_HZ: f64 = 10.0;
 
 const GRAVITATIONAL_CONSTANT: f64 = 6.67259e-20;
 const EARTH_MASS_KG: f64 = 5.974e+24;
+const EARTH_ANGULAR_VELOCITY_DEG_S: f64 = 4.1778e-3;
+const EARTH_AVERAGE_RADIUS_KM: f64 = 6378.1;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Body {
@@ -114,6 +119,16 @@ impl Body {
             bodies[idx].velocity_eci_km_s += h / 6.0 * (k1[idx].velocity_eci_km_s + 2.0 * k2[idx].velocity_eci_km_s + 2.0 * k3[idx].velocity_eci_km_s + k4[idx].velocity_eci_km_s);
         }
     }
+
+    pub fn pos_vel_to_ecef(&self, julian_time: &epoch::Epoch) -> (Vec3, Vec3) {
+        let theta_deg = EARTH_ANGULAR_VELOCITY_DEG_S * ((julian_time.get_current_days() * epoch::SECONDS_PER_DAY) as f64 + julian_time.get_current_seconds());
+        let rotation_matrix = Mat3 {
+            r1c1: theta_deg.to_radians().cos(),         r1c2: theta_deg.to_radians().sin(), r1c3: 0.0,
+            r2c1: theta_deg.to_radians().sin().neg(),   r2c2: theta_deg.to_radians().cos(), r2c3: 0.0,
+            r3c1: 0.0,                                  r3c2: 0.0,                          r3c3: 1.0,
+        };
+        (rotation_matrix * self.position_eci_km, rotation_matrix * self.velocity_eci_km_s)
+    }
 }
 
 /// Extremely basic Newtonian 4-body 3D orbit propagator object.
@@ -123,21 +138,22 @@ impl Body {
 #[derive(Debug)]
 pub struct NBody {
     earth: Body,
-    bodies: Vec<Body>
+    unfocused_bodies: Vec<Body>,
+    focused_body: Body,
 }
 
 impl NBody {
     /// Create a new FourBody object from given ICV.
     /// Sun and moon positions are propagated forward from epoch to correct time point.
     /// Spacecraft ECEF state vector is then converted to ECI J2000.
-    pub fn new(bodies: &Vec<config::BodyConfig>) -> Self {
+    pub fn new(unfocused_bodies: &Vec<config::BodyConfig>, focused_body: &config::BodyConfig) -> Self {
         let mut converted_bodies = vec![];
-        for body in bodies {
+        for body in unfocused_bodies {
             converted_bodies.push(Body {
                 name: body.name.clone(),
                 mass_kg: body.mass_kg,
                 position_eci_km: body.position_eci_km,
-                velocity_eci_km_s: body.velocity_eci_km_s
+                velocity_eci_km_s: body.velocity_eci_km_s,
             })
         }
         Self {
@@ -147,14 +163,22 @@ impl NBody {
                 position_eci_km: vec3::ZERO,
                 velocity_eci_km_s: vec3::ZERO,
             },
-            bodies: converted_bodies,
+            unfocused_bodies: converted_bodies,
+            focused_body: Body {
+                name: focused_body.name.clone(),
+                mass_kg: focused_body.mass_kg,
+                position_eci_km: focused_body.position_eci_km,
+                velocity_eci_km_s: focused_body.velocity_eci_km_s,
+            }
         }
     }
 
     /// Correct the state of all bodies so that Earth is inertially centered in the coordinate frame.
     /// Subtract Earth's position and velocity from all bodies (including Earth).
     fn correct_earth_inertial_frame(&mut self) {
-        for body in &mut self.bodies {
+        self.focused_body.position_eci_km -= self.earth.position_eci_km;
+        self.focused_body.velocity_eci_km_s -= self.earth.velocity_eci_km_s;
+        for body in &mut self.unfocused_bodies {
             body.position_eci_km -= self.earth.position_eci_km;
             body.velocity_eci_km_s -= self.earth.velocity_eci_km_s;
         }
@@ -165,8 +189,8 @@ impl NBody {
     /// Step the integrator by the update rate timestep and correct the inertial frame coordinates.
     pub fn update(&mut self) {
         // let start_time = std::time::Instant::now();
-        let mut bodies = vec![&mut self.earth];
-        for body in &mut self.bodies {
+        let mut bodies = vec![&mut self.earth, &mut self.focused_body];
+        for body in &mut self.unfocused_bodies {
             bodies.push(body);
         }
         Body::rk4_integrator(&mut bodies, 1.0 / UPDATE_RATE_HZ);
@@ -175,12 +199,35 @@ impl NBody {
         // println!("Orbit update: {time} us ({percent:.3}%)", time = execution_time.as_micros(), percent = execution_time.as_secs_f64() * UPDATE_RATE_HZ);
     }
 
-    pub fn get_bodies(&self) -> Vec<&Body> {
-        let mut bodies = vec![&self.earth];
-        for body in &self.bodies {
+    pub fn get_unfocused_bodies(&self) -> Vec<&Body> {
+        let mut bodies = vec![];
+        for body in &self.unfocused_bodies {
             bodies.push(body);
         }
         bodies
+    }
+
+    pub fn get_focused_body(&self) -> &Body {
+        &self.focused_body
+    }
+}
+
+pub fn position_ecef_km_to_lla(position: &Vec3) -> Vec3 {
+    let r_km = position.length();
+    let l = position.x / r_km;
+    let m = position.y / r_km;
+    let n = position.z / r_km;
+    let declination = n.asin().to_degrees();
+    let right_ascension;
+    if m > 0.0 {
+        right_ascension = (l / declination.to_radians().cos()).acos().to_degrees();
+    } else {
+        right_ascension = 360.0 - (l / declination.to_radians().cos()).acos().to_degrees();
+    }
+    Vec3 {
+        x: right_ascension,
+        y: declination,
+        z: r_km - EARTH_AVERAGE_RADIUS_KM,
     }
 }
 

@@ -29,7 +29,8 @@ pub struct Config {
     pub base_rate_hz: u32,
     pub frontend_update_rate_hz: u32,
     pub initial_time: EpochConfig,
-    pub bodies: Vec<BodyConfig>,
+    pub unfocused_bodies: Vec<BodyConfig>,
+    pub focused_body: BodyConfig,
 }
 
 impl Config {

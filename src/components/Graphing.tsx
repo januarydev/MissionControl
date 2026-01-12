@@ -1,10 +1,4 @@
-import { SimulationState } from "../types/SimulationState";
-
-interface GraphingProps {
-  state?: SimulationState;
-}
-
-export function Graphing(props: GraphingProps) {
+export function Graphing() {
   return (
     <div className="GraphingContainer">
     </div>

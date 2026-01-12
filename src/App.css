@@ -44,6 +44,7 @@ button {
   cursor: pointer;
   margin: 0.1em;
   padding: 0.1em;
+  border-color: var(--background-color-accent-2);
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
 }
@@ -181,6 +182,7 @@ button:hover {
 
 table {
   border-collapse: collapse;
+  min-width: 30ch;
   color: var(--text-color-accent-1);
   background-color: var(--background-color-accent-1);
 }
@@ -198,6 +200,11 @@ td {
   padding: 0.25em;
   font-size: 0.9em;
   text-align: end;
+}
+
+.MappingContainer {
+  display: flex;
+  flex-direction: column;
 }
 
 .Mapping {
