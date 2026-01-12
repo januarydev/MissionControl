@@ -1,8 +1,7 @@
-use std::ops::Neg;
-
 use crate::simulation::vec3::{self, Vec3};
 use crate::simulation::mat3::Mat3;
 use crate::simulation::{config, epoch};
+use crate::simulation::ussa76;
 
 pub const UPDATE_RATE_HZ: f64 = 10.0;
 
@@ -11,17 +10,38 @@ const EARTH_MASS_KG: f64 = 5.974e+24;
 const EARTH_ANGULAR_VELOCITY_DEG_S: f64 = 4.1778e-3;
 const EARTH_AVERAGE_RADIUS_KM: f64 = 6378.1;
 
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct PerturbationStats {
+    pub aero_drag_area_m2: f64,
+    pub aero_drag_coef: f64,
+    pub solar_rad_pres_area_m2: f64,
+    pub solar_rad_pres_coef: f64,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Body {
     pub name: String,
     pub mass_kg: f64,
     pub position_eci_km: Vec3,
     pub velocity_eci_km_s: Vec3,
+    pub perturbation_stats: Option<PerturbationStats>,
 }
 
 impl Body {
-    /// Implementation of Newton's law of gravitation to calculate instantaneous accelerations
-    ///     on all bodies provided in the vector acting on eachother.
+    /// Calculates acceleration due to aerodynamic drag using USSA76 atmosphere model.
+    fn aero_drag_acceleration(&self, perturbation_stats: &PerturbationStats) -> Vec3 {
+        let v_rel = self.velocity_eci_km_s - EARTH_ANGULAR_VELOCITY_DEG_S * self.position_eci_km;
+        let altitude_km = self.position_eci_km.length() - EARTH_AVERAGE_RADIUS_KM;
+        let ballistic_coef = perturbation_stats.aero_drag_coef * perturbation_stats.aero_drag_area_m2 / self.mass_kg;
+        -0.5 * ussa76::get_atmos_density_kg_m3(altitude_km) * v_rel.length() * ballistic_coef * v_rel
+    }
+
+    fn solar_rad_acceleration(&self) -> Vec3 {
+        vec3::ZERO
+    }
+
+    /// Implementation of Newton's law of gravitation to calculate instantaneous accelerations on all bodies provided in the vector acting on eachother.
+    /// Also includes aerodynamic drag and solar radiation pressure perturbation accelerations for all bodies that have it enabled.
     /// Can be used as the basis of N-body orbit propagation using various solvers.
     /// Returns a vector of the accelerations for each body provided.
     fn newtonian_grav_accels(bodies: &Vec<Self>) -> Vec<Vec3> {
@@ -36,6 +56,7 @@ impl Body {
                     z: GRAVITATIONAL_CONSTANT * other_body.mass_kg * (other_body.position_eci_km.z - our_body.position_eci_km.z) / (other_body.position_eci_km - our_body.position_eci_km).length().powi(3),
                 }
             }
+            if let Some(perturbation_stats) = &our_body.perturbation_stats { accel += our_body.aero_drag_acceleration(perturbation_stats) + our_body.solar_rad_acceleration(); }
             result.push(accel);
         }
         result
@@ -57,7 +78,8 @@ impl Body {
                 name: bodies[idx].name.clone(),
                 mass_kg: bodies[idx].mass_kg,
                 position_eci_km: bodies[idx].velocity_eci_km_s + accelerations[idx] * dt,
-                velocity_eci_km_s: accelerations[idx]
+                velocity_eci_km_s: accelerations[idx],
+                perturbation_stats: bodies[idx].perturbation_stats,
             });
         }
         dxdt_dvdt
@@ -87,7 +109,8 @@ impl Body {
                 name: bodies[idx].name.clone(),
                 mass_kg: bodies[idx].mass_kg,
                 position_eci_km: bodies[idx].position_eci_km + h * k1[idx].position_eci_km / 2.0,
-                velocity_eci_km_s: bodies[idx].velocity_eci_km_s + h * k1[idx].velocity_eci_km_s / 2.0
+                velocity_eci_km_s: bodies[idx].velocity_eci_km_s + h * k1[idx].velocity_eci_km_s / 2.0,
+                perturbation_stats: bodies[idx].perturbation_stats,
             });
         }
         let k2 = Self::dxdt(h / 2.0, &k2_y);
@@ -98,7 +121,8 @@ impl Body {
                 name: bodies[idx].name.clone(),
                 mass_kg: bodies[idx].mass_kg,
                 position_eci_km: bodies[idx].position_eci_km + h * k2[idx].position_eci_km / 2.0,
-                velocity_eci_km_s: bodies[idx].velocity_eci_km_s + h * k2[idx].velocity_eci_km_s / 2.0
+                velocity_eci_km_s: bodies[idx].velocity_eci_km_s + h * k2[idx].velocity_eci_km_s / 2.0,
+                perturbation_stats: bodies[idx].perturbation_stats,
             });
         }
         let k3 = Self::dxdt(h / 2.0, &k3_y);
@@ -109,7 +133,8 @@ impl Body {
                 name: bodies[idx].name.clone(),
                 mass_kg: bodies[idx].mass_kg,
                 position_eci_km: bodies[idx].position_eci_km + h * k3[idx].position_eci_km,
-                velocity_eci_km_s: bodies[idx].velocity_eci_km_s + h * k3[idx].velocity_eci_km_s
+                velocity_eci_km_s: bodies[idx].velocity_eci_km_s + h * k3[idx].velocity_eci_km_s,
+                perturbation_stats: bodies[idx].perturbation_stats,
             });
         }
         let k4 = Self::dxdt(h, &k4_y);
@@ -120,12 +145,13 @@ impl Body {
         }
     }
 
+    /// Transform our ECI J2000 position and velocity into ECEF measurements with the correct rotation matrix.
     pub fn pos_vel_to_ecef(&self, julian_time: &epoch::Epoch) -> (Vec3, Vec3) {
         let theta_deg = EARTH_ANGULAR_VELOCITY_DEG_S * ((julian_time.get_current_days() * epoch::SECONDS_PER_DAY) as f64 + julian_time.get_current_seconds());
         let rotation_matrix = Mat3 {
-            r1c1: theta_deg.to_radians().cos(),         r1c2: theta_deg.to_radians().sin(), r1c3: 0.0,
-            r2c1: theta_deg.to_radians().sin().neg(),   r2c2: theta_deg.to_radians().cos(), r2c3: 0.0,
-            r3c1: 0.0,                                  r3c2: 0.0,                          r3c3: 1.0,
+            r1c1: theta_deg.to_radians().cos(),     r1c2: theta_deg.to_radians().sin(), r1c3: 0.0,
+            r2c1: -(theta_deg.to_radians().sin()),  r2c2: theta_deg.to_radians().cos(), r2c3: 0.0,
+            r3c1: 0.0,                              r3c2: 0.0,                          r3c3: 1.0,
         };
         (rotation_matrix * self.position_eci_km, rotation_matrix * self.velocity_eci_km_s)
     }
@@ -146,7 +172,7 @@ impl NBody {
     /// Create a new FourBody object from given ICV.
     /// Sun and moon positions are propagated forward from epoch to correct time point.
     /// Spacecraft ECEF state vector is then converted to ECI J2000.
-    pub fn new(unfocused_bodies: &Vec<config::BodyConfig>, focused_body: &config::BodyConfig) -> Self {
+    pub fn new(unfocused_bodies: &Vec<config::BodyConfig>, focused_body: &config::BodyConfig, perturbation_stats: &config::PerturbationConfig) -> Self {
         let mut converted_bodies = vec![];
         for body in unfocused_bodies {
             converted_bodies.push(Body {
@@ -154,6 +180,7 @@ impl NBody {
                 mass_kg: body.mass_kg,
                 position_eci_km: body.position_eci_km,
                 velocity_eci_km_s: body.velocity_eci_km_s,
+                perturbation_stats: None,
             })
         }
         Self {
@@ -162,6 +189,7 @@ impl NBody {
                 mass_kg: EARTH_MASS_KG,
                 position_eci_km: vec3::ZERO,
                 velocity_eci_km_s: vec3::ZERO,
+                perturbation_stats: None,
             },
             unfocused_bodies: converted_bodies,
             focused_body: Body {
@@ -169,6 +197,12 @@ impl NBody {
                 mass_kg: focused_body.mass_kg,
                 position_eci_km: focused_body.position_eci_km,
                 velocity_eci_km_s: focused_body.velocity_eci_km_s,
+                perturbation_stats: Some(PerturbationStats {
+                    aero_drag_area_m2: perturbation_stats.aero_drag_area_m2,
+                    aero_drag_coef: perturbation_stats.aero_drag_coef,
+                    solar_rad_pres_area_m2: perturbation_stats.solar_rad_pres_area_m2,
+                    solar_rad_pres_coef: perturbation_stats.solar_rad_pres_coef,
+                }),
             }
         }
     }
@@ -212,11 +246,12 @@ impl NBody {
     }
 }
 
-pub fn position_ecef_km_to_lla(position: &Vec3) -> Vec3 {
-    let r_km = position.length();
-    let l = position.x / r_km;
-    let m = position.y / r_km;
-    let n = position.z / r_km;
+/// Calculate right ascension (longitude), declination (latitude) and elevation (altitude) from an ECEF position.
+pub fn position_ecef_km_to_lla(position_ecef_km: &Vec3) -> Vec3 {
+    let r_km = position_ecef_km.length();
+    let l = position_ecef_km.x / r_km;
+    let m = position_ecef_km.y / r_km;
+    let n = position_ecef_km.z / r_km;
     let declination = n.asin().to_degrees();
     let right_ascension;
     if m > 0.0 {
@@ -230,9 +265,3 @@ pub fn position_ecef_km_to_lla(position: &Vec3) -> Vec3 {
         z: r_km - EARTH_AVERAGE_RADIUS_KM,
     }
 }
-
-// Storing ISS stuff for later
-// "spacecraft_aero_drag_area_m2": 1951,
-// "spacecraft_areo_drag_coef": 2,
-// "spacecraft_solar_rad_pres_area_m2": 1500,
-// "spacecraft_solar_rad_pres_coef": 1.8

@@ -22,6 +22,15 @@ pub struct BodyConfig {
     pub velocity_eci_km_s: Vec3,
 }
 
+/// Perturbation definition sub-config object schema.
+#[derive(Debug, serde::Deserialize)]
+pub struct PerturbationConfig {
+    pub aero_drag_area_m2: f64,
+    pub aero_drag_coef: f64,
+    pub solar_rad_pres_area_m2: f64,
+    pub solar_rad_pres_coef: f64,
+}
+
 /// Config file schema for load.
 /// Should match exactly config JSON schema.
 #[derive(Debug, serde::Deserialize)]
@@ -31,6 +40,7 @@ pub struct Config {
     pub initial_time: EpochConfig,
     pub unfocused_bodies: Vec<BodyConfig>,
     pub focused_body: BodyConfig,
+    pub focused_body_perturbations: PerturbationConfig,
 }
 
 impl Config {
