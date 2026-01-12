@@ -91,7 +91,7 @@ impl Body {
             }
             if let Some(perturbation_stats) = &our_body.perturbation_stats {
                 accel += our_body.aero_drag_acceleration(perturbation_stats);
-                let mut sun_position: &Vec3 = &vec3::ZERO;
+                let mut sun_position = &vec3::ZERO;
                 for body in bodies.iter() {
                     if body.name == "Sun" {
                         sun_position = &body.position_eci_km;
