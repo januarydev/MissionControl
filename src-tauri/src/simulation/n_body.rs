@@ -50,6 +50,8 @@ impl Body {
     }
 
     /// Calculates acceleration due to aerodynamic drag using USSA76 atmosphere model.
+    /// Implements p = -1/2 * rho * ||v_rel|| * B * v_rel.
+    /// Where v_rel = v - v_atm = v - omega_E * r, B = C_D * A / m.
     fn aero_drag_acceleration(&self, perturbation_stats: &PerturbationStats) -> Vec3 {
         let v_rel = self.velocity_eci_km_s - EARTH_ANGULAR_VELOCITY_DEG_S * self.position_eci_km;
         let altitude_km = self.position_eci_km.length() - EARTH_AVERAGE_RADIUS_KM;
@@ -58,6 +60,9 @@ impl Body {
     }
 
     /// Calculates if body is in sunlight, and if so the acceleration due to solar radiation pressure assuming orbit around Earth.
+    /// In sun is caluclated by checking if theta_1 + theta_2 <= theta.
+    /// Where theta = acos(r_sun dot r / ||r_sun||*||r||), theta_1 = acos(R_E / r), theta_2 = acos(R_E / r_sun).
+    /// Implements p = -p_SR * u_hat where p_SR = S / c * C_R * A_s / m and u_hat is the unit vector from the Earth to the sun.
     fn solar_rad_pres_acceleration(&self, perturbation_stats: &PerturbationStats, sun_position_eci_km: &Vec3) -> Vec3 {
         if *sun_position_eci_km == vec3::ZERO { return vec3::ZERO; }
         let theta = (sun_position_eci_km.dot(self.position_eci_km) / (sun_position_eci_km.length() * self.position_eci_km.length())).acos().to_degrees();

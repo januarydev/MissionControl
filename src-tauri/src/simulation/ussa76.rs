@@ -204,6 +204,9 @@ const USSA76: [(f64, f64); 201] = [
   (1000.0, 3.56E-15),
 ];
 
+/// Interpolates the USSA76 density LUT for the given altitude.
+/// Implements rho(z) = rho_i * e ^ ((z - z_i) / H_i).
+/// Where H_i = -(z_i+1 - z_i) / ln(rho_i+1 / rho_i).
 pub fn get_atmos_density_kg_m3(altitude_km: f64) -> f64 {
   if altitude_km < 0.0 || altitude_km >= 1000.0 { return 0.0; }
   let mut index = 0;
