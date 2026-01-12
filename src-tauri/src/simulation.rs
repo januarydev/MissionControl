@@ -30,14 +30,10 @@ impl Simulation {
             frontend_update_rate_hz: config.frontend_update_rate_hz as f64,
             time_source: psuedo_real_time::PseudoRealTime::new(config.base_rate_hz as f64),
             simulated_time: epoch::Epoch::from_calendar(
-                config.initial_time.year,
-                config.initial_time.month,
-                config.initial_time.day,
-                config.initial_time.hour,
-                config.initial_time.minute,
-                config.initial_time.second,
+                config.initial_time.year, config.initial_time.month, config.initial_time.day,
+                config.initial_time.hour, config.initial_time.minute, config.initial_time.second,
             ),
-            orbit_propagator: n_body::NBody::new(&config.unfocused_bodies, &config.focused_body, &config.focused_body_perturbations),
+            orbit_propagator: n_body::NBody::new(&config.unfocused_bodies, &config.focused_body),
         }
     }
 

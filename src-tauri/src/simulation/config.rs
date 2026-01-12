@@ -13,15 +13,6 @@ pub struct EpochConfig {
     pub second: f64,
 }
 
-/// Body definition sub-config object schema.
-#[derive(Debug, serde::Deserialize)]
-pub struct BodyConfig {
-    pub name: String,
-    pub mass_kg: f64,
-    pub position_eci_km: Vec3,
-    pub velocity_eci_km_s: Vec3,
-}
-
 /// Perturbation definition sub-config object schema.
 #[derive(Debug, serde::Deserialize)]
 pub struct PerturbationConfig {
@@ -29,6 +20,16 @@ pub struct PerturbationConfig {
     pub aero_drag_coef: f64,
     pub solar_rad_pres_area_m2: f64,
     pub solar_rad_pres_coef: f64,
+}
+
+/// Body definition sub-config object schema.
+#[derive(Debug, serde::Deserialize)]
+pub struct BodyConfig {
+    pub name: String,
+    pub mass_kg: f64,
+    pub position_eci_km: Vec3,
+    pub velocity_eci_km_s: Vec3,
+    pub perturbation_stats: Option<PerturbationConfig>,
 }
 
 /// Config file schema for load.
@@ -40,7 +41,6 @@ pub struct Config {
     pub initial_time: EpochConfig,
     pub unfocused_bodies: Vec<BodyConfig>,
     pub focused_body: BodyConfig,
-    pub focused_body_perturbations: PerturbationConfig,
 }
 
 impl Config {

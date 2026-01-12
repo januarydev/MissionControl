@@ -172,15 +172,39 @@ impl NBody {
     /// Create a new FourBody object from given ICV.
     /// Sun and moon positions are propagated forward from epoch to correct time point.
     /// Spacecraft ECEF state vector is then converted to ECI J2000.
-    pub fn new(unfocused_bodies: &Vec<config::BodyConfig>, focused_body: &config::BodyConfig, perturbation_stats: &config::PerturbationConfig) -> Self {
+    pub fn new(unfocused_bodies: &Vec<config::BodyConfig>, focused_body: &config::BodyConfig) -> Self {
         let mut converted_bodies = vec![];
         for body in unfocused_bodies {
-            converted_bodies.push(Body {
+            let mut converted_body = Body {
                 name: body.name.clone(),
                 mass_kg: body.mass_kg,
                 position_eci_km: body.position_eci_km,
                 velocity_eci_km_s: body.velocity_eci_km_s,
                 perturbation_stats: None,
+            };
+            if let Some(perturbation_stats) = &body.perturbation_stats {
+                converted_body.perturbation_stats = Some(PerturbationStats {
+                    aero_drag_area_m2: perturbation_stats.aero_drag_area_m2,
+                    aero_drag_coef: perturbation_stats.aero_drag_coef,
+                    solar_rad_pres_area_m2: perturbation_stats.solar_rad_pres_area_m2,
+                    solar_rad_pres_coef: perturbation_stats.solar_rad_pres_coef,
+                });
+            }
+            converted_bodies.push(converted_body);
+        }
+        let mut focused_body_parsed = Body {
+            name: focused_body.name.clone(),
+            mass_kg: focused_body.mass_kg,
+            position_eci_km: focused_body.position_eci_km,
+            velocity_eci_km_s: focused_body.velocity_eci_km_s,
+            perturbation_stats: None,
+        };
+        if let Some(perturbation_stats) = &focused_body.perturbation_stats {
+            focused_body_parsed.perturbation_stats = Some(PerturbationStats {
+                aero_drag_area_m2: perturbation_stats.aero_drag_area_m2,
+                aero_drag_coef: perturbation_stats.aero_drag_coef,
+                solar_rad_pres_area_m2: perturbation_stats.solar_rad_pres_area_m2,
+                solar_rad_pres_coef: perturbation_stats.solar_rad_pres_coef,
             })
         }
         Self {
@@ -192,18 +216,7 @@ impl NBody {
                 perturbation_stats: None,
             },
             unfocused_bodies: converted_bodies,
-            focused_body: Body {
-                name: focused_body.name.clone(),
-                mass_kg: focused_body.mass_kg,
-                position_eci_km: focused_body.position_eci_km,
-                velocity_eci_km_s: focused_body.velocity_eci_km_s,
-                perturbation_stats: Some(PerturbationStats {
-                    aero_drag_area_m2: perturbation_stats.aero_drag_area_m2,
-                    aero_drag_coef: perturbation_stats.aero_drag_coef,
-                    solar_rad_pres_area_m2: perturbation_stats.solar_rad_pres_area_m2,
-                    solar_rad_pres_coef: perturbation_stats.solar_rad_pres_coef,
-                }),
-            }
+            focused_body: focused_body_parsed,
         }
     }
 
