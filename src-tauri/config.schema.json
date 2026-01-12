@@ -107,6 +107,38 @@
           "minItems": 3,
           "maxItems": 3,
           "items": {"type": "number"}
+        },
+        "perturbation_stats": {
+          "description": "Optional parameters for perturbation models (will not include perturbation modelling for body if not present).",
+          "type": "object",
+          "properties": {
+            "aero_drag_area_m2": {
+              "description": "Effective 'cannonball' model surface area for aerodynamic drag perturbation, m^2.",
+              "type": "number",
+              "minimum": 0
+            },
+            "aero_drag_coef": {
+              "description": "Dimensionless coefficient of drag for aerodynamic drag perturbation.",
+              "type": "number",
+              "minimum": 0
+            },
+            "solar_rad_pres_area_m2": {
+              "description": "Effective 'cannonball' model of surface area for solar radiation pressure perturbation, m^2",
+              "type": "number",
+              "minimum": 0
+            },
+            "solar_rad_pres_coef": {
+              "description": "Dimensionless coefficient of absorption for solar radiation pressure perturbation.",
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "aero_drag_area_m2",
+            "aero_drag_coef",
+            "solar_rad_pres_area_m2",
+            "solar_rad_pres_coef"
+          ]
         }
       },
       "required": [

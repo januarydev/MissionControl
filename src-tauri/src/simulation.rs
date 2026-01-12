@@ -1,11 +1,10 @@
-use crate::simulation::simulation_state::OrbitState;
-
 const PAUSE_LOOP_HZ: f64 = 10.0;
 
 mod config;
 mod psuedo_real_time;
 mod epoch;
 mod n_body;
+mod ussa76;
 mod simulation_state;
 mod vec3;
 mod mat3;
@@ -31,12 +30,8 @@ impl Simulation {
             frontend_update_rate_hz: config.frontend_update_rate_hz as f64,
             time_source: psuedo_real_time::PseudoRealTime::new(config.base_rate_hz as f64),
             simulated_time: epoch::Epoch::from_calendar(
-                config.initial_time.year,
-                config.initial_time.month,
-                config.initial_time.day,
-                config.initial_time.hour,
-                config.initial_time.minute,
-                config.initial_time.second,
+                config.initial_time.year, config.initial_time.month, config.initial_time.day,
+                config.initial_time.hour, config.initial_time.minute, config.initial_time.second,
             ),
             orbit_propagator: n_body::NBody::new(&config.unfocused_bodies, &config.focused_body),
         }
@@ -74,7 +69,7 @@ impl Simulation {
     fn frontend_update(&self) -> simulation_state::SimulationState {
         let mut bodies = vec![];
         for body in self.orbit_propagator.get_unfocused_bodies() {
-            bodies.push(OrbitState { name: body.name.clone(), position_eci_km: body.position_eci_km, velocity_eci_km_s: body.velocity_eci_km_s });
+            bodies.push(simulation_state::OrbitState { name: body.name.clone(), position_eci_km: body.position_eci_km, velocity_eci_km_s: body.velocity_eci_km_s });
         }
         let focsued_body = self.orbit_propagator.get_focused_body();
         let (position_ecef_km, velocity_ecef_km_s) = focsued_body.pos_vel_to_ecef(&self.simulated_time);

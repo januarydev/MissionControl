@@ -30,9 +30,15 @@
     }
   ],
   "focused_body": {
-    "name": "Spacecraft",
+    "name": "ISS",
     "mass_kg": 459023,
     "position_eci_km": [-1325.896391725290, 5492.890955896010, 3762.423747679220],
-    "velocity_eci_km_s": [-4.87470128630892, -4.10251688094599, 4.26428812476909]
+    "velocity_eci_km_s": [-4.87470128630892, -4.10251688094599, 4.26428812476909],
+    "perturbation_stats": {
+      "aero_drag_area_m2": 1951,
+      "aero_drag_coef": 2,
+      "solar_rad_pres_area_m2": 1500,
+      "solar_rad_pres_coef": 1.8
+    }
   }
 }
