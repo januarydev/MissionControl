@@ -35,14 +35,13 @@ function App() {
 
   const handleSimulationUpdate = useCallback((event: TauriEvent<SimulationState>) => {
     setSimulationState(event.payload);
-
     const llaPosition: [number, number, number] = [event.payload.spacecraftPositionLla.x - 180, event.payload.spacecraftPositionLla.y, event.payload.spacecraftPositionLla.z * 1000];
     if (mapCoordinates.length === 0) {
       setMapCoordinates([llaPosition]);
       return;
     }
     if (Math.sqrt(Math.pow(mapCoordinates[mapCoordinates.length - 1][0] - llaPosition[0], 2) + Math.pow(mapCoordinates[mapCoordinates.length - 1][1] - llaPosition[1], 2)) > 0.5) {
-      setMapCoordinates(mapCoordinates.concat([llaPosition]));
+      setMapCoordinates(mapCoordinates.slice(-1499).concat([llaPosition]));
     }
   }, [mapCoordinates]);
 

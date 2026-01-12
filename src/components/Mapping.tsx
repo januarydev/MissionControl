@@ -27,10 +27,13 @@ export function Mapping(props: MappingProps) {
   const height = Math.floor(bounds[1][1] - bounds[0][0]);
 
   return (
-    <svg className="Mapping" viewBox={`0 0 100 ${height}`}>
-      <path fill={Constants.mapCountryFillColor} stroke={Constants.mapCountryStrokeColor} strokeWidth={0.1} d={geoGenerator(world)!}/>
-      <path fill="none" stroke={Constants.mapGraticuleStrokeColor} strokeWidth={0.05} d={geoGenerator(graticule)!}/>
-      <path fill="none" stroke={Constants.mapOrbitStrokeColor} strokeWidth={0.2} d={geoGenerator(groundLines)!}/>
-    </svg>
+    <div className="MappingContainer">
+      <svg className="Mapping" viewBox={`0 0 100 ${height}`}>
+        <path fill={Constants.mapCountryFillColor} stroke={Constants.mapCountryStrokeColor} strokeWidth={0.1} d={geoGenerator(world)!}/>
+        <path fill="none" stroke={Constants.mapGraticuleStrokeColor} strokeWidth={0.05} d={geoGenerator(graticule)!}/>
+        <path fill="none" stroke={Constants.mapOrbitStrokeColor} strokeWidth={0.2} d={geoGenerator(groundLines)!}/>
+      </svg>
+      Longitude: {props.data[props.data.length - 1][0].toFixed(3)} deg, Latitude: {props.data[props.data.length - 1][1].toFixed(3)} deg [{props.data.length} points]
+    </div>
   );
 }

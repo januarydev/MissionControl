@@ -229,7 +229,6 @@ pub fn position_ecef_km_to_lla(position: &Vec3) -> Vec3 {
         y: declination,
         z: r_km - EARTH_AVERAGE_RADIUS_KM,
     }
-
 }
 
 // Storing ISS stuff for later
