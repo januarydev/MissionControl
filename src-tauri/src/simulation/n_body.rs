@@ -9,6 +9,7 @@ const GRAVITATIONAL_CONSTANT: f64 = 6.67259e-20;
 const EARTH_MASS_KG: f64 = 5.974e+24;
 const EARTH_ANGULAR_VELOCITY_DEG_S: f64 = 4.1778e-3;
 const EARTH_AVERAGE_RADIUS_KM: f64 = 6378.1;
+const SOLAR_RADIATION_PRESSURE_N_M2: f64 = 4.56e-6;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct PerturbationStats {
@@ -28,6 +29,26 @@ pub struct Body {
 }
 
 impl Body {
+    /// Utility to convert a body struct from the config file schema to our body struct.
+    fn from_config(config_body: &config::BodyConfig) -> Self {
+        let mut body = Self {
+            name: config_body.name.clone(),
+            mass_kg: config_body.mass_kg,
+            position_eci_km: config_body.position_eci_km,
+            velocity_eci_km_s: config_body.velocity_eci_km_s,
+            perturbation_stats: None,
+        };
+        if let Some(perturbation_stats) = &config_body.perturbation_stats {
+            body.perturbation_stats = Some(PerturbationStats {
+                aero_drag_area_m2: perturbation_stats.aero_drag_area_m2,
+                aero_drag_coef: perturbation_stats.aero_drag_coef,
+                solar_rad_pres_area_m2: perturbation_stats.solar_rad_pres_area_m2,
+                solar_rad_pres_coef: perturbation_stats.solar_rad_pres_coef,
+            });
+        }
+        body
+    }
+
     /// Calculates acceleration due to aerodynamic drag using USSA76 atmosphere model.
     fn aero_drag_acceleration(&self, perturbation_stats: &PerturbationStats) -> Vec3 {
         let v_rel = self.velocity_eci_km_s - EARTH_ANGULAR_VELOCITY_DEG_S * self.position_eci_km;
@@ -36,8 +57,15 @@ impl Body {
         -0.5 * ussa76::get_atmos_density_kg_m3(altitude_km) * v_rel.length() * ballistic_coef * v_rel
     }
 
-    fn solar_rad_acceleration(&self) -> Vec3 {
-        vec3::ZERO
+    /// Calculates if body is in sunlight, and if so the acceleration due to solar radiation pressure assuming orbit around Earth.
+    fn solar_rad_pres_acceleration(&self, perturbation_stats: &PerturbationStats, sun_position_eci_km: &Vec3) -> Vec3 {
+        if *sun_position_eci_km == vec3::ZERO { return vec3::ZERO; }
+        let theta = (sun_position_eci_km.dot(self.position_eci_km) / (sun_position_eci_km.length() * self.position_eci_km.length())).acos().to_degrees();
+        let theta_1 = (EARTH_AVERAGE_RADIUS_KM / self.position_eci_km.length()).acos().to_degrees();
+        let theta_2 = (EARTH_AVERAGE_RADIUS_KM / sun_position_eci_km.length()).acos().to_degrees();
+        if theta_1 + theta_2 <= theta { return vec3::ZERO; } // In Earth shadow
+        let sun_direction_unit_vector = *sun_position_eci_km / sun_position_eci_km.length();
+        -SOLAR_RADIATION_PRESSURE_N_M2 * perturbation_stats.solar_rad_pres_coef * perturbation_stats.solar_rad_pres_area_m2 / self.mass_kg * sun_direction_unit_vector
     }
 
     /// Implementation of Newton's law of gravitation to calculate instantaneous accelerations on all bodies provided in the vector acting on eachother.
@@ -56,7 +84,17 @@ impl Body {
                     z: GRAVITATIONAL_CONSTANT * other_body.mass_kg * (other_body.position_eci_km.z - our_body.position_eci_km.z) / (other_body.position_eci_km - our_body.position_eci_km).length().powi(3),
                 }
             }
-            if let Some(perturbation_stats) = &our_body.perturbation_stats { accel += our_body.aero_drag_acceleration(perturbation_stats) + our_body.solar_rad_acceleration(); }
+            if let Some(perturbation_stats) = &our_body.perturbation_stats {
+                accel += our_body.aero_drag_acceleration(perturbation_stats);
+                let mut sun_position: &Vec3 = &vec3::ZERO;
+                for body in bodies.iter() {
+                    if body.name == "Sun" {
+                        sun_position = &body.position_eci_km;
+                        break;
+                    }
+                }
+                accel += our_body.solar_rad_pres_acceleration(perturbation_stats, sun_position);
+            }
             result.push(accel);
         }
         result
@@ -174,39 +212,7 @@ impl NBody {
     /// Spacecraft ECEF state vector is then converted to ECI J2000.
     pub fn new(unfocused_bodies: &Vec<config::BodyConfig>, focused_body: &config::BodyConfig) -> Self {
         let mut converted_bodies = vec![];
-        for body in unfocused_bodies {
-            let mut converted_body = Body {
-                name: body.name.clone(),
-                mass_kg: body.mass_kg,
-                position_eci_km: body.position_eci_km,
-                velocity_eci_km_s: body.velocity_eci_km_s,
-                perturbation_stats: None,
-            };
-            if let Some(perturbation_stats) = &body.perturbation_stats {
-                converted_body.perturbation_stats = Some(PerturbationStats {
-                    aero_drag_area_m2: perturbation_stats.aero_drag_area_m2,
-                    aero_drag_coef: perturbation_stats.aero_drag_coef,
-                    solar_rad_pres_area_m2: perturbation_stats.solar_rad_pres_area_m2,
-                    solar_rad_pres_coef: perturbation_stats.solar_rad_pres_coef,
-                });
-            }
-            converted_bodies.push(converted_body);
-        }
-        let mut focused_body_parsed = Body {
-            name: focused_body.name.clone(),
-            mass_kg: focused_body.mass_kg,
-            position_eci_km: focused_body.position_eci_km,
-            velocity_eci_km_s: focused_body.velocity_eci_km_s,
-            perturbation_stats: None,
-        };
-        if let Some(perturbation_stats) = &focused_body.perturbation_stats {
-            focused_body_parsed.perturbation_stats = Some(PerturbationStats {
-                aero_drag_area_m2: perturbation_stats.aero_drag_area_m2,
-                aero_drag_coef: perturbation_stats.aero_drag_coef,
-                solar_rad_pres_area_m2: perturbation_stats.solar_rad_pres_area_m2,
-                solar_rad_pres_coef: perturbation_stats.solar_rad_pres_coef,
-            })
-        }
+        for body in unfocused_bodies { converted_bodies.push(Body::from_config(body)); }
         Self {
             earth: Body {
                 name: "Earth".to_string(),
@@ -216,7 +222,7 @@ impl NBody {
                 perturbation_stats: None,
             },
             unfocused_bodies: converted_bodies,
-            focused_body: focused_body_parsed,
+            focused_body: Body::from_config(focused_body),
         }
     }
 
