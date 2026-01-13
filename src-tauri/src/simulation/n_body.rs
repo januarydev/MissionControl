@@ -1,3 +1,4 @@
+use crate::simulation::epoch::{MINUTES_PER_HOUR, SECONDS_PER_MINUTE};
 use crate::simulation::vec3::{self, Vec3};
 use crate::simulation::mat3::Mat3;
 use crate::simulation::{config, epoch};
@@ -9,7 +10,44 @@ const GRAVITATIONAL_CONSTANT: f64 = 6.67259e-20;
 const EARTH_MASS_KG: f64 = 5.974e+24;
 const EARTH_ANGULAR_VELOCITY_DEG_S: f64 = 4.1778e-3;
 const EARTH_AVERAGE_RADIUS_KM: f64 = 6378.1;
+const EARTH_GRAV_PARAM_KM3_S2: f64 = 3.986e+5;
 const SOLAR_RADIATION_PRESSURE_N_M2: f64 = 4.56e-6;
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct OrbitalElements {
+    pub position_ecef_km: Vec3,
+    pub velocity_ecef_km_s: Vec3,
+    pub position_lla: Vec3,
+    pub specific_angular_momentum_km2_s: f64,
+    pub inclination_deg: f64,
+    pub right_ascension_ascending_node_deg: f64,
+    pub eccentricity: f64,
+    pub argument_of_perigee_deg: f64,
+    pub true_anomaly_deg: f64,
+    pub periapsis_altitude_km: f64,
+    pub apoapsis_altitude_km: f64,
+    pub orbit_period_hr: f64,
+}
+
+/// Calculate right ascension (longitude), declination (latitude) and elevation (altitude) from an ECEF position.
+fn position_ecef_km_to_lla(position_ecef_km: &Vec3) -> Vec3 {
+    let r_km = position_ecef_km.length();
+    let l = position_ecef_km.x / r_km;
+    let m = position_ecef_km.y / r_km;
+    let n = position_ecef_km.z / r_km;
+    let declination = n.asin().to_degrees();
+    let right_ascension;
+    if m > 0.0 {
+        right_ascension = (l / declination.to_radians().cos()).acos().to_degrees();
+    } else {
+        right_ascension = 360.0 - (l / declination.to_radians().cos()).acos().to_degrees();
+    }
+    Vec3 {
+        x: right_ascension,
+        y: declination,
+        z: r_km - EARTH_AVERAGE_RADIUS_KM,
+    }
+}
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct PerturbationStats {
@@ -189,7 +227,7 @@ impl Body {
     }
 
     /// Transform our ECI J2000 position and velocity into ECEF measurements with the correct rotation matrix.
-    pub fn pos_vel_to_ecef(&self, julian_time: &epoch::Epoch) -> (Vec3, Vec3) {
+    fn pos_vel_to_ecef(&self, julian_time: &epoch::Epoch) -> (Vec3, Vec3) {
         let theta_deg = EARTH_ANGULAR_VELOCITY_DEG_S * ((julian_time.get_current_days() * epoch::SECONDS_PER_DAY) as f64 + julian_time.get_current_seconds());
         let rotation_matrix = Mat3 {
             r1c1: theta_deg.to_radians().cos(),     r1c2: theta_deg.to_radians().sin(), r1c3: 0.0,
@@ -257,6 +295,7 @@ impl NBody {
         // println!("Orbit update: {time} us ({percent:.3}%)", time = execution_time.as_micros(), percent = execution_time.as_secs_f64() * UPDATE_RATE_HZ);
     }
 
+    /// Get a vector of references to all the unfocused bodies to get their names & ECI positions / velocities.
     pub fn get_unfocused_bodies(&self) -> Vec<&Body> {
         let mut bodies = vec![];
         for body in &self.unfocused_bodies {
@@ -265,27 +304,59 @@ impl NBody {
         bodies
     }
 
+    /// Get a reference to the focused body to get it's name & ECI position / velocity.
     pub fn get_focused_body(&self) -> &Body {
         &self.focused_body
     }
-}
 
-/// Calculate right ascension (longitude), declination (latitude) and elevation (altitude) from an ECEF position.
-pub fn position_ecef_km_to_lla(position_ecef_km: &Vec3) -> Vec3 {
-    let r_km = position_ecef_km.length();
-    let l = position_ecef_km.x / r_km;
-    let m = position_ecef_km.y / r_km;
-    let n = position_ecef_km.z / r_km;
-    let declination = n.asin().to_degrees();
-    let right_ascension;
-    if m > 0.0 {
-        right_ascension = (l / declination.to_radians().cos()).acos().to_degrees();
-    } else {
-        right_ascension = 360.0 - (l / declination.to_radians().cos()).acos().to_degrees();
-    }
-    Vec3 {
-        x: right_ascension,
-        y: declination,
-        z: r_km - EARTH_AVERAGE_RADIUS_KM,
+    /// Calculate the focused body's ECEF position and velocity, LLA position, and all orbital elements.
+    pub fn get_focused_body_orbital_elements(&self, julian_time: &epoch::Epoch) -> OrbitalElements {
+        let (r_vec, v_vec) = self.focused_body.pos_vel_to_ecef(julian_time);
+        let r = r_vec.length();
+        let v = v_vec.length();
+        let v_r = r_vec.dot(v_vec) / r;
+        let h_vec = r_vec.cross(v_vec);
+        let h = h_vec.length();
+        let i = (h_vec.z / h).acos().to_degrees();
+        let n_vec = vec3::UNIT_Z.cross(h_vec);
+        let n = n_vec.length();
+        let omega_caps;
+        if n_vec.y >= 0.0 {
+            omega_caps = (n_vec.x / n).acos().to_degrees();
+        } else {
+            omega_caps = 360.0 - (n_vec.x / n).acos().to_degrees();
+        }
+        let e_vec = 1.0 / EARTH_GRAV_PARAM_KM3_S2 * ((v.powi(2) - EARTH_GRAV_PARAM_KM3_S2 / r) * r_vec - r * v_r * v_vec);
+        let e = e_vec.length();
+        let omega;
+        if e_vec.z >= 0.0 {
+            omega = (n_vec.dot(e_vec) / (n * e)).acos().to_degrees();
+        } else {
+            omega = 360.0 - (n_vec.dot(e_vec) / (n * e)).acos().to_degrees();
+        }
+        let theta;
+        if v_r >= 0.0 {
+            theta = (1.0 / e * (h.powi(2) / (EARTH_GRAV_PARAM_KM3_S2 * r) - 1.0)).acos().to_degrees();
+        } else {
+            theta = 360.0 - (1.0 / e * (h.powi(2) / (EARTH_GRAV_PARAM_KM3_S2 * r) - 1.0)).acos().to_degrees();
+        }
+        let r_p = h.powi(2) / EARTH_GRAV_PARAM_KM3_S2 / (1.0 + e);
+        let r_a = h.powi(2) / EARTH_GRAV_PARAM_KM3_S2 / (1.0 - e);
+        let a = 0.5 * (r_p + r_a);
+        let t = 2.0 * std::f64::consts::PI / EARTH_GRAV_PARAM_KM3_S2.sqrt() * a.powf(3.0 / 2.0);
+        OrbitalElements {
+            position_ecef_km: r_vec,
+            velocity_ecef_km_s: v_vec,
+            position_lla: position_ecef_km_to_lla(&r_vec),
+            specific_angular_momentum_km2_s: h,
+            inclination_deg: i,
+            right_ascension_ascending_node_deg: omega_caps,
+            eccentricity: e,
+            argument_of_perigee_deg: omega,
+            true_anomaly_deg: theta,
+            periapsis_altitude_km: r_p - EARTH_AVERAGE_RADIUS_KM,
+            apoapsis_altitude_km: r_a - EARTH_AVERAGE_RADIUS_KM,
+            orbit_period_hr: t / MINUTES_PER_HOUR as f64 / SECONDS_PER_MINUTE as f64,
+        }
     }
 }

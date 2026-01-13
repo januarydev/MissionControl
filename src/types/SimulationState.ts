@@ -15,7 +15,7 @@ export type OrbitState = {
 export type SimulationState = {
   paused: boolean,
   timeMultiplier: number,
-  elapsedTimeMs: number,
+  elapsedTimeS: number,
   simulatedTimeDays: number,
   simulatedTimeSeconds: number,
   orbits: OrbitState[],
@@ -23,5 +23,14 @@ export type SimulationState = {
   spacecraftVelocityEciKmS: Vec3,
   spacecraftPositionEcefKm: Vec3,
   spacecraftVelocityEcefKmS: Vec3,
-  spacecraftPositionLla: Vec3
+  spacecraftPositionLla: Vec3,
+  spacecraftSpecificAngularMomentumKm2S: number,
+  spacecraftInclinationDeg: number,
+  spacecraftRightAscensionAscendingNodeDeg: number,
+  spacecraftEccentricity: number,
+  spacecraftArgumentOfPerigeeDeg: number,
+  spacecraftTrueAnomalyDeg: number,
+  spacecraftPeriapsisAltitudeKm: number,
+  spacecraftApoapsisAltitudeKm: number,
+  spacecraftOrbitPeriodHr: number
 };

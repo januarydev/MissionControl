@@ -81,7 +81,7 @@ button:hover {
 }
 
 .ToolBarTitle {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   color: var(--text-color-accent-4);
   background-color: var(--background-color-accent-4);
   padding: 0.25em;
@@ -114,6 +114,7 @@ button:hover {
 .WorkAreaMenuBar {
   display: flex;
   justify-content: space-between;
+  font-size: 1.1rem;
   padding: 0 0.25em;
   color: var(--text-color-accent-4);
   background-color: var(--background-color-accent-4);
@@ -172,6 +173,7 @@ button:hover {
 .PanelTitle {
   padding: 0.1em;
   margin-left: 0.1em;
+  font-size: 1.1rem;
   cursor: default;
 }
 
@@ -180,27 +182,67 @@ button:hover {
   margin-top: 0.2em;
 }
 
-table {
+.TelemetrySelect {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0 0em 0.1em;
+}
+
+.TelemetryTable {
   border-collapse: collapse;
   min-width: 30ch;
+  margin: 0.25em 0 0 0;
+  color: var(--text-color-accent-1);
+  background-color: var(--background-color-accent-1);
+}
+
+select,
+::picker(select) {
+  appearance: base-select;
+}
+
+select {
+  width: 15ch;
+  font-size: 1rem;
+  padding: 0 0.2em;
+  border-radius: 0.25em;
+  color: var(--text-color-accent-4);
+  background-color: var(--background-color-accent-4);
+}
+
+::picker(select) {
+  border-radius: 0.25em;
+  color: var(--text-color-accent-2);
+  background-color: var(--background-color-accent-2);
+}
+
+option:hover {
   color: var(--text-color-accent-1);
   background-color: var(--background-color-accent-1);
 }
 
 th {
   padding: 0.25em;
-  font-size: 0.9em;
   border: 1px solid var(--background-color-accent-4);
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
+  cursor: default;
 }
 
 td {
   border: 1px solid var(--background-color-accent-2);
+  min-width: 15ch;
   padding: 0.25em;
-  font-size: 0.9em;
   text-align: end;
 }
+
+td > .IconButtonContainer {
+  display: inline-flex;
+  width: 1em;
+  position: relative;
+  top: 0.15em;
+}
+
 
 .MappingContainer {
   display: flex;
@@ -211,6 +253,11 @@ td {
   width: 100%;
   min-width: 800px;
   background-color: var(--background-color-accent-1);
+}
+
+.MappingSubtitle {
+  padding: 0.1em 0.2em;
+  text-align: end;
 }
 
 .OrbitVis {

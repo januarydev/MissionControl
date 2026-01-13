@@ -71,20 +71,29 @@ impl Simulation {
         for body in self.orbit_propagator.get_unfocused_bodies() {
             bodies.push(simulation_state::OrbitState { name: body.name.clone(), position_eci_km: body.position_eci_km, velocity_eci_km_s: body.velocity_eci_km_s });
         }
-        let focsued_body = self.orbit_propagator.get_focused_body();
-        let (position_ecef_km, velocity_ecef_km_s) = focsued_body.pos_vel_to_ecef(&self.simulated_time);
+        let focused_body = self.orbit_propagator.get_focused_body();
+        let focused_body_orbital_elements = self.orbit_propagator.get_focused_body_orbital_elements(&self.simulated_time);
         simulation_state::SimulationState {
             paused: self.paused,
             time_multiplier: self.time_source.get_time_multiplier(),
-            elapsed_time_ms: self.time_source.get_elapsed_time_ms(),
+            elapsed_time_s: self.time_source.get_elapsed_time_ms() / epoch::MILLISECONDS_PER_SECOND as f64,
             simulated_time_days: self.simulated_time.get_current_days(),
             simulated_time_seconds: self.simulated_time.get_current_seconds(),
             orbits: bodies,
-            spacecraft_position_eci_km: focsued_body.position_eci_km,
-            spacecraft_velocity_eci_km_s: focsued_body.velocity_eci_km_s,
-            spacecraft_position_ecef_km: position_ecef_km,
-            spacecraft_velocity_ecef_km_s: velocity_ecef_km_s,
-            spacecraft_position_lla: n_body::position_ecef_km_to_lla(&position_ecef_km),
+            spacecraft_position_eci_km: focused_body.position_eci_km,
+            spacecraft_velocity_eci_km_s: focused_body.velocity_eci_km_s,
+            spacecraft_position_ecef_km: focused_body_orbital_elements.position_ecef_km,
+            spacecraft_velocity_ecef_km_s: focused_body_orbital_elements.velocity_ecef_km_s,
+            spacecraft_position_lla: focused_body_orbital_elements.position_lla,
+            spacecraft_specific_angular_momentum_km2_s: focused_body_orbital_elements.specific_angular_momentum_km2_s,
+            spacecraft_inclination_deg: focused_body_orbital_elements.inclination_deg,
+            spacecraft_right_ascension_ascending_node_deg: focused_body_orbital_elements.right_ascension_ascending_node_deg,
+            spacecraft_eccentricity: focused_body_orbital_elements.eccentricity,
+            spacecraft_argument_of_perigee_deg: focused_body_orbital_elements.argument_of_perigee_deg,
+            spacecraft_true_anomaly_deg: focused_body_orbital_elements.true_anomaly_deg,
+            spacecraft_periapsis_altitude_km: focused_body_orbital_elements.periapsis_altitude_km,
+            spacecraft_apoapsis_altitude_km: focused_body_orbital_elements.apoapsis_altitude_km,
+            spacecraft_orbit_period_hr: focused_body_orbital_elements.orbit_period_hr,
         }
     }
 }

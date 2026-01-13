@@ -15,7 +15,7 @@ pub struct OrbitState {
 pub struct SimulationState {
     pub paused: bool,
     pub time_multiplier: f64,
-    pub elapsed_time_ms: f64,
+    pub elapsed_time_s: f64,
     pub simulated_time_days: u32,
     pub simulated_time_seconds: f64,
     pub orbits: Vec<OrbitState>,
@@ -24,4 +24,13 @@ pub struct SimulationState {
     pub spacecraft_position_ecef_km: Vec3,
     pub spacecraft_velocity_ecef_km_s: Vec3,
     pub spacecraft_position_lla: Vec3,
+    pub spacecraft_specific_angular_momentum_km2_s: f64,
+    pub spacecraft_inclination_deg: f64,
+    pub spacecraft_right_ascension_ascending_node_deg: f64,
+    pub spacecraft_eccentricity: f64,
+    pub spacecraft_argument_of_perigee_deg: f64,
+    pub spacecraft_true_anomaly_deg: f64,
+    pub spacecraft_periapsis_altitude_km: f64,
+    pub spacecraft_apoapsis_altitude_km: f64,
+    pub spacecraft_orbit_period_hr: f64,
 }
