@@ -152,7 +152,7 @@ button:hover {
 .Panel {
   display: flex;
   flex-direction: column;
-  min-width: 30ch;
+  min-width: 40ch;
   margin: 0.4em 0.0em 0.0em 0.3em;
   border-radius: 3px;
   color: var(--text-color-accent-2);
@@ -190,7 +190,7 @@ button:hover {
 
 .TelemetryTable {
   border-collapse: collapse;
-  min-width: 30ch;
+  min-width: 40ch;
   margin: 0.25em 0 0 0;
   color: var(--text-color-accent-1);
   background-color: var(--background-color-accent-1);
@@ -202,7 +202,7 @@ select,
 }
 
 select {
-  width: 15ch;
+  width: 20ch;
   font-size: 1rem;
   padding: 0 0.2em;
   border-radius: 0.25em;
@@ -223,6 +223,7 @@ option:hover {
 
 th {
   padding: 0.25em;
+  min-width: 20ch;
   border: 1px solid var(--background-color-accent-4);
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
@@ -231,7 +232,7 @@ th {
 
 td {
   border: 1px solid var(--background-color-accent-2);
-  min-width: 15ch;
+  min-width: 20ch;
   padding: 0.25em;
   text-align: end;
 }

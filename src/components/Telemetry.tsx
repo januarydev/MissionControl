@@ -34,6 +34,14 @@ enum TelemetryPoints {
   Period
 }
 
+enum TelemetryPresets {
+  Custom = "custom",
+  Preset1 = "preset1",
+  Preset2 = "preset2",
+  Preset3 = "preset3",
+  Preset4 = "preset4"
+}
+
 interface RowProps {
   mnemonic: string;
   value?: number | string;
@@ -59,58 +67,124 @@ export function Telemetry(props: TelemetryProps) {
   };
   const removeFromRowArray = (id: number) => { setRowArray(arr => arr.filter(row => row[0] != id)); }
 
-  const createRow = (id: number, type: TelemetryPoints, index: number) => {
-    switch (type) {
+  const [preset, setPreset] = useState<string>(TelemetryPresets.Custom);
+  const updatePreset = (state: string) => {
+    setPreset(state);
+    setRowArray([]);
+    switch (state) {
+      case TelemetryPresets.Preset1:
+        addToRowArray(TelemetryPoints.ElapsedTime);
+        addToRowArray(TelemetryPoints.PosEciX);
+        addToRowArray(TelemetryPoints.PosEciY);
+        addToRowArray(TelemetryPoints.PosEciZ);
+        addToRowArray(TelemetryPoints.VelEciX);
+        addToRowArray(TelemetryPoints.VelEciY);
+        addToRowArray(TelemetryPoints.VelEciZ);
+        addToRowArray(TelemetryPoints.PosEcefX);
+        addToRowArray(TelemetryPoints.PosEcefY);
+        addToRowArray(TelemetryPoints.PosEcefZ);
+        addToRowArray(TelemetryPoints.VelEcefX);
+        addToRowArray(TelemetryPoints.VelEcefY);
+        addToRowArray(TelemetryPoints.VelEcefZ);
+        addToRowArray(TelemetryPoints.RightAscens);
+        addToRowArray(TelemetryPoints.Declination);
+        addToRowArray(TelemetryPoints.Elevation);
+        addToRowArray(TelemetryPoints.SAM);
+        addToRowArray(TelemetryPoints.Inclination);
+        addToRowArray(TelemetryPoints.RAAN);
+        addToRowArray(TelemetryPoints.Eccentricity);
+        addToRowArray(TelemetryPoints.AoP);
+        addToRowArray(TelemetryPoints.TrueAnom);
+        addToRowArray(TelemetryPoints.Periapsis);
+        addToRowArray(TelemetryPoints.Apoapsis);
+        addToRowArray(TelemetryPoints.Period);
+        break;
+      case TelemetryPresets.Preset2:
+        addToRowArray(TelemetryPoints.PosEciX);
+        addToRowArray(TelemetryPoints.PosEciY);
+        addToRowArray(TelemetryPoints.PosEciZ);
+        addToRowArray(TelemetryPoints.VelEciX);
+        addToRowArray(TelemetryPoints.VelEciY);
+        addToRowArray(TelemetryPoints.VelEciZ);
+        break;
+      case TelemetryPresets.Preset3:
+        addToRowArray(TelemetryPoints.PosEcefX);
+        addToRowArray(TelemetryPoints.PosEcefY);
+        addToRowArray(TelemetryPoints.PosEcefZ);
+        addToRowArray(TelemetryPoints.VelEcefX);
+        addToRowArray(TelemetryPoints.VelEcefY);
+        addToRowArray(TelemetryPoints.VelEcefZ);
+        break;
+      case TelemetryPresets.Preset4:
+        addToRowArray(TelemetryPoints.RightAscens);
+        addToRowArray(TelemetryPoints.Declination);
+        addToRowArray(TelemetryPoints.Elevation);
+        addToRowArray(TelemetryPoints.SAM);
+        addToRowArray(TelemetryPoints.Inclination);
+        addToRowArray(TelemetryPoints.RAAN);
+        addToRowArray(TelemetryPoints.Eccentricity);
+        addToRowArray(TelemetryPoints.AoP);
+        addToRowArray(TelemetryPoints.TrueAnom);
+        addToRowArray(TelemetryPoints.Periapsis);
+        addToRowArray(TelemetryPoints.Apoapsis);
+        addToRowArray(TelemetryPoints.Period);
+        break;
+      default:
+    }
+  }
+
+  const createRow = (point: [number, TelemetryPoints], index: number) => {
+    switch (point[1]) {
       case TelemetryPoints.ElapsedTime:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Elapsed Time" value={props.state?.elapsedTimeS.toFixed(3)} unit="s" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Elapsed Time" value={props.state?.elapsedTimeS.toFixed(3)} unit="s" />;
       case TelemetryPoints.PosEciX:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Position ECI X" value={props.state?.spacecraftPositionEciKm.x.toFixed(3)} unit="km" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Position ECI X" value={props.state?.spacecraftPositionEciKm.x.toFixed(3)} unit="km" />;
       case TelemetryPoints.PosEciY:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Position ECI Y" value={props.state?.spacecraftPositionEciKm.y.toFixed(3)} unit="km" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Position ECI Y" value={props.state?.spacecraftPositionEciKm.y.toFixed(3)} unit="km" />;
       case TelemetryPoints.PosEciZ:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Position ECI Z" value={props.state?.spacecraftPositionEciKm.z.toFixed(3)} unit="km" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Position ECI Z" value={props.state?.spacecraftPositionEciKm.z.toFixed(3)} unit="km" />;
       case TelemetryPoints.VelEciX:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Velocity ECI X" value={props.state?.spacecraftVelocityEciKmS.x.toFixed(3)} unit="km/s" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Velocity ECI X" value={props.state?.spacecraftVelocityEciKmS.x.toFixed(3)} unit="km/s" />;
       case TelemetryPoints.VelEciY:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Velocity ECI Y" value={props.state?.spacecraftVelocityEciKmS.y.toFixed(3)} unit="km/s" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Velocity ECI Y" value={props.state?.spacecraftVelocityEciKmS.y.toFixed(3)} unit="km/s" />;
       case TelemetryPoints.VelEciZ:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Velocity ECI Z" value={props.state?.spacecraftVelocityEciKmS.z.toFixed(3)} unit="km/s" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Velocity ECI Z" value={props.state?.spacecraftVelocityEciKmS.z.toFixed(3)} unit="km/s" />;
       case TelemetryPoints.PosEcefX:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Position ECEF X" value={props.state?.spacecraftPositionEcefKm.x.toFixed(3)} unit="km" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Position ECEF X" value={props.state?.spacecraftPositionEcefKm.x.toFixed(3)} unit="km" />;
       case TelemetryPoints.PosEcefY:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Position ECEF Y" value={props.state?.spacecraftPositionEcefKm.y.toFixed(3)} unit="km" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Position ECEF Y" value={props.state?.spacecraftPositionEcefKm.y.toFixed(3)} unit="km" />;
       case TelemetryPoints.PosEcefZ:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Position ECEF Z" value={props.state?.spacecraftPositionEcefKm.z.toFixed(3)} unit="km" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Position ECEF Z" value={props.state?.spacecraftPositionEcefKm.z.toFixed(3)} unit="km" />;
       case TelemetryPoints.VelEcefX:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Velocity ECEF X" value={props.state?.spacecraftVelocityEcefKmS.x.toFixed(3)} unit="km/s" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Velocity ECEF X" value={props.state?.spacecraftVelocityEcefKmS.x.toFixed(3)} unit="km/s" />;
       case TelemetryPoints.VelEcefY:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Velocity ECEF Y" value={props.state?.spacecraftVelocityEcefKmS.y.toFixed(3)} unit="km/s" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Velocity ECEF Y" value={props.state?.spacecraftVelocityEcefKmS.y.toFixed(3)} unit="km/s" />;
       case TelemetryPoints.VelEcefZ:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Velocity ECEF Z" value={props.state?.spacecraftVelocityEcefKmS.z.toFixed(3)} unit="km/s" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Velocity ECEF Z" value={props.state?.spacecraftVelocityEcefKmS.z.toFixed(3)} unit="km/s" />;
       case TelemetryPoints.RightAscens:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Right Ascension" value={props.state?.spacecraftPositionLla.x.toFixed(3)} unit="deg" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Right Ascension" value={props.state?.spacecraftPositionLla.x.toFixed(3)} unit="deg" />;
       case TelemetryPoints.Declination:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Declination" value={props.state?.spacecraftPositionLla.y.toFixed(3)} unit="deg" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Declination" value={props.state?.spacecraftPositionLla.y.toFixed(3)} unit="deg" />;
       case TelemetryPoints.Elevation:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Elevation" value={props.state?.spacecraftPositionLla.z.toFixed(3)} unit="km" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Elevation" value={props.state?.spacecraftPositionLla.z.toFixed(3)} unit="km" />;
       case TelemetryPoints.SAM:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="SAM" value={props.state?.spacecraftSpecificAngularMomentumKm2S.toFixed(3)} unit="km2/s" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="SAM" value={props.state?.spacecraftSpecificAngularMomentumKm2S.toFixed(3)} unit="km2/s" />;
       case TelemetryPoints.Inclination:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Inclination" value={props.state?.spacecraftInclinationDeg.toFixed(3)} unit="deg" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Inclination" value={props.state?.spacecraftInclinationDeg.toFixed(3)} unit="deg" />;
       case TelemetryPoints.RAAN:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="RAAN" value={props.state?.spacecraftRightAscensionAscendingNodeDeg.toFixed(3)} unit="deg" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="RAAN" value={props.state?.spacecraftRightAscensionAscendingNodeDeg.toFixed(3)} unit="deg" />;
       case TelemetryPoints.Eccentricity:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Eccentricity" value={props.state?.spacecraftEccentricity.toFixed(3)} unit="" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Eccentricity" value={props.state?.spacecraftEccentricity.toFixed(3)} unit="" />;
       case TelemetryPoints.AoP:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Argument of Perigee" value={props.state?.spacecraftArgumentOfPerigeeDeg.toFixed(3)} unit="deg" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Argument of Perigee" value={props.state?.spacecraftArgumentOfPerigeeDeg.toFixed(3)} unit="deg" />;
       case TelemetryPoints.TrueAnom:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="True Anomaly" value={props.state?.spacecraftTrueAnomalyDeg.toFixed(3)} unit="deg" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="True Anomaly" value={props.state?.spacecraftTrueAnomalyDeg.toFixed(3)} unit="deg" />;
       case TelemetryPoints.Periapsis:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Periapsis Altitude" value={props.state?.spacecraftPeriapsisAltitudeKm.toFixed(3)} unit="km" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Periapsis Altitude" value={props.state?.spacecraftPeriapsisAltitudeKm.toFixed(3)} unit="km" />;
       case TelemetryPoints.Apoapsis:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Apoapsis Altitude" value={props.state?.spacecraftApoapsisAltitudeKm.toFixed(3)} unit="km" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Apoapsis Altitude" value={props.state?.spacecraftApoapsisAltitudeKm.toFixed(3)} unit="km" />;
       case TelemetryPoints.Period:
-        return <Row key={index} onClick={() => removeFromRowArray(id)} mnemonic="Orbit Period" value={props.state?.spacecraftOrbitPeriodHr.toFixed(3)} unit="hr" />;
+        return <Row key={index} onClick={() => removeFromRowArray(point[0])} mnemonic="Orbit Period" value={props.state?.spacecraftOrbitPeriodHr.toFixed(3)} unit="hr" />;
     }
   }
 
@@ -118,8 +192,12 @@ export function Telemetry(props: TelemetryProps) {
     <div className="TelemetryContainer">
       <label className="TelemetrySelect">
         Select preset:
-        <select>
-          <option value="custom">Custom</option>
+        <select value={preset} onChange={selected => updatePreset(selected.target.value)}>
+          <option value={TelemetryPresets.Custom}>Custom</option>
+          <option value={TelemetryPresets.Preset1}>All Telemetry</option>
+          <option value={TelemetryPresets.Preset2}>ECI Coordinates</option>
+          <option value={TelemetryPresets.Preset3}>ECEF Coordinates</option>
+          <option value={TelemetryPresets.Preset4}>Orbital Elements</option>
         </select>
       </label>
       <label className="TelemetrySelect">
@@ -161,35 +239,9 @@ export function Telemetry(props: TelemetryProps) {
           </tr>
         </thead>
         <tbody>
-          {rowArray.map((point, index) => createRow(point[0], point[1], index))}
+          {rowArray.map((point, index) => createRow(point, index))}
         </tbody>
       </table>
     </div>
   );
 }
-
-{/* <Row mnemonic="Elapsed Time" value={props.state?.elapsedTimeS.toFixed(3)} unit="s" />
-<Row mnemonic="Position ECI X" value={props.state?.spacecraftPositionEciKm.x.toFixed(3)} unit="km" />
-<Row mnemonic="Position ECI Y" value={props.state?.spacecraftPositionEciKm.y.toFixed(3)} unit="km" />
-<Row mnemonic="Position ECI Z" value={props.state?.spacecraftPositionEciKm.z.toFixed(3)} unit="km" />
-<Row mnemonic="Velocity ECI X" value={props.state?.spacecraftVelocityEciKmS.x.toFixed(3)} unit="km/s" />
-<Row mnemonic="Velocity ECI Y" value={props.state?.spacecraftVelocityEciKmS.y.toFixed(3)} unit="km/s" />
-<Row mnemonic="Velocity ECI Z" value={props.state?.spacecraftVelocityEciKmS.z.toFixed(3)} unit="km/s" />
-<Row mnemonic="Position ECEF X" value={props.state?.spacecraftPositionEcefKm.x.toFixed(3)} unit="km" />
-<Row mnemonic="Position ECEF Y" value={props.state?.spacecraftPositionEcefKm.y.toFixed(3)} unit="km" />
-<Row mnemonic="Position ECEF Z" value={props.state?.spacecraftPositionEcefKm.z.toFixed(3)} unit="km" />
-<Row mnemonic="Velocity ECEF X" value={props.state?.spacecraftVelocityEcefKmS.x.toFixed(3)} unit="km/s" />
-<Row mnemonic="Velocity ECEF Y" value={props.state?.spacecraftVelocityEcefKmS.y.toFixed(3)} unit="km/s" />
-<Row mnemonic="Velocity ECEF Z" value={props.state?.spacecraftVelocityEcefKmS.z.toFixed(3)} unit="km/s" />
-<Row mnemonic="Right Ascension" value={props.state?.spacecraftPositionLla.x.toFixed(3)} unit="deg" />
-<Row mnemonic="Declination" value={props.state?.spacecraftPositionLla.y.toFixed(3)} unit="deg" />
-<Row mnemonic="Elevation" value={props.state?.spacecraftPositionLla.z.toFixed(3)} unit="km" />
-<Row mnemonic="SAM" value={props.state?.spacecraftSpecificAngularMomentumKm2S.toFixed(3)} unit="km2/s" />
-<Row mnemonic="Inclination" value={props.state?.spacecraftInclinationDeg.toFixed(3)} unit="deg" />
-<Row mnemonic="RAAN" value={props.state?.spacecraftRightAscensionAscendingNodeDeg.toFixed(3)} unit="deg" />
-<Row mnemonic="Eccentricity" value={props.state?.spacecraftEccentricity.toFixed(3)} unit="" />
-<Row mnemonic="Argument of Perigee" value={props.state?.spacecraftArgumentOfPerigeeDeg.toFixed(3)} unit="deg" />
-<Row mnemonic="True Anomaly" value={props.state?.spacecraftTrueAnomalyDeg.toFixed(3)} unit="deg" />
-<Row mnemonic="Periapsis Altitude" value={props.state?.spacecraftPeriapsisAltitudeKm.toFixed(3)} unit="km" />
-<Row mnemonic="Apoapsis Altitude" value={props.state?.spacecraftApoapsisAltitudeKm.toFixed(3)} unit="km" />
-<Row mnemonic="Orbit Period" value={props.state?.spacecraftOrbitPeriodHr.toFixed(3)} unit="hr" /> */}
