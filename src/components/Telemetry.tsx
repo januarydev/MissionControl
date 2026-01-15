@@ -42,6 +42,67 @@ enum TelemetryPresets {
   Preset4 = "preset4"
 }
 
+const Preset1: TelemetryPoints[] = [
+  TelemetryPoints.ElapsedTime,
+  TelemetryPoints.PosEciX,
+  TelemetryPoints.PosEciY,
+  TelemetryPoints.PosEciZ,
+  TelemetryPoints.VelEciX,
+  TelemetryPoints.VelEciY,
+  TelemetryPoints.VelEciZ,
+  TelemetryPoints.PosEcefX,
+  TelemetryPoints.PosEcefY,
+  TelemetryPoints.PosEcefZ,
+  TelemetryPoints.VelEcefX,
+  TelemetryPoints.VelEcefY,
+  TelemetryPoints.VelEcefZ,
+  TelemetryPoints.RightAscens,
+  TelemetryPoints.Declination,
+  TelemetryPoints.Elevation,
+  TelemetryPoints.SAM,
+  TelemetryPoints.Inclination,
+  TelemetryPoints.RAAN,
+  TelemetryPoints.Eccentricity,
+  TelemetryPoints.AoP,
+  TelemetryPoints.TrueAnom,
+  TelemetryPoints.Periapsis,
+  TelemetryPoints.Apoapsis,
+  TelemetryPoints.Period,
+];
+
+const Preset2: TelemetryPoints[] = [
+  TelemetryPoints.PosEciX,
+  TelemetryPoints.PosEciY,
+  TelemetryPoints.PosEciZ,
+  TelemetryPoints.VelEciX,
+  TelemetryPoints.VelEciY,
+  TelemetryPoints.VelEciZ
+];
+
+const Preset3: TelemetryPoints[] = [
+  TelemetryPoints.PosEcefX,
+  TelemetryPoints.PosEcefY,
+  TelemetryPoints.PosEcefZ,
+  TelemetryPoints.VelEcefX,
+  TelemetryPoints.VelEcefY,
+  TelemetryPoints.VelEcefZ
+];
+
+const Preset4: TelemetryPoints[] = [
+  TelemetryPoints.RightAscens,
+  TelemetryPoints.Declination,
+  TelemetryPoints.Elevation,
+  TelemetryPoints.SAM,
+  TelemetryPoints.Inclination,
+  TelemetryPoints.RAAN,
+  TelemetryPoints.Eccentricity,
+  TelemetryPoints.AoP,
+  TelemetryPoints.TrueAnom,
+  TelemetryPoints.Periapsis,
+  TelemetryPoints.Apoapsis,
+  TelemetryPoints.Period
+];
+
 interface RowProps {
   mnemonic: string;
   value?: number | string;
@@ -65,69 +126,28 @@ export function Telemetry(props: TelemetryProps) {
     setRowArray(arr => arr.concat([[lastRowId, type]]));
     setlastRowId(id => id + 1);
   };
+  const rowsToPreset = (preset: TelemetryPoints[]) => {
+    setRowArray([]);
+    preset.map((type, index) => { setRowArray(arr => arr.concat([[index, type]])); });
+    setlastRowId(preset.length);
+  };
   const removeFromRowArray = (id: number) => { setRowArray(arr => arr.filter(row => row[0] != id)); }
 
   const [preset, setPreset] = useState<string>(TelemetryPresets.Custom);
   const updatePreset = (state: string) => {
     setPreset(state);
-    setRowArray([]);
     switch (state) {
       case TelemetryPresets.Preset1:
-        addToRowArray(TelemetryPoints.ElapsedTime);
-        addToRowArray(TelemetryPoints.PosEciX);
-        addToRowArray(TelemetryPoints.PosEciY);
-        addToRowArray(TelemetryPoints.PosEciZ);
-        addToRowArray(TelemetryPoints.VelEciX);
-        addToRowArray(TelemetryPoints.VelEciY);
-        addToRowArray(TelemetryPoints.VelEciZ);
-        addToRowArray(TelemetryPoints.PosEcefX);
-        addToRowArray(TelemetryPoints.PosEcefY);
-        addToRowArray(TelemetryPoints.PosEcefZ);
-        addToRowArray(TelemetryPoints.VelEcefX);
-        addToRowArray(TelemetryPoints.VelEcefY);
-        addToRowArray(TelemetryPoints.VelEcefZ);
-        addToRowArray(TelemetryPoints.RightAscens);
-        addToRowArray(TelemetryPoints.Declination);
-        addToRowArray(TelemetryPoints.Elevation);
-        addToRowArray(TelemetryPoints.SAM);
-        addToRowArray(TelemetryPoints.Inclination);
-        addToRowArray(TelemetryPoints.RAAN);
-        addToRowArray(TelemetryPoints.Eccentricity);
-        addToRowArray(TelemetryPoints.AoP);
-        addToRowArray(TelemetryPoints.TrueAnom);
-        addToRowArray(TelemetryPoints.Periapsis);
-        addToRowArray(TelemetryPoints.Apoapsis);
-        addToRowArray(TelemetryPoints.Period);
+        rowsToPreset(Preset1);
         break;
       case TelemetryPresets.Preset2:
-        addToRowArray(TelemetryPoints.PosEciX);
-        addToRowArray(TelemetryPoints.PosEciY);
-        addToRowArray(TelemetryPoints.PosEciZ);
-        addToRowArray(TelemetryPoints.VelEciX);
-        addToRowArray(TelemetryPoints.VelEciY);
-        addToRowArray(TelemetryPoints.VelEciZ);
+        rowsToPreset(Preset2);
         break;
       case TelemetryPresets.Preset3:
-        addToRowArray(TelemetryPoints.PosEcefX);
-        addToRowArray(TelemetryPoints.PosEcefY);
-        addToRowArray(TelemetryPoints.PosEcefZ);
-        addToRowArray(TelemetryPoints.VelEcefX);
-        addToRowArray(TelemetryPoints.VelEcefY);
-        addToRowArray(TelemetryPoints.VelEcefZ);
+        rowsToPreset(Preset3);
         break;
       case TelemetryPresets.Preset4:
-        addToRowArray(TelemetryPoints.RightAscens);
-        addToRowArray(TelemetryPoints.Declination);
-        addToRowArray(TelemetryPoints.Elevation);
-        addToRowArray(TelemetryPoints.SAM);
-        addToRowArray(TelemetryPoints.Inclination);
-        addToRowArray(TelemetryPoints.RAAN);
-        addToRowArray(TelemetryPoints.Eccentricity);
-        addToRowArray(TelemetryPoints.AoP);
-        addToRowArray(TelemetryPoints.TrueAnom);
-        addToRowArray(TelemetryPoints.Periapsis);
-        addToRowArray(TelemetryPoints.Apoapsis);
-        addToRowArray(TelemetryPoints.Period);
+        rowsToPreset(Preset4);
         break;
       default:
     }
