@@ -222,9 +222,9 @@ option:hover {
 }
 
 th {
-  padding: 0.25em;
-  min-width: 20ch;
   border: 1px solid var(--background-color-accent-4);
+  min-width: 20ch;
+  padding: 0.25em;
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
   cursor: default;
