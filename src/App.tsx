@@ -12,6 +12,7 @@ import { AttitudeVis } from "./components/AttitudeVis";
 import { SimulationState } from "./types/SimulationState";
 import { IconButton } from "./components/IconButton";
 import { SvgIcon } from "./components/SvgIcon";
+import { Nole } from "./components/Nole";
 
 let lastPanelId: number = 0;
 
@@ -126,6 +127,9 @@ function App() {
                 return undefined
             }
           })}
+          <Panel iconId="skull-scan" title="Nole.exe" onClose={() => {}}>
+            <Nole text="I have you now!!" />
+          </Panel>
         </div>
       </div>
     </main>

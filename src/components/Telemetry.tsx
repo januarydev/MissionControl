@@ -120,8 +120,8 @@ function Row(props: RowProps) {
 }
 
 interface RowDetails {
-  id: number,
-  type: TelemetryPoints
+  id: number;
+  type: TelemetryPoints;
 }
 
 export function Telemetry(props: TelemetryProps) {
