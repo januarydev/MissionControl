@@ -2,6 +2,7 @@ pub const UPDATE_RATE_HZ: f64 = 100.0;
 pub const MINUTES_PER_HOUR: u8 = 60;
 pub const SECONDS_PER_MINUTE: u8 = 60;
 pub const SECONDS_PER_DAY: u32 = 86400;
+pub const MILLISECONDS_PER_SECOND: u16 = 1000;
 
 const DAYS_PER_YEAR: f64 = 365.25;
 const DAYS_PER_MONTH_INDEX: f64 = 30.6001;

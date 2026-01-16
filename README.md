@@ -50,5 +50,5 @@ print(earth.at(t).observe(moon).velocity.km_per_s)  # [ 0.56091175 -0.73317161 -
 
 ## Font & Icons
 
-- All fonts come from the [Anaheim](https://fonts.google.com/specimen/Anaheim) free font family licensed under SIL Open Font License 1.1.
+- All fonts come from the [Anaheim](https://fonts.google.com/specimen/Anaheim) free font family and [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) Project font family licensed under SIL Open Font License 1.1.
 - All icons come from the open source [Material Design](https://pictogrammers.com/library/mdi/) icon set licensed under Apache 2.0.
