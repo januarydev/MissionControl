@@ -1,3 +1,5 @@
+import { createContext } from "react";
+
 export type Vec3 = {
   x: number,
   y: number,
@@ -34,3 +36,32 @@ export type SimulationState = {
   spacecraftApoapsisAltitudeKm: number,
   spacecraftOrbitPeriodHr: number
 };
+
+export function createSimulationState() {
+  const rv: SimulationState = {
+    paused: false,
+    timeMultiplier: 1,
+    elapsedTimeS: 0,
+    simulatedTimeDays: 0,
+    simulatedTimeSeconds: 0,
+    orbits: [],
+    spacecraftPositionEciKm: { x: 0, y: 0, z: 0 },
+    spacecraftVelocityEciKmS: { x: 0, y: 0, z: 0 },
+    spacecraftPositionEcefKm: { x: 0, y: 0, z: 0 },
+    spacecraftVelocityEcefKmS: { x: 0, y: 0, z: 0 },
+    spacecraftPositionLla: { x: 0, y: 0, z: 0 },
+    spacecraftSpecificAngularMomentumKm2S: 0,
+    spacecraftInclinationDeg: 0,
+    spacecraftRightAscensionAscendingNodeDeg: 0,
+    spacecraftEccentricity: 0,
+    spacecraftArgumentOfPerigeeDeg: 0,
+    spacecraftTrueAnomalyDeg: 0,
+    spacecraftPeriapsisAltitudeKm: 0,
+    spacecraftApoapsisAltitudeKm: 0,
+    spacecraftOrbitPeriodHr: 0
+  }
+  return rv;
+}
+
+export const SimulationContext = createContext<SimulationState>(createSimulationState());
+
