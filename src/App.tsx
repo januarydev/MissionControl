@@ -41,17 +41,24 @@ function App() {
 
   const handleSimulationUpdate = useCallback((event: TauriEvent<SimulationState>) => {
     setSimulationState(event.payload);
-    const llaPosition: [number, number, number] = [event.payload.spacecraftPositionLla.x - 180, event.payload.spacecraftPositionLla.y, event.payload.spacecraftPositionLla.z * 1000];
+    const llaPosition: [number, number, number] = [
+      event.payload.spacecraftPositionLla.x - 180,
+      event.payload.spacecraftPositionLla.y,
+      event.payload.spacecraftPositionLla.z * 1000
+    ];
     if (mapCoordinates.length === 0) {
       setMapCoordinates([llaPosition]);
       return;
     }
-    if (Math.sqrt(Math.pow(mapCoordinates[mapCoordinates.length - 1][0] - llaPosition[0], 2) + Math.pow(mapCoordinates[mapCoordinates.length - 1][1] - llaPosition[1], 2)) > 0.5) {
+    if (Math.sqrt(
+      Math.pow(mapCoordinates[mapCoordinates.length - 1][0] - llaPosition[0], 2) +
+      Math.pow(mapCoordinates[mapCoordinates.length - 1][1] - llaPosition[1], 2)
+    ) > 0.5) {
       setMapCoordinates(mapCoordinates.slice(-1499).concat([llaPosition]));
     }
   }, [mapCoordinates]);
 
-  const addToPanelArray = (panelType: PanelType, bodyData: undefined | TelemetryState) => setPanelArray(panelArray.concat({
+  const addToPanelArray = (panelType: PanelType, bodyData?: TelemetryState) => setPanelArray(panelArray.concat({
     id: lastPanelId++,
     panelType: panelType,
     bodyData: bodyData,
@@ -67,12 +74,26 @@ function App() {
       <div className="ToolBar">
         <div className="ToolBarTitle">MissionControl</div>
         <div className="ToolBarButtons">
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.CommandingPanel, undefined)}>Commanding {SvgIcon("satellite-uplink")}</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.TelemetryPanel, { preset: TelemetryPresets.Custom, rowTypes: [] })}>Telemetry {SvgIcon("table")}</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.GraphingPanel, undefined)}>Graphing {SvgIcon("chart-line")}</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.MappingPanel, undefined)}>Mapping {SvgIcon("map")}</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.OrbitVisPanel, undefined)}>OrbitVis {SvgIcon("earth")}</button>
-          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.AttitudeVisPanel, undefined)}>AttitudeVis {SvgIcon("target")}</button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.CommandingPanel)}>
+            Commanding {SvgIcon("satellite-uplink")}
+          </button>
+          <button
+            className="ToolButton"
+            onClick={() => addToPanelArray(PanelType.TelemetryPanel, { preset: TelemetryPresets.Custom, rowTypes: [] })}>
+            Telemetry {SvgIcon("table")}
+          </button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.GraphingPanel)}>
+            Graphing {SvgIcon("chart-line")}
+          </button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.MappingPanel)}>
+            Mapping {SvgIcon("map")}
+          </button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.OrbitVisPanel)}>
+            OrbitVis {SvgIcon("earth")}
+          </button>
+          <button className="ToolButton" onClick={() => addToPanelArray(PanelType.AttitudeVisPanel)}>
+            AttitudeVis {SvgIcon("target")}
+          </button>
         </div>
       </div>
       <SimulationContext value={simulationState}>
@@ -115,7 +136,7 @@ function App() {
                         }}
                         updatePresetCallback={state => {
                           const panels = structuredClone(panelArray);
-                          panels[index].bodyData!.rowTypes = rowsFromPreset(state as TelemetryPresets)!;
+                          panels[index].bodyData!.rowTypes = rowsFromPreset(state)!;
                           setPanelArray(panels);
                         }} />
                     </Panel>
