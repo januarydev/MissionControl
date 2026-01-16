@@ -19,10 +19,10 @@ interface RowProps {
 
 function Row(props: RowProps) {
   return (
-    <tr>
-      <td>{props.mnemonic}</td>
-      <td>{props.value} {props.unit} <IconButton id="close-box" onClick={props.onClick} /></td>
-    </tr>
+    <div className="TelemetryRow">
+      <div className="TelemetryData">{props.mnemonic}</div>
+      <div className="TelemetryData">{props.value} {props.unit} <IconButton className="CloseRowIcon" id="close-box" onClick={props.onClick} /></div>
+    </div>
   );
 }
 
@@ -127,17 +127,13 @@ export function Telemetry(props: TelemetryProps) {
           <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.Period)}>Orbit Period (hr)</option>
         </select>
       </label>
-      <table className="TelemetryTable">
-        <thead>
-          <tr>
-            <th>Mnemonic</th>
-            <th>Value (Unit)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {props.telemetryState.rowTypes.map((point, index) => createRow(point, index))}
-        </tbody>
-      </table>
+      <div className="TelemetryTable">
+        <div className="TelemetryRow">
+          <div className="TelemetryHeader">Mnemonic</div>
+          <div className="TelemetryHeader">Value (Unit)</div>
+        </div>
+        {props.telemetryState.rowTypes.map((point, index) => createRow(point, index))}
+      </div>
     </div>
   );
 }
