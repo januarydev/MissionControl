@@ -136,7 +136,9 @@ function App() {
                         }}
                         updatePresetCallback={state => {
                           const panels = structuredClone(panelArray);
-                          panels[index].bodyData!.rowTypes = rowsFromPreset(state)!;
+                          const bodyData = panels[index].bodyData!;
+                          bodyData.rowTypes = rowsFromPreset(state)!;
+                          bodyData.preset = state;
                           setPanelArray(panels);
                         }} />
                     </Panel>

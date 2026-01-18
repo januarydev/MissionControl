@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { rowDetailsFromType, TelemetryPoints, TelemetryPresets, TelemetryState } from "../types/TelemetryTypes"
 import { IconButton } from "./IconButton";
 import { SimulationContext } from "../types/SimulationState";
+import { Dropdown } from "./Dropdown";
 
 interface TelemetryProps {
   telemetryState: TelemetryState;
@@ -48,47 +49,50 @@ export function Telemetry(props: TelemetryProps) {
 
   return (
     <div className="TelemetryContainer">
-      <label className="TelemetrySelect">
-        Select preset:
-        <select value={props.telemetryState.preset} onChange={selected => props.updatePresetCallback(selected.target.value as TelemetryPresets)}>
-          <option value={TelemetryPresets.Custom}>Custom</option>
-          <option value={TelemetryPresets.Preset1}>All Telemetry</option>
-          <option value={TelemetryPresets.Preset2}>ECI Coordinates</option>
-          <option value={TelemetryPresets.Preset3}>ECEF Coordinates</option>
-          <option value={TelemetryPresets.Preset4}>Orbital Elements</option>
-        </select>
-      </label>
-      <label className="TelemetrySelect">
-        Add to table:
-        <select onChange={ev => ev.preventDefault()} value="select">
-          <option value="select">Select...</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.ElapsedTime)}>Elapsed Time (s)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.PosEciX)}>Position ECI X (km)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.PosEciY)}>Position ECI Y (km)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.PosEciZ)}>Position ECI Z (km)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.VelEciX)}>Velocity ECI X (km/s)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.VelEciY)}>Velocity ECI Y (km/s)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.VelEciZ)}>Velocity ECI Z (km/s)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.PosEcefX)}>Position ECEF X (km)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.PosEcefY)}>Position ECEF Y (km)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.PosEcefZ)}>Position ECEF Z (km)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.VelEcefX)}>Velocity ECEF X (km/s)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.VelEcefY)}>Velocity ECEF Y (km/s)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.VelEcefZ)}>Velocity ECEF Z (km/s)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.RightAscens)}>Right Ascension (deg)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.Declination)}>Declination (deg)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.Elevation)}>Elevation (km)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.SAM)}>SAM (km2/s)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.Inclination)}>Inclination (deg)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.RAAN)}>RAAN (deg)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.Eccentricity)}>Eccentricity</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.AoP)}>Argument of Perigee (deg)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.TrueAnom)}>True Anomaly (deg)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.Periapsis)}>Periapsis Altitude (km)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.Apoapsis)}>Apoapsis Altitude (km)</option>
-          <option onClick={() => props.addToRowArrayCallback(TelemetryPoints.Period)}>Orbit Period (hr)</option>
-        </select>
-      </label>
+      <Dropdown
+        label="Select preset:"
+        selected={props.telemetryState.preset}
+        onChange={selected => props.updatePresetCallback(selected as TelemetryPresets)}
+        options={[
+          { value: TelemetryPresets.Custom, text: "Custom" },
+          { value: TelemetryPresets.Preset1, text: "All Telemetry" },
+          { value: TelemetryPresets.Preset2, text: "ECI Coordinates" },
+          { value: TelemetryPresets.Preset3, text: "ECEF Coordinates" },
+          { value: TelemetryPresets.Preset4, text: "Orbital Elements" }
+        ]}
+      />
+      <Dropdown
+        label="Add to table:"
+        selected="select"
+        options={[
+          { value: "select", text: "Select..." },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.ElapsedTime), text: "Elapsed Time" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.PosEciX), text: "Position ECI X" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.PosEciY), text: "Position ECI Y" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.PosEciZ), text: "Position ECI Z" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.VelEciX), text: "Velocity ECI X" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.VelEciY), text: "Velocity ECI Y" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.VelEciZ), text: "Velocity ECI Z" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.PosEcefX), text: "Position ECEF X" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.PosEcefY), text: "Position ECEF Y" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.PosEcefZ), text: "Position ECEF Z" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.VelEcefX), text: "Velocity ECEF X" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.VelEcefY), text: "Velocity ECEF Y" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.VelEcefZ), text: "Velocity ECEF Z" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.RightAscens), text: "Right Ascension" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.Declination), text: "Declination" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.Elevation), text: "Elevation" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.SAM), text: "SAM" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.Inclination), text: "Inclination" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.RAAN), text: "RAAN" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.Eccentricity), text: "Eccentricity" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.AoP), text: "Argument of Perigee" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.TrueAnom), text: "True Anomaly" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.Periapsis), text: "Periapsis Altitude" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.Apoapsis), text: "Apoapsis Altitude" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.Period), text: "Orbit Period" }
+        ]}
+      />
       <div className="TelemetryTable">
         <div className="TelemetryRow">
           <div className="TelemetryHeader">Mnemonic</div>
