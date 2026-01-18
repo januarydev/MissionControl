@@ -23,19 +23,25 @@ impl PseudoRealTime {
     }
 
     /// Accessor for the time multipler.
-    pub fn set_time_multiplier(&mut self, time_multiplier: f64) { self.time_multiplier = time_multiplier; }
+    pub fn set_time_multiplier(&mut self, time_multiplier: f64) {
+        self.time_multiplier = time_multiplier;
+    }
 
     /// Accessor for the time multipler.
-    pub fn get_time_multiplier(&self) -> f64 { self.time_multiplier }
+    pub fn get_time_multiplier(&self) -> f64 {
+        self.time_multiplier
+    }
 
     /// Accessor for simulation elapsed time in milliseconds.
-    pub fn get_elapsed_time_ms(&self) -> f64 { self.elapsed_time_ms }
+    pub fn get_elapsed_time_ms(&self) -> f64 {
+        self.elapsed_time_ms
+    }
 
     /// Determine if task should be run on current cycle for configured execution rate.
     /// Rounds to nearest tick, so will "alias" a rate to the closest even division of the base rate.
     pub fn check_run_tick(&self, rate_hz: f64) -> bool {
         let ticks_per_cycle = (1.0 / rate_hz / self.tick_period.as_secs_f64()).round() as u64;
-        self.elapsed_ticks % ticks_per_cycle == 0
+        self.elapsed_ticks.is_multiple_of(ticks_per_cycle)
     }
 
     /// Calculate when the next real-time tick should take place and sleep till that instant.

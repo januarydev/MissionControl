@@ -5,9 +5,15 @@ use crate::simulation::vec3::Vec3;
 /// Simple row-major Mat3 implementation including basic math operations.
 #[derive(Copy, Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Mat3 {
-    pub r1c1: f64, pub r1c2: f64, pub r1c3: f64,
-    pub r2c1: f64, pub r2c2: f64, pub r2c3: f64,
-    pub r3c1: f64, pub r3c2: f64, pub r3c3: f64,
+    pub r1c1: f64,
+    pub r1c2: f64,
+    pub r1c3: f64,
+    pub r2c1: f64,
+    pub r2c2: f64,
+    pub r2c3: f64,
+    pub r3c1: f64,
+    pub r3c2: f64,
+    pub r3c3: f64,
 }
 
 impl Mat3 {

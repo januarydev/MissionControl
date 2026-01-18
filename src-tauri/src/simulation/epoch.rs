@@ -26,20 +26,29 @@ impl Epoch {
     pub fn from_calendar(year: u32, month: u8, day: u8, hour: u8, minute: u8, second: f64) -> Self {
         let julian_year = if month > 2 { year } else { year - 1 };
         let julian_month = if month > 2 { month + 1 } else { month + 13 };
-        let mut julian_day = (DAYS_PER_YEAR * julian_year as f64).floor() as u32 + (DAYS_PER_MONTH_INDEX * julian_month as f64).floor() as u32 + day as u32 + INTEGER_DAY_ADJUSTMNET;
+        let mut julian_day = (DAYS_PER_YEAR * julian_year as f64).floor() as u32
+            + (DAYS_PER_MONTH_INDEX * julian_month as f64).floor() as u32
+            + day as u32
+            + INTEGER_DAY_ADJUSTMNET;
         let century = (YEAR_CENTURY_MASK * julian_year as f64).floor() as u32;
         julian_day -= century - (CORRECTION_400_YEAR * century as f64).floor() as u32 - (CORRECTION_4000_YEAR * century as f64).floor() as u32;
         Self {
             days: julian_day - J2000_JULIAN_DATE,
-            seconds: (hour - CORRECTION_24_HOUR) as f64 * MINUTES_PER_HOUR as f64 * SECONDS_PER_MINUTE as f64 + minute as f64 * SECONDS_PER_MINUTE as f64 + second,
+            seconds: (hour - CORRECTION_24_HOUR) as f64 * MINUTES_PER_HOUR as f64 * SECONDS_PER_MINUTE as f64
+                + minute as f64 * SECONDS_PER_MINUTE as f64
+                + second,
         }
     }
 
     /// Accessor for days (J2000) member.
-    pub fn get_current_days(&self) -> u32 { self.days }
+    pub fn get_current_days(&self) -> u32 {
+        self.days
+    }
 
     /// Accessor for seconds of day member.
-    pub fn get_current_seconds(&self) -> f64 { self.seconds }
+    pub fn get_current_seconds(&self) -> f64 {
+        self.seconds
+    }
 
     /// Propagate seconds of day by given step size.
     /// Roll over days at correct time point.
