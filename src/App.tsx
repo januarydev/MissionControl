@@ -12,7 +12,7 @@ import { AttitudeVis } from "./components/AttitudeVis";
 import { SimulationState } from "./types/SimulationState";
 import { IconButton } from "./components/IconButton";
 import { Constants } from "./types/Constants";
-import { CreateWindowState, GetCursorStyleFromWindow, GrabStartEvent, useWindow, WindowContext, WindowState } from "./types/Window";
+import { GetCursorStyleFromWindow, useWindow, WindowContext } from "./types/Window";
 import { Clickable } from "./components/Clickable";
 import { CameraContext, CameraState, CreateCameraState } from "./types/CameraContext";
 import { Pannable } from "./components/Pannable";
@@ -51,8 +51,6 @@ function App() {
   const [verticalThumbStart, setVerticalThumbStart] = useState<number>(0);
   const [verticalRelativeThumbStart, setVerticalRelativeThumbStart] = useState<number>(0);
   const displayAreaRef = useRef<HTMLDivElement>(null);
-
-  
 
   const handleSimulationUpdate = useCallback((ev: TauriEvent<SimulationState>) => {
     setSimulationState(ev.payload);
