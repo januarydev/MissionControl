@@ -3,8 +3,10 @@ import { IconButton } from "./IconButton"
 import { Constants } from "../types/Constants";
 import { Grabbable } from "./Grabbable";
 import { CameraContext } from "../types/CameraContext";
+import { SvgIcon } from "./SvgIcon";
 
 interface PanelProps {
+  iconId: string;
   title: string;
   onClose: () => void;
 }
@@ -29,9 +31,9 @@ export const Panel = memo((props: PropsWithChildren<PanelProps>) => {
             setRelativePosition([0, 0]);
           }}
         >
-          <div className="PanelTitle">{props.title}</div>
+          <div className="PanelTitle">{SvgIcon(props.iconId)}{props.title}</div>
         </Grabbable>
-        <IconButton id="close-box" fill={Constants.iconButtonFill} hoverFill={Constants.exitButtonHoverFill} onClick={() => props.onClose()} />
+        <IconButton id="close-box" hoverFill={Constants.exitButtonHoverFill} onClick={() => props.onClose()} />
       </div>
       <div className="PanelArea">{props.children}</div>
     </div>

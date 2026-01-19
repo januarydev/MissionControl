@@ -61,50 +61,92 @@
         "second"
       ]
     },
-    "bodies": {
-      "description": "Array of bodies to include in simulation EXCLUDING EARTH (always included by default)",
+    "unfocused_bodies": {
+      "description": "Array of bodies to include in background simulation EXCLUDING EARTH (always included by default)",
       "type":"array",
-      "minItems": 1,
       "items": {
         "type":"object",
-        "properties": {
-          "name": {
-            "description": "Body name",
-            "type": "string"
-          },
-          "mass_kg": {
-            "description": "Body mass, kg",
-            "type": "number",
-            "exclusiveMinimum": 0
-          },
-          "position_eci_km": {
-            "description": "Position of the body at simulation start in J2000 ECI, km",
-            "type": "array",
-            "minItems": 3,
-            "maxItems": 3,
-            "items": {"type": "number"}
-          },
-          "velocity_eci_km_s": {
-            "description": "Velocity of the body at simulation start in J2000 ECI, km/s",
-            "type": "array",
-            "minItems": 3,
-            "maxItems": 3,
-            "items": {"type": "number"}
-          }
-        },
-        "required": [
-          "name",
-          "mass_kg",
-          "position_eci_km",
-          "velocity_eci_km_s"
-        ]
+        "$ref": "#/$defs/body"
       }
+    },
+    "focused_body": {
+      "description": "Description of the body that can be controlled with commands and is focused for telemetry.",
+      "type":"object",
+      "$ref": "#/$defs/body"
     }
   },
   "required": [
     "base_rate_hz",
     "frontend_update_rate_hz",
     "initial_time",
-    "bodies"
-  ]
+    "unfocused_bodies",
+    "focused_body"
+  ],
+  "$defs": {
+    "body": {
+      "properties": {
+        "name": {
+          "description": "Body name",
+          "type": "string"
+        },
+        "mass_kg": {
+          "description": "Body mass, kg",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "position_eci_km": {
+          "description": "Position of the body at simulation start in J2000 ECI, km",
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"type": "number"}
+        },
+        "velocity_eci_km_s": {
+          "description": "Velocity of the body at simulation start in J2000 ECI, km/s",
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"type": "number"}
+        },
+        "perturbation_stats": {
+          "description": "Optional parameters for perturbation models (will not include perturbation modelling for body if not present).",
+          "type": "object",
+          "properties": {
+            "aero_drag_area_m2": {
+              "description": "Effective 'cannonball' model surface area for aerodynamic drag perturbation, m^2.",
+              "type": "number",
+              "minimum": 0
+            },
+            "aero_drag_coef": {
+              "description": "Dimensionless coefficient of drag for aerodynamic drag perturbation.",
+              "type": "number",
+              "minimum": 0
+            },
+            "solar_rad_pres_area_m2": {
+              "description": "Effective 'cannonball' model of surface area for solar radiation pressure perturbation, m^2",
+              "type": "number",
+              "minimum": 0
+            },
+            "solar_rad_pres_coef": {
+              "description": "Dimensionless coefficient of absorption for solar radiation pressure perturbation.",
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "aero_drag_area_m2",
+            "aero_drag_coef",
+            "solar_rad_pres_area_m2",
+            "solar_rad_pres_coef"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "mass_kg",
+        "position_eci_km",
+        "velocity_eci_km_s"
+      ]
+    }
+  }
 }

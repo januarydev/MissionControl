@@ -7,6 +7,15 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('PressStart2P.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   font-family: "Anaheim", sans-serif;
   font-optical-sizing: auto;
@@ -43,6 +52,7 @@ button {
   font-weight: 400;
   margin: 0.1em;
   padding: 0.1em;
+  border-color: var(--background-color-accent-2);
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
   cursor: inherit;
@@ -60,6 +70,13 @@ button:hover {
   min-height: 100vh;
 }
 
+.SvgIcon {
+  display: inline;
+  height: 1em;
+  vertical-align: middle;
+  padding: 0.0em 0.3em 0.1em 0.1em;
+}
+
 .ToolBar {
   display: flex;
   flex-direction: column;
@@ -73,7 +90,7 @@ button:hover {
 }
 
 .ToolBarTitle {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   color: var(--text-color-accent-4);
   background-color: var(--background-color-accent-4);
   padding: 0.25em;
@@ -85,12 +102,16 @@ button:hover {
   flex-direction: column;
 }
 
+.ToolButton {
+  text-align: end;
+}
+
 .WorkArea {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   margin: 0.1em;
-  border-color: var(--background-color-accent-2);;
+  border-color: var(--background-color-accent-2);
   border-style: solid;
   border-width: 2px;
   border-radius: 5px;
@@ -101,6 +122,7 @@ button:hover {
 .WorkAreaMenuBar {
   display: flex;
   justify-content: space-between;
+  font-size: 1.1rem;
   padding: 0 0.25em;
   color: var(--text-color-accent-4);
   background-color: var(--background-color-accent-4);
@@ -135,12 +157,11 @@ button:hover {
   position: absolute;
   display: flex;
   flex-direction: column;
-  min-width: 30ch;
+  min-width: 40ch;
   margin: 0.4em 0.0em 0.0em 0.3em;
   border-radius: 3px;
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
-  overflow: hidden;
   box-shadow: 0.1em 0.1em 0.5em rgba(0, 0, 0, 0.5);
 }
 
@@ -148,6 +169,8 @@ button:hover {
   display: flex;
   flex-direction: row;
   padding: 0 0.25em;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
   color: var(--text-color-accent-4);
   background-color: var(--background-color-accent-4);
 }
@@ -156,6 +179,7 @@ button:hover {
   padding: 0.1em;
   margin-left: 0.1em;
   flex-grow: 1;
+  font-size: 1.1rem;
 }
 
 .PanelArea {
@@ -163,24 +187,102 @@ button:hover {
   margin-top: 0.2em;
 }
 
-table {
-  border-collapse: collapse;
+.TelemetrySelect {
+  display: flex;
+  justify-content: space-between;
+  padding: 0em 0em 0em 0.1em;
+}
+
+.DropdownLabel {
+  display: flex;
+  justify-content: space-between;
+}
+
+.DropdownSelect, .DropdownOptionsContainer {
+  width: 20ch;
+  text-indent: 0.2em;
+  border-radius: 0.25em;
+  border: 1px solid var(--background-color-accent-2);
+}
+
+.DropdownSelect {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  color: var(--text-color-accent-4);
+  background-color: var(--background-color-accent-4);
+}
+
+.DropdownOptionsContainer {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  left: 0px;
+  right: 0px;
+  overflow: auto;
+  max-height: 800px;
+}
+
+.DropdownOption {
+  color: var(--text-color-accent-3);
+  background-color: var(--background-color-accent-3);
+}
+
+.DropdownOption:hover {
   color: var(--text-color-accent-1);
   background-color: var(--background-color-accent-1);
 }
 
-th {
-  padding: 0.25em;
-  font-size: 0.9em;
-  border: 1px solid var(--background-color-accent-4);
-  color: var(--text-color-accent-2);
-  background-color: var(--background-color-accent-2);
+.TelemetryTable {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.25em;
+  min-width: 40ch;
+  margin: 0.25em 0 0 0;
+  color: var(--text-color-accent-1);
+  background-color: var(--background-color-accent-1);
 }
 
-td {
-  border: 1px solid var(--background-color-accent-2);
-  padding: 0.25em;
-  font-size: 0.9em;
+.TelemetryRow {
+  display: flex;
+  flex-direction: row;
+}
+
+.TelemetryHeader, .TelemetryData {
+  flex: 1;
+  border-bottom: 1px solid var(--background-color-accent-2);
+  padding: 0.15em 0.25em;
+}
+
+.TelemetryHeader {
+  font-weight: 600;
+  text-align: center;
+}
+
+.TelemetryData {
+  display: flex;
+  justify-content: end;
+  gap: 0.25em;
+}
+
+.CloseRowIcon {
+  width: 1em;
+}
+
+.MappingContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.Mapping {
+  width: 100%;
+  min-width: 800px;
+  background-color: var(--background-color-accent-1);
+}
+
+.MappingSubtitle {
+  padding: 0.1em 0.2em;
   text-align: end;
 }
 
@@ -256,4 +358,22 @@ td {
 
 .ScrollHorizontalThumb:hover {
   background-color: var(--background-color-accent-4);
+}
+
+.NoleContainer {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.15em;
+  color: var(--text-color-accent-1);
+  background-color: var(--background-color-accent-1);
+}
+
+.Nole {
+  width: 500px;
+}
+
+.NoleText {
+  font-family: "Press Start 2P", system-ui;
+  text-align: center;
+  padding: 1em;
 }

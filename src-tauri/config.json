@@ -3,7 +3,7 @@
   "base_rate_hz": 100,
   "frontend_update_rate_hz": 1,
   "initial_time": {"year": 2022, "month": 1, "day": 3, "hour": 12, "minute": 0, "second": 0},
-  "bodies": [
+  "unfocused_bodies": [
     {
       "name": "Sun",
       "mass_kg": 1.989e+30,
@@ -27,12 +27,18 @@
       "mass_kg": 7.348e+22,
       "position_eci_km": [95588.51403895, -307826.35251934, -158261.2686987],
       "velocity_eci_km_s": [1.05971864, 0.27971128, 0.04331688]
-    },
-    {
-      "name": "Spacecraft (ISS)",
-      "mass_kg": 459023,
-      "position_eci_km": [-1325.896391725290, 5492.890955896010, 3762.423747679220],
-      "velocity_eci_km_s": [-4.87470128630892, -4.10251688094599, 4.26428812476909]
     }
-  ]
+  ],
+  "focused_body": {
+    "name": "ISS",
+    "mass_kg": 459023,
+    "position_eci_km": [-1325.896391725290, 5492.890955896010, 3762.423747679220],
+    "velocity_eci_km_s": [-4.87470128630892, -4.10251688094599, 4.26428812476909],
+    "perturbation_stats": {
+      "aero_drag_area_m2": 1951,
+      "aero_drag_coef": 2,
+      "solar_rad_pres_area_m2": 1500,
+      "solar_rad_pres_coef": 1.8
+    }
+  }
 }
