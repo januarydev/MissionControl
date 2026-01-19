@@ -1,5 +1,5 @@
 {
-  "$schema":"https://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema#",
   "properties": {
     "base_rate_hz": {
       "description": "Simulation base step rate, hz",
@@ -63,16 +63,39 @@
     },
     "unfocused_bodies": {
       "description": "Array of bodies to include in background simulation EXCLUDING EARTH (always included by default)",
-      "type":"array",
+      "type": "array",
       "items": {
-        "type":"object",
+        "type": "object",
         "$ref": "#/$defs/body"
       }
     },
     "focused_body": {
       "description": "Description of the body that can be controlled with commands and is focused for telemetry.",
-      "type":"object",
-      "$ref": "#/$defs/body"
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/body"
+        },
+        {
+          "properties": {
+            "q_inertial_to_body": {
+              "description": "Initial (normalized) quaternion from inertial frame to body attitude forward direction in [x, y, z, w] order.",
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "type": "number",
+                "minimum": -1,
+                "maximum": 1
+              }
+            }
+          },
+          "required": [
+            "q_inertial_to_body"
+          ],
+          "additionalProperties": false
+        }
+      ]
     }
   },
   "required": [
@@ -99,14 +122,18 @@
           "type": "array",
           "minItems": 3,
           "maxItems": 3,
-          "items": {"type": "number"}
+          "items": {
+            "type": "number"
+          }
         },
         "velocity_eci_km_s": {
           "description": "Velocity of the body at simulation start in J2000 ECI, km/s",
           "type": "array",
           "minItems": 3,
           "maxItems": 3,
-          "items": {"type": "number"}
+          "items": {
+            "type": "number"
+          }
         },
         "perturbation_stats": {
           "description": "Optional parameters for perturbation models (will not include perturbation modelling for body if not present).",

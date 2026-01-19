@@ -7,6 +7,7 @@ mod n_body;
 mod psuedo_real_time;
 mod quaternion;
 mod simulation_state;
+mod torques;
 mod ussa76;
 mod vec3;
 
@@ -19,6 +20,7 @@ pub struct Simulation {
     time_source: psuedo_real_time::PseudoRealTime,
     simulated_time: epoch::Epoch,
     orbit_propagator: n_body::NBody,
+    spacecraft_attitude: torques::Torques,
 }
 
 impl Simulation {
@@ -39,6 +41,7 @@ impl Simulation {
                 config.initial_time.second,
             ),
             orbit_propagator: n_body::NBody::new(&config.unfocused_bodies, &config.focused_body),
+            spacecraft_attitude: torques::Torques::new(&config.focused_body.q_inertial_to_body.unwrap()),
         }
     }
 
