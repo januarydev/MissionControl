@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen, Event as TauriEvent } from "@tauri-apps/api/event";
 import "./App.css";
@@ -12,10 +12,12 @@ import { AttitudeVis } from "./components/AttitudeVis";
 import { SimulationState } from "./types/SimulationState";
 import { IconButton } from "./components/IconButton";
 import { Constants } from "./types/Constants";
-import { CreateWindowState, WindowContext, WindowState } from "./types/WindowContext";
+import { CreateWindowState, GetCursorStyleFromWindow, GrabStartEvent, useWindow, WindowContext, WindowState } from "./types/Window";
 import { Clickable } from "./components/Clickable";
-
-let lastPanelId: number = 0;
+import { CameraContext, CameraState, CreateCameraState } from "./types/CameraContext";
+import { Pannable } from "./components/Pannable";
+import { Scroll } from "./components/Scroll";
+import { Limit } from "./types/Math";
 
 enum PanelType {
   CommandingPanel,
@@ -29,245 +31,28 @@ enum PanelType {
 interface PanelData {
   id: number;
   panelType: PanelType;
+  startPosition: [number, number];
 }
 
 function generateTestData() {
   const data: [number, number, number][] = [];
-  for (let pt = 0; pt < 1000; ++pt) {
-    data.push([(pt / 1000.0) * 720 - 180, 15 * Math.cos((pt / 1000.0) * Math.PI * 2), (pt / 1000.0) * 2000000]);
+  for (let pt = 0; pt < 100; ++pt) {
+    data.push([(pt / 100.0) * 720 - 180, 15 * Math.cos((pt / 100.0) * Math.PI * 2), (pt / 100.0) * 2000000]);
   }
   return data;
 }
 
 function App() {
   const [simulationState, setSimulationState] = useState<SimulationState | undefined>(undefined);
-  const [windowState, setWindowState] = useState<WindowState>(CreateWindowState());
+  const [cameraState, setCameraState] = useState<CameraState>(CreateCameraState());
+  const [lastPanelId, setLastPanelId] = useState<number>(0);
+  const [horizontalThumbStart, setHorizontalThumbStart] = useState<number>(0);
+  const [horizontalRelativeThumbStart, setHorizontalRelativeThumbStart] = useState<number>(0);
+  const [verticalThumbStart, setVerticalThumbStart] = useState<number>(0);
+  const [verticalRelativeThumbStart, setVerticalRelativeThumbStart] = useState<number>(0);
+  const displayAreaRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseDown = useCallback((ev: MouseEvent) => {
-    if (ev.button === 0) {
-      ev.preventDefault();
-      setWindowState(windowState => ({
-        isMouseDown: true,
-        isDragging: false,
-        dragStartX: ev.x,
-        dragStartY: ev.y,
-        currentX: ev.x,
-        currentY: ev.y,
-        isClickableHovered: windowState.isClickableHovered,
-        isGrabbableHovered: windowState.isGrabbableHovered,
-        isResizableHovered: windowState.isResizableHovered,
-        isGrabbing: windowState.isGrabbing,
-        isResizing: windowState.isResizing
-      }));
-    }
-  }, [windowState]);
-
-  const handleMouseUp = useCallback((ev: MouseEvent) => {
-    if (ev.button === 0) {
-      setWindowState(windowState => ({
-        isMouseDown: false,
-        isDragging: false,
-        dragStartX: windowState.dragStartX,
-        dragStartY: windowState.dragStartY,
-        currentX: ev.x,
-        currentY: ev.y,
-        isClickableHovered: windowState.isClickableHovered,
-        isGrabbableHovered: windowState.isGrabbableHovered,
-        isResizableHovered: windowState.isResizableHovered,
-        isGrabbing: windowState.isGrabbing,
-        isResizing: windowState.isResizing
-      }));
-    }
-  }, [windowState]);
-
-  const dragThreshold = 10;
-
-  const handleMouseMove = useCallback((ev: MouseEvent) => {
-    const isDragging = windowState.isDragging || (
-      windowState.isMouseDown &&
-      (
-        Math.abs(ev.x - windowState.dragStartX) > dragThreshold ||
-        Math.abs(ev.y - windowState.dragStartY) > dragThreshold
-      )
-    );
-    setWindowState(windowState => ({
-      isMouseDown: windowState.isMouseDown,
-      isDragging: isDragging,
-      dragStartX: windowState.dragStartX,
-      dragStartY: windowState.dragStartY,
-      isClickableHovered: windowState.isClickableHovered,
-      currentX: ev.x,
-      currentY: ev.y,
-      isGrabbableHovered: windowState.isGrabbableHovered,
-      isResizableHovered: windowState.isResizableHovered,
-      isGrabbing: windowState.isGrabbing,
-      isResizing: windowState.isResizing
-    }));
-  }, [windowState]);
-
-  const handleClickableHoverEnter = useCallback(() => {
-    console.log('enter')
-    setWindowState(windowState => ({
-      isMouseDown: windowState.isMouseDown,
-      isDragging: windowState.isDragging,
-      dragStartX: windowState.dragStartX,
-      dragStartY: windowState.dragStartY,
-      isClickableHovered: true,
-      currentX: windowState.currentX,
-      currentY: windowState.currentY,
-      isGrabbableHovered: windowState.isGrabbableHovered,
-      isResizableHovered: windowState.isResizableHovered,
-      isGrabbing: windowState.isGrabbing,
-      isResizing: windowState.isResizing
-    }));
-    console.log(windowState)
-  }, [windowState]);
-
-  const handleClickableHoverLeave = useCallback(() => {
-    console.log('leave')
-    setWindowState(windowState => ({
-      isMouseDown: windowState.isMouseDown,
-      isDragging: windowState.isDragging,
-      dragStartX: windowState.dragStartX,
-      dragStartY: windowState.dragStartY,
-      isClickableHovered: false,
-      currentX: windowState.currentX,
-      currentY: windowState.currentY,
-      isGrabbableHovered: windowState.isGrabbableHovered,
-      isResizableHovered: windowState.isResizableHovered,
-      isGrabbing: windowState.isGrabbing,
-      isResizing: windowState.isResizing
-    }));
-    console.log(windowState)
-  }, [windowState]);
-
-  const handleGrabbableHoverEnter = useCallback(() => {
-    setWindowState(windowState => ({
-      isMouseDown: windowState.isMouseDown,
-      isDragging: windowState.isDragging,
-      dragStartX: windowState.dragStartX,
-      dragStartY: windowState.dragStartY,
-      isClickableHovered: windowState.isClickableHovered,
-      currentX: windowState.currentX,
-      currentY: windowState.currentY,
-      isGrabbableHovered: true,
-      isResizableHovered: windowState.isResizableHovered,
-      isGrabbing: windowState.isGrabbing,
-      isResizing: windowState.isResizing
-    }));
-  }, [windowState]);
-
-  const handleGrabbableHoverLeave = useCallback(() => {
-    setWindowState(windowState => ({
-      isMouseDown: windowState.isMouseDown,
-      isDragging: windowState.isDragging,
-      dragStartX: windowState.dragStartX,
-      dragStartY: windowState.dragStartY,
-      isClickableHovered: windowState.isClickableHovered,
-      currentX: windowState.currentX,
-      currentY: windowState.currentY,
-      isGrabbableHovered: false,
-      isResizableHovered: windowState.isResizableHovered,
-      isGrabbing: windowState.isGrabbing,
-      isResizing: windowState.isResizing
-    }));
-  }, [windowState]);
-
-  const handleGrabStart = useCallback(() => {
-    setWindowState(windowState => ({
-      isMouseDown: windowState.isMouseDown,
-      isDragging: windowState.isDragging,
-      dragStartX: windowState.dragStartX,
-      dragStartY: windowState.dragStartY,
-      isClickableHovered: windowState.isClickableHovered,
-      currentX: windowState.currentX,
-      currentY: windowState.currentY,
-      isGrabbableHovered: windowState.isGrabbableHovered,
-      isResizableHovered: windowState.isResizableHovered,
-      isGrabbing: true,
-      isResizing: windowState.isResizing
-    }));
-  }, [windowState]);
-
-  const handleGrabEnd = useCallback(() => {
-    setWindowState(windowState => ({
-      isMouseDown: windowState.isMouseDown,
-      isDragging: windowState.isDragging,
-      dragStartX: windowState.dragStartX,
-      dragStartY: windowState.dragStartY,
-      isClickableHovered: windowState.isClickableHovered,
-      currentX: windowState.currentX,
-      currentY: windowState.currentY,
-      isGrabbableHovered: windowState.isGrabbableHovered,
-      isResizableHovered: windowState.isResizableHovered,
-      isGrabbing: false,
-      isResizing: windowState.isResizing
-    }));
-  }, [windowState]);
-
-  const handleResizableHoverEnter = useCallback(() => {
-    setWindowState(windowState => ({
-      isMouseDown: windowState.isMouseDown,
-      isDragging: windowState.isDragging,
-      dragStartX: windowState.dragStartX,
-      dragStartY: windowState.dragStartY,
-      isClickableHovered: windowState.isClickableHovered,
-      currentX: windowState.currentX,
-      currentY: windowState.currentY,
-      isGrabbableHovered: windowState.isGrabbableHovered,
-      isResizableHovered: true,
-      isGrabbing: windowState.isGrabbing,
-      isResizing: windowState.isResizing
-    }));
-  }, [windowState]);
-
-  const handleResizableHoverLeave = useCallback(() => {
-    setWindowState(windowState => ({
-      isMouseDown: windowState.isMouseDown,
-      isDragging: windowState.isDragging,
-      dragStartX: windowState.dragStartX,
-      dragStartY: windowState.dragStartY,
-      isClickableHovered: windowState.isClickableHovered,
-      currentX: windowState.currentX,
-      currentY: windowState.currentY,
-      isGrabbableHovered: windowState.isGrabbableHovered,
-      isResizableHovered: false,
-      isGrabbing: windowState.isGrabbing,
-      isResizing: windowState.isResizing
-    }));
-  }, [windowState]);
-
-  const handleResizeStart = useCallback(() => {
-    setWindowState(windowState => ({
-      isMouseDown: windowState.isMouseDown,
-      isDragging: windowState.isDragging,
-      dragStartX: windowState.dragStartX,
-      dragStartY: windowState.dragStartY,
-      isClickableHovered: windowState.isClickableHovered,
-      currentX: windowState.currentX,
-      currentY: windowState.currentY,
-      isGrabbableHovered: windowState.isGrabbableHovered,
-      isResizableHovered: windowState.isResizableHovered,
-      isGrabbing: windowState.isGrabbing,
-      isResizing: true
-    }));
-  }, [windowState]);
-
-  const handleResizeEnd = useCallback(() => {
-    setWindowState(windowState => ({
-      isMouseDown: windowState.isMouseDown,
-      isDragging: windowState.isDragging,
-      dragStartX: windowState.dragStartX,
-      dragStartY: windowState.dragStartY,
-      isClickableHovered: windowState.isClickableHovered,
-      currentX: windowState.currentX,
-      currentY: windowState.currentY,
-      isGrabbableHovered: windowState.isGrabbableHovered,
-      isResizableHovered: windowState.isResizableHovered,
-      isGrabbing: windowState.isGrabbing,
-      isResizing: false
-    }));
-  }, [windowState]);
+  
 
   const handleSimulationUpdate = useCallback((ev: TauriEvent<SimulationState>) => {
     setSimulationState(ev.payload);
@@ -275,82 +60,35 @@ function App() {
 
   useEffect(() => {
     const unlistenPromise = listen<SimulationState>("update", handleSimulationUpdate);
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("clickablehoverenter", handleClickableHoverEnter);
-    window.addEventListener("clickablehoverleave", handleClickableHoverLeave);
-    window.addEventListener("grabbablehoverenter", handleGrabbableHoverEnter);
-    window.addEventListener("grabbablehoverleave", handleGrabbableHoverLeave);
-    window.addEventListener("grabstart", handleGrabStart);
-    window.addEventListener("grabend", handleGrabEnd);
-    window.addEventListener("resizablehoverenter", handleResizableHoverEnter);
-    window.addEventListener("resizablehoverleave", handleResizableHoverLeave);
-    window.addEventListener("resizestart", handleResizeStart);
-    window.addEventListener("resizeend", handleResizeEnd);
-
     return () => {
-      window.removeEventListener("resizeend", handleResizeEnd);
-      window.removeEventListener("resizestart", handleResizeStart);
-      window.removeEventListener("resizablehoverleave", handleResizableHoverLeave);
-      window.removeEventListener("resizablehoverenter", handleResizableHoverEnter);
-      window.removeEventListener("grabend", handleGrabEnd);
-      window.removeEventListener("grabstart", handleGrabStart);
-      window.removeEventListener("grabbablehoverleave", handleGrabbableHoverLeave);
-      window.removeEventListener("grabbablehoverenter", handleGrabbableHoverEnter);
-      window.removeEventListener("clickablehoverleave", handleClickableHoverLeave);
-      window.removeEventListener("clickablehoverenter", handleClickableHoverEnter);
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("mousedown", handleMouseDown);
       unlistenPromise.then(unlisten => unlisten());
-    };
-  }, [
-    handleSimulationUpdate,
-    handleMouseDown,
-    handleMouseUp,
-    handleMouseMove,
-    handleClickableHoverEnter,
-    handleClickableHoverLeave,
-    handleGrabbableHoverEnter,
-    handleGrabbableHoverLeave,
-    handleGrabStart,
-    handleGrabEnd,
-    handleResizableHoverEnter,
-    handleResizableHoverLeave,
-    handleResizeStart,
-    handleResizeEnd
-  ]);
+    }
+  }, [handleSimulationUpdate]);
 
   const [panelArray, setPanelArray] = useState<PanelData[]>([]);
-  const addToPanelArray = (panelType: PanelType) => setPanelArray(panelArray.concat({
-    id: lastPanelId++,
-    panelType: panelType
-  }));
-  const removeFromPanelArray = (id: number) => setPanelArray(panelArray.filter(panel => panel.id !== id))
-  const testData = generateTestData();
-
-  const getCursor = (windowState: WindowState) => {
-    if (windowState.isGrabbing) {
-      return "grabbing";
+  const addToPanelArray = (panelType: PanelType) => {
+    const displayArea = displayAreaRef.current;
+    if (displayArea) {
+      const children = displayArea.children;
+      for (var i = 0; i < children.length; i++) {
+        const child = children[i];
+        console.log(child.getBoundingClientRect())
+      }
     }
-    if (windowState.isResizing) {
-      return "se-resize";
-    }
-    if (windowState.isClickableHovered) {
-      return "pointer";
-    }
-    if (windowState.isGrabbableHovered) {
-      return "grab";
-    }
-    if (windowState.isResizableHovered) {
-      return "se-resize";
-    }
-    return "default";
+    setPanelArray(arr => arr.concat({
+      id: lastPanelId,
+      panelType: panelType,
+      startPosition: [0, 0]
+    }));
+    setLastPanelId(id => id + 1);
   };
+  const removeFromPanelArray = (id: number) => setPanelArray(panelArray.filter(panel => panel.id !== id))
+  const testData = useMemo(() => generateTestData(), []);
+
+  const windowState = useWindow();
 
   return (
-    <main className="container" style={{cursor: getCursor(windowState)}}>
+    <main className="container" style={{cursor: GetCursorStyleFromWindow(windowState)}}>
       <div className="ToolBar">
         <div className="ToolBarTitle">MissionControl</div>
         <div className="ToolBarButtons">
@@ -376,54 +114,102 @@ function App() {
           </div>
         </div>
         <WindowContext value={windowState}>
-          <div>
-            {getCursor(windowState)}
-            {JSON.stringify(windowState)}
-          </div>
-          <div className="DisplayArea">
-            {panelArray.map((panelData, index) => {
-              switch (panelData.panelType) {
-                case PanelType.CommandingPanel:
-                  return(
-                    <Panel key={index} title="Commanding" onClose={() => removeFromPanelArray(panelData.id)}>
-                      <Commanding state={simulationState} />
-                    </Panel>
-                  );
-                case PanelType.TelemetryPanel:
-                  return(
-                    <Panel key={index} title="Telemetry" onClose={() => removeFromPanelArray(panelData.id)}>
-                      <Telemetry state={simulationState} />
-                    </Panel>
-                  );
-                case PanelType.GraphingPanel:
-                  return(
-                    <Panel key={index} title="Graphing" onClose={() => removeFromPanelArray(panelData.id)}>
-                      <Graphing state={simulationState} />
-                    </Panel>
-                  );
-                case PanelType.MappingPanel:
-                  return(
-                    <Panel key={index} title="Mapping" onClose={() => removeFromPanelArray(panelData.id)}>
-                      <Mapping data={testData} />
-                    </Panel>
-                  );
-                case PanelType.OrbitVisPanel:
-                  return(
-                    <Panel key={index} title="OrbitVis" onClose={() => removeFromPanelArray(panelData.id)}>
-                      <OrbitVis data={testData} />
-                    </Panel>
-                  );
-                case PanelType.AttitudeVisPanel:
-                  return(
-                    <Panel key={index} title="AttitudeVis" onClose={() => removeFromPanelArray(panelData.id)}>
-                      <AttitudeVis state={simulationState} />
-                    </Panel>
-                  );
-                default:
-                  return undefined
-              }
-            })}
-          </div>
+          <Pannable
+            onUpdateRelativeCameraPosition={(dx, dy) => {
+              setCameraState((st: CameraState) => {
+                return {
+                  x: st.x,
+                  y: st.y,
+                  relativeX: dx,
+                  relativeY: dy,
+                  scale: st.scale
+              }});
+            }}
+
+            onApplyRelativeCameraPosition={(dx, dy) => {
+              setCameraState((st: CameraState) => {
+                return {
+                  x: st.x + dx,
+                  y: st.y + dy,
+                  relativeX: 0,
+                  relativeY: 0,
+                  scale: st.scale
+              }});
+            }}
+          >
+            <div ref={displayAreaRef} className="DisplayArea">
+              <CameraContext value={cameraState}>
+                {panelArray.map((panelData, index) => {
+                  switch (panelData.panelType) {
+                    case PanelType.CommandingPanel:
+                      return(
+                        <Panel key={index} title="Commanding" onClose={() => removeFromPanelArray(panelData.id)}>
+                          <Commanding state={simulationState} />
+                        </Panel>
+                      );
+                    case PanelType.TelemetryPanel:
+                      return(
+                        <Panel key={index} title="Telemetry" onClose={() => removeFromPanelArray(panelData.id)}>
+                          <Telemetry state={simulationState} />
+                        </Panel>
+                      );
+                    case PanelType.GraphingPanel:
+                      return(
+                        <Panel key={index} title="Graphing" onClose={() => removeFromPanelArray(panelData.id)}>
+                          <Graphing state={simulationState} />
+                        </Panel>
+                      );
+                    case PanelType.MappingPanel:
+                      return(
+                        <Panel key={index} title="Mapping" onClose={() => removeFromPanelArray(panelData.id)}>
+                          <Mapping data={testData} />
+                        </Panel>
+                      );
+                    case PanelType.OrbitVisPanel:
+                      return(
+                        <Panel key={index} title="OrbitVis" onClose={() => removeFromPanelArray(panelData.id)}>
+                          <OrbitVis data={testData} />
+                        </Panel>
+                      );
+                    case PanelType.AttitudeVisPanel:
+                      return(
+                        <Panel key={index} title="AttitudeVis" onClose={() => removeFromPanelArray(panelData.id)}>
+                          <AttitudeVis state={simulationState} />
+                        </Panel>
+                      );
+                    default:
+                      return undefined
+                  }
+                })}
+                <Scroll
+                  IsVisible={true}
+                  ScrollDirection="horizontal"
+                  MinValue={0}
+                  MaxValue={1}
+                  ThumbStart={Limit(0, 0.8, horizontalThumbStart + horizontalRelativeThumbStart)}
+                  ThumbLength={0.2}
+                  OnRelativeThumbStartUpdate={delta => setHorizontalRelativeThumbStart(delta)}
+                  OnRelativeThumbStartApply={delta => {
+                    setHorizontalThumbStart(Limit(0, 0.8, horizontalThumbStart + delta));
+                    setHorizontalRelativeThumbStart(0);
+                  }}
+                />
+                <Scroll
+                  IsVisible={true}
+                  ScrollDirection="vertical"
+                  MinValue={0}
+                  MaxValue={1}
+                  ThumbStart={Limit(0, 0.8, verticalThumbStart + verticalRelativeThumbStart)}
+                  ThumbLength={0.2}
+                  OnRelativeThumbStartUpdate={delta => setVerticalRelativeThumbStart(delta)}
+                  OnRelativeThumbStartApply={delta => {
+                    setVerticalThumbStart(Limit(0, 0.8, verticalThumbStart + delta));
+                    setVerticalRelativeThumbStart(0);
+                  }}
+                />
+              </CameraContext>
+            </div>
+          </Pannable>
         </WindowContext>
       </div>
     </main>

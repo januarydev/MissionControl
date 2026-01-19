@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { ClickableHoverEnterEvent, ClickableHoverLeaveEvent } from "../types/WindowContext";
+import { ClickableHoverEnterEvent, ClickableHoverLeaveEvent } from "../types/Window";
 
 export function Clickable(props: PropsWithChildren) {
   return (
