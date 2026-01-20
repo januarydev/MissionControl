@@ -4,6 +4,7 @@ import { GrabbableHoverEnterEvent, GrabbableHoverLeaveEvent, GrabStartEvent, Win
 interface GrabbableProps {
   onUpdateRelativePosition: (dx: number, dy: number) => void;
   onApplyRelativePosition: (dx: number, dy: number) => void;
+  onGrabStart?: () => void;
 }
 
 export function Grabbable(props: PropsWithChildren<GrabbableProps>) {
@@ -53,6 +54,9 @@ export function Grabbable(props: PropsWithChildren<GrabbableProps>) {
       onMouseLeave={() => window.dispatchEvent(GrabbableHoverLeaveEvent)}
       onMouseDown={ev => {
         if (ev.button === 0) {
+          if (props.onGrabStart) {
+            props.onGrabStart();
+          }
           window.dispatchEvent(new GrabStartEvent(id))
         }
       }}

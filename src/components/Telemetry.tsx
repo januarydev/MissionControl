@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { rowDetailsFromType, TelemetryPoints, TelemetryPresets, TelemetryState } from "../types/TelemetryTypes"
 import { IconButton } from "./IconButton";
-import { SimulationContext } from "../types/SimulationState";
+import { SimulationContext } from "../types/Simulation";
 import { Dropdown } from "./Dropdown";
 import { Constants } from "../types/Constants";
 
