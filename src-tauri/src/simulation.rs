@@ -28,6 +28,7 @@ impl Simulation {
     /// Read parameters from config file and pass to applicable components.
     pub fn new(config_filename: &str) -> Self {
         let config = config::Config::from_file(config_filename);
+        // println!("focused_body: {body:#?}", body = config.focused_body);
         Self {
             paused: false,
             frontend_update_rate_hz: config.frontend_update_rate_hz as f64,
@@ -41,7 +42,10 @@ impl Simulation {
                 config.initial_time.second,
             ),
             orbit_propagator: n_body::NBody::new(&config.unfocused_bodies, &config.focused_body),
-            spacecraft_attitude: torques::Torques::new(&config.focused_body.q_inertial_to_body.unwrap()),
+            spacecraft_attitude: torques::Torques::new(
+                &config.focused_body.q_inertial_to_body.unwrap(),
+                &config.focused_body.inertia_kg_m2.unwrap(),
+            ),
         }
     }
 
