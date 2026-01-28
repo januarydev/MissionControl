@@ -1,4 +1,4 @@
-import { JSX, useCallback, useRef, useState } from "react";
+import { JSX, useRef, useState } from "react";
 import "./App.css";
 import { Panel } from "./components/Panel";
 import { Commanding } from "./components/Commanding";
@@ -12,8 +12,6 @@ import { SimulationContext, useSimulation } from "./types/Simulation.ts";
 import { GetCursorStyleFromWindow, useWindow, WindowContext } from "./types/Window";
 import { CameraContext, CameraState, CreateCameraState } from "./types/CameraContext";
 import { Pannable } from "./components/Pannable";
-import { Scroll } from "./components/Scroll";
-import { Limit } from "./types/Math";
 import { Nole } from "./components/Nole";
 import { ToolBar } from "./components/ToolBar.tsx";
 import { PanelType } from "./types/Panel.ts";
@@ -250,7 +248,9 @@ function App() {
                           setPanelArray(arr => {
                             const newArray = structuredClone(arr);
                             const panel = newArray[index];
-                            setToTop(panel, newArray);
+                            if (panel) {
+                              setToTop(panel, newArray);
+                            }
                             return newArray;
                           });
                         }}
@@ -259,32 +259,6 @@ function App() {
                       </Panel>
                     );
                   })}
-                  <Scroll
-                    IsVisible={true}
-                    ScrollDirection="horizontal"
-                    MinValue={0}
-                    MaxValue={1}
-                    ThumbStart={Limit(0, 0.8, horizontalThumbStart + horizontalRelativeThumbStart)}
-                    ThumbLength={0.2}
-                    OnRelativeThumbStartUpdate={delta => setHorizontalRelativeThumbStart(delta)}
-                    OnRelativeThumbStartApply={delta => {
-                      setHorizontalThumbStart(Limit(0, 0.8, horizontalThumbStart + delta));
-                      setHorizontalRelativeThumbStart(0);
-                    }}
-                  />
-                  <Scroll
-                    IsVisible={true}
-                    ScrollDirection="vertical"
-                    MinValue={0}
-                    MaxValue={1}
-                    ThumbStart={Limit(0, 0.8, verticalThumbStart + verticalRelativeThumbStart)}
-                    ThumbLength={0.2}
-                    OnRelativeThumbStartUpdate={delta => setVerticalRelativeThumbStart(delta)}
-                    OnRelativeThumbStartApply={delta => {
-                      setVerticalThumbStart(Limit(0, 0.8, verticalThumbStart + delta));
-                      setVerticalRelativeThumbStart(0);
-                    }}
-                  />
                 </CameraContext>
               </div>
             </Pannable>
