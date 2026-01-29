@@ -37,11 +37,6 @@ interface PanelInfo {
 
 function App() {
   const [cameraState, setCameraState] = useState<CameraState>(CreateCameraState());
-  const [horizontalThumbStart, setHorizontalThumbStart] = useState<number>(0);
-  const [horizontalRelativeThumbStart, setHorizontalRelativeThumbStart] = useState<number>(0);
-  const [verticalThumbStart, setVerticalThumbStart] = useState<number>(0);
-  const [verticalRelativeThumbStart, setVerticalRelativeThumbStart] = useState<number>(0);
-  const displayAreaRef = useRef<HTMLDivElement>(null);
 
   const [panelArray, setPanelArray] = useState<PanelData[]>([{
     panelType: PanelType.NolePanel,
@@ -55,14 +50,6 @@ function App() {
   };
 
   const addToPanelArray = (panelType: PanelType, bodyData?: TelemetryState) => {
-    const displayArea = displayAreaRef.current;
-    if (displayArea) {
-      const children = displayArea.children;
-      for (var i = 0; i < children.length; i++) {
-        const child = children[i];
-        console.log(child.getBoundingClientRect())
-      }
-    }
     setPanelArray(arr => {
       const newArray = structuredClone(arr);
       newArray.push({
@@ -203,7 +190,7 @@ function App() {
                 }});
               }}
             >
-              <div ref={displayAreaRef} className="DisplayArea">
+              <div className="DisplayArea">
                 <CameraContext value={cameraState}>
                   {panelArray.map((panelData, index) => {
                     const setToTop = (panel: PanelData, panelArray: PanelData[]) => {
