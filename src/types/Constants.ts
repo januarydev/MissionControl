@@ -7,5 +7,7 @@ export const Constants = {
   mapWorldOutlineColor: "#c5b7cd",
   mapGraticuleStrokeColor: "#bcbcbc",
   mapOrbitStrokeColor: "#d5e8ff",
-  mapOrbitWidth: 0.25
+  mapOrbitWidth: 0.25,
+  scrollFill: "#443C68",
+  scrollHoverFill: "#635985"
 }

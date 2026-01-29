@@ -50,12 +50,12 @@ button {
   font-size: 1rem;
   line-height: 1rem;
   font-weight: 400;
-  cursor: pointer;
   margin: 0.1em;
   padding: 0.1em;
   border-color: var(--background-color-accent-2);
   color: var(--text-color-accent-2);
   background-color: var(--background-color-accent-2);
+  cursor: inherit;
 }
 
 button:hover {
@@ -94,7 +94,6 @@ button:hover {
   color: var(--text-color-accent-4);
   background-color: var(--background-color-accent-4);
   padding: 0.25em;
-  cursor: default;
 }
 
 .ToolBarButtons {
@@ -132,7 +131,6 @@ button:hover {
 .RunState {
   padding: 0.1em;
   margin-left: 0.1em;
-  cursor: default;
 }
 
 .TimeControls {
@@ -141,7 +139,6 @@ button:hover {
 
 .IconButtonContainer {
   display: flex;
-  cursor: pointer;
 }
 
 .IconButton {
@@ -149,16 +146,15 @@ button:hover {
 }
 
 .DisplayArea {
-  display: flex;
+  position: relative;
   flex-grow: 1;
-  overflow: auto;
-  flex-wrap: wrap;
-  align-content: flex-start;
+  overflow: hidden;
   width: 100%;
   height: 100%;
 }
 
 .Panel {
+  position: absolute;
   display: flex;
   flex-direction: column;
   min-width: 40ch;
@@ -172,7 +168,6 @@ button:hover {
 .PanelTitleBar {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   padding: 0 0.25em;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
@@ -183,8 +178,8 @@ button:hover {
 .PanelTitle {
   padding: 0.1em;
   margin-left: 0.1em;
+  flex-grow: 1;
   font-size: 1.1rem;
-  cursor: default;
 }
 
 .PanelArea {
@@ -216,7 +211,6 @@ button:hover {
   position: relative;
   color: var(--text-color-accent-4);
   background-color: var(--background-color-accent-4);
-  cursor: pointer;
 }
 
 .DropdownOptionsContainer {
@@ -292,11 +286,78 @@ button:hover {
   text-align: end;
 }
 
+.Mapping {
+  width: 100%;
+  min-width: 800px;
+  background-color: var(--background-color-accent-1);
+}
+
 .OrbitVis {
   width: 100%;
   min-width: 600px;
   background-color: var(--background-color-accent-1);
-  cursor: grab;
+}
+
+.ScrollVertical {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 1.25em;
+  height: calc(100% - 1.25em);
+  display: flex;
+  flex-direction: column;
+  padding: 3px 0;
+}
+
+.ScrollVerticalTrack {
+  position: relative;
+  flex-grow: 1;
+  width: 1.25em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ScrollVerticalThumb {
+  position: absolute;
+  width: 0.5em;
+  background-color: var(--background-color-accent-3);
+  border-radius: 0.625em;
+}
+
+.ScrollVerticalThumb:hover {
+  background-color: var(--background-color-accent-4);
+}
+
+.ScrollHorizontal {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: calc(100% - 1.25em);
+  height: 1.25em;
+  display: flex;
+  flex-direction: row;
+  padding: 0 3px;
+}
+
+.ScrollHorizontalTrack {
+  position: relative;
+  flex-grow: 1;
+  height: 1.25em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.ScrollHorizontalThumb {
+  position: absolute;
+  height: 0.5em;
+  background-color: var(--background-color-accent-3);
+  border-radius: 0.625em;
+}
+
+.ScrollHorizontalThumb:hover {
+  background-color: var(--background-color-accent-4);
 }
 
 .NoleContainer {
@@ -316,4 +377,3 @@ button:hover {
   text-align: center;
   padding: 1em;
 }
-

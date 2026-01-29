@@ -1,4 +1,4 @@
-import { SimulationState } from "./SimulationState";
+import { SimulationState } from "./Simulation";
 
 export enum TelemetryPresets {
   Custom = "custom",

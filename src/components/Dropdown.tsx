@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SvgIcon } from "./SvgIcon";
+import { Clickable } from "./Clickable";
 
 interface DropdownOptionProps {
   text: string;
@@ -20,27 +21,29 @@ export function Dropdown(props: DropdownProps) {
   return (
     <label className="DropdownLabel">
       {props.label}
-      <div className="DropdownSelect" onClick={() => setHide(!hide)}>
-        {props.options.find(option => option.value === props.selected)!.text}
-        <div className="DropdownIcon">{SvgIcon("chevron-down")}</div>
-        <div className="DropdownOptionsContainer">
-          {!hide &&
-            props.options.map((option, index) =>
-              <div
-                key={index}
-                className="DropdownOption"
-                onClick={() => {
-                  if (props.onChange && option.value) {
-                    props.onChange(option.value);
-                  } else if (option.onClick) {
-                    option.onClick();
-                  }
-                }}
-              >{option.text}</div>
-            )
-          }
+      <Clickable>
+        <div className="DropdownSelect" onClick={() => setHide(!hide)}>
+          {props.options.find(option => option.value === props.selected)!.text}
+          <div className="DropdownIcon">{SvgIcon("chevron-down")}</div>
+          <div className="DropdownOptionsContainer">
+            {!hide &&
+              props.options.map((option, index) =>
+                <div
+                  key={index}
+                  className="DropdownOption"
+                  onClick={() => {
+                    if (props.onChange && option.value) {
+                      props.onChange(option.value);
+                    } else if (option.onClick) {
+                      option.onClick();
+                    }
+                  }}
+                >{option.text}</div>
+              )
+            }
+          </div>
         </div>
-      </div>
+      </Clickable>
     </label>
   );
 }

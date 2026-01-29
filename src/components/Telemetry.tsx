@@ -1,8 +1,9 @@
 import { useContext } from "react";
 import { rowDetailsFromType, TelemetryPoints, TelemetryPresets, TelemetryState } from "../types/TelemetryTypes"
 import { IconButton } from "./IconButton";
-import { SimulationContext } from "../types/SimulationState";
+import { SimulationContext } from "../types/Simulation";
 import { Dropdown } from "./Dropdown";
+import { Constants } from "../types/Constants";
 
 interface TelemetryProps {
   telemetryState: TelemetryState;
@@ -25,7 +26,12 @@ function Row(props: RowProps) {
       <div className="TelemetryData">
         {props.value}
         {props.unit}
-        <IconButton className="CloseRowIcon" id="close-box" onClick={props.onClick} />
+        <IconButton
+          className="CloseRowIcon"
+          id="close-box"
+          onClick={props.onClick}
+          hoverFill={Constants.exitButtonHoverFill}
+        />
       </div>
     </div>
   );

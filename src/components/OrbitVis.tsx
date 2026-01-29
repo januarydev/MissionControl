@@ -2,23 +2,13 @@ import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import type { Topology, Point } from 'topojson-specification';
 import worldJson from '../assets/world.json';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Constants } from '../types/Constants';
+import { Grabbable } from './Grabbable';
+import { Limit, Wrap } from '../types/Math';
 
 interface OrbitVisProps {
   data: [number, number, number][];
-}
-
-function wrapMax(x: number, max: number) {
-  return (max + (x % max)) % max;
-}
-
-function wrap(min: number, max: number, x: number) {
-  return min + wrapMax(x - min, max - min);
-}
-
-function limit(min: number, max: number, x: number) {
-  return Math.max(min, Math.min(max, x));
 }
 
 interface SortedLines {
@@ -37,8 +27,8 @@ function sortLines(lines: [number, number, number][], rotation: [number, number]
   }
 
   const sorted = lines.map(pt => {
-    const angLong = wrap(-180.0, 180.0, pt[0] + rotation[0]);
-    const angLat = limit(-90.0, 90.0, pt[1] + rotation[1]);
+    const angLong = Wrap(-180.0, 180.0, pt[0] + rotation[0]);
+    const angLat = Limit(-90.0, 90.0, pt[1] + rotation[1]);
     return {
       pt: pt,
       isBackFacing: angLong <= -90.0 || angLong >= 90.0 || angLat <= -90.0 || angLat >= 90.0
@@ -95,7 +85,7 @@ function sortLines(lines: [number, number, number][], rotation: [number, number]
 
 let lastMaskId = 0;
 
-export function OrbitVis(props: OrbitVisProps) {
+export const OrbitVis = memo((props: OrbitVisProps) => {
   const graticule = d3.geoGraticule10();
   const world = topojson.feature(
     (worldJson as unknown) as Topology,
@@ -103,7 +93,12 @@ export function OrbitVis(props: OrbitVisProps) {
   );
   let projection = d3.geoOrthographic();
   const [rotation, setRotation] = useState<[number, number]>([0, 0]);
-  projection = projection.fitWidth(100, world).rotate(rotation);
+  const [relativeRotation, setRelativeRotation] = useState<[number, number]>([0, 0]);
+  const calculatedRotation: [number, number] = [
+    Wrap(-180.0, 180.0, rotation[0] + relativeRotation[0]),
+    Limit(-90.0, 90.0, rotation[1] + relativeRotation[1])
+  ];
+  projection = projection.fitWidth(100, world).rotate(calculatedRotation);
 
   const geoGenerator = d3.geoPath(projection);
   const bounds = geoGenerator.bounds({type: 'Sphere'});
@@ -119,13 +114,11 @@ export function OrbitVis(props: OrbitVisProps) {
   const earthScalar = 0.9 * (earthRadiusMeters / (earthRadiusMeters + highestElevation));
   projection = projection.scale(defaultScale * earthScalar);
 
-  const rotateSpeed = 1.0;
-
   const lineGenerator = d3
     .line()
     .curve(d3.curveCatmullRom.alpha(0.5));
 
-  const sortedLines = sortLines(props.data, rotation);
+  const sortedLines = sortLines(props.data, calculatedRotation);
 
   const project3D = (pt: [number, number, number]) => {
     const projected = projection([pt[0], pt[1]]);
@@ -140,7 +133,7 @@ export function OrbitVis(props: OrbitVisProps) {
     const earthHeight = halfHeight * earthScalar;
     const dx = (projected[0] - halfWidth) / earthWidth;
     const dy = (projected[1] - halfHeight) / earthHeight;
-
+    
     const orbitZ = (pt[2] + earthRadiusMeters) / earthRadiusMeters * earthWidth;
 
     const rv: [number, number] = [
@@ -153,28 +146,36 @@ export function OrbitVis(props: OrbitVisProps) {
 
   const frontFacingLines: [number, number][][] = sortedLines.FrontFacing.map(l => l.map(project3D).filter(pt => pt !== null));
   const backFacingLines: [number, number][][] = sortedLines.BackFacing.map(l => l.map(project3D).filter(pt => pt !== null));
-  return (
-    <svg onMouseMove={e => {
-      if (e.buttons == 1) {
-        e.preventDefault();
-        setRotation([
-          wrap(-180.0, 180.0, rotation[0] + e.movementX * rotateSpeed),
-          limit(-90.0, 90.0, rotation[1] - e.movementY * rotateSpeed * 0.5)
-        ]);
-      }
-    }} className="OrbitVis" viewBox={`0 0 100 ${height}`}>
-      <defs>
-        <mask id={maskId} x="0" y="0" width="100" height={height}>
-          <rect width="100" height={height} fill="white"/>
-          <path fill="black" d={geoGenerator({type: 'Sphere'})!}/>
-        </mask>
-      </defs>
-      <path id="outline" fill="none" stroke={Constants.mapWorldOutlineColor} strokeWidth={0.2} d={geoGenerator({type: 'Sphere'})!}/>
-      <path fill={Constants.mapCountryFillColor} stroke={Constants.mapCountryStrokeColor} strokeWidth={0.1} d={geoGenerator(world)!}/>
-      <path fill="none" stroke={Constants.mapGraticuleStrokeColor} strokeWidth={0.05} d={geoGenerator(graticule)!}/>
-      {frontFacingLines.map((l, i) => <path key={i} fill="none" stroke={Constants.mapOrbitStrokeColor} strokeWidth={Constants.mapOrbitWidth} d={lineGenerator(l)!}/>)}
-      {backFacingLines.map((l, i) => <path key={i} mask={`url(#${maskId})`} fill="none" stroke={Constants.mapOrbitStrokeColor} strokeWidth={Constants.mapOrbitWidth} d={lineGenerator(l)!}/>)}
-    </svg>
-  );
-}
 
+  const rotateSpeedX = 0.9;
+  const rotateSpeedY = 0.5;
+
+  return (
+    <Grabbable
+      onUpdateRelativePosition={(dx, dy) => {
+        setRelativeRotation([dx * rotateSpeedX, -dy * rotateSpeedY]);
+      }}
+      onApplyRelativePosition={(dx, dy) => {
+        setRotation([
+          Wrap(-180.0, 180.0, rotation[0] + dx * rotateSpeedX),
+          Limit(-90.0, 90.0, rotation[1] - dy * rotateSpeedY)
+        ]);
+        setRelativeRotation([0, 0]);
+      }}
+    >
+      <svg className="OrbitVis" viewBox={`0 0 100 ${height}`}>
+        <defs>
+          <mask id={maskId} x="0" y="0" width="100" height={height}>
+            <rect width="100" height={height} fill="white"/>
+            <path fill="black" d={geoGenerator({type: 'Sphere'})!}/>
+          </mask>
+        </defs>
+        <path id="outline" fill="none" stroke={Constants.mapWorldOutlineColor} strokeWidth={0.2} d={geoGenerator({type: 'Sphere'})!}/>
+        <path fill={Constants.mapCountryFillColor} stroke={Constants.mapCountryStrokeColor} strokeWidth={0.1} d={geoGenerator(world)!}/>
+        <path fill="none" stroke={Constants.mapGraticuleStrokeColor} strokeWidth={0.05} d={geoGenerator(graticule)!}/>
+        {frontFacingLines.map((l, i) => <path key={i} fill="none" stroke={Constants.mapOrbitStrokeColor} strokeWidth={Constants.mapOrbitWidth} d={lineGenerator(l)!}/>)}
+        {backFacingLines.map((l, i) => <path key={i} mask={`url(#${maskId})`} fill="none" stroke={Constants.mapOrbitStrokeColor} strokeWidth={Constants.mapOrbitWidth} d={lineGenerator(l)!}/>)}
+      </svg>
+    </Grabbable>
+  );
+});
