@@ -3,12 +3,13 @@ import * as topojson from 'topojson-client';
 import type { Topology, Point } from 'topojson-specification';
 import worldJson from '../assets/world.json';
 import { Constants } from '../types/Constants';
+import { memo } from 'react';
 
 interface MappingProps {
   data: [number, number, number][];
 }
 
-export function Mapping(props: MappingProps) {
+export const Mapping = memo((props: MappingProps) => {
   const groundLines: GeoJSON.LineString = {
     type: "LineString",
     coordinates: props.data
@@ -38,4 +39,4 @@ export function Mapping(props: MappingProps) {
       </div>
     </div>
   );
-}
+});
