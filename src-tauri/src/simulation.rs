@@ -3,6 +3,7 @@ const PAUSE_LOOP_HZ: f64 = 10.0;
 mod config;
 mod epoch;
 mod mat3;
+mod mat4;
 mod n_body;
 mod psuedo_real_time;
 mod quaternion;
@@ -77,6 +78,9 @@ impl Simulation {
         }
         if self.time_source.check_run_tick(n_body::UPDATE_RATE_HZ) {
             self.orbit_propagator.update();
+        }
+        if self.time_source.check_run_tick(torques::UPDATE_RATE_HZ) {
+            self.spacecraft_attitude.update(&self.orbit_propagator.get_focused_body().position_eci_km);
         }
 
         if self.time_source.check_run_tick(self.frontend_update_rate_hz) {

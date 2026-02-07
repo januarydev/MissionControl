@@ -6,12 +6,12 @@ use crate::simulation::{config, epoch};
 
 pub const UPDATE_RATE_HZ: f64 = 10.0;
 
-const GRAVITATIONAL_CONSTANT: f64 = 6.67259e-20;
-const EARTH_MASS_KG: f64 = 5.974e+24;
-const EARTH_ANGULAR_VELOCITY_DEG_S: f64 = 4.1778e-3;
-const EARTH_AVERAGE_RADIUS_KM: f64 = 6378.1;
-const EARTH_GRAV_PARAM_KM3_S2: f64 = 3.986e+5;
-const SOLAR_RADIATION_PRESSURE_N_M2: f64 = 4.56e-6;
+pub const GRAVITATIONAL_CONSTANT: f64 = 6.67259e-20;
+pub const EARTH_MASS_KG: f64 = 5.974e+24;
+pub const EARTH_ANGULAR_VELOCITY_DEG_S: f64 = 4.1778e-3;
+pub const EARTH_AVERAGE_RADIUS_KM: f64 = 6378.1;
+pub const EARTH_GRAV_PARAM_KM3_S2: f64 = 3.986e+5;
+pub const SOLAR_RADIATION_PRESSURE_N_M2: f64 = 4.56e-6;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct OrbitalElements {
