@@ -28,7 +28,6 @@ impl Simulation {
     /// Read parameters from config file and pass to applicable components.
     pub fn new(config_filename: &str) -> Self {
         let config = config::Config::from_file(config_filename);
-        // println!("focused_body: {body:#?}", body = config.focused_body);
         Self {
             paused: false,
             frontend_update_rate_hz: config.frontend_update_rate_hz as f64,
