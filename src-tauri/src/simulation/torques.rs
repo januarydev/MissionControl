@@ -231,7 +231,7 @@ impl Torques {
         let qxx = self.dcm_from_att();
         let mut qxx_inverse = qxx;
         qxx_inverse.transpose();
-        let external_torque_body_frame = qxx * self.gravity_gradient_torque(position_eci_km);
+        let external_torque_body_frame = self.gravity_gradient_torque(position_eci_km);
         let mut angular_rate_body_frame = qxx * self.angular_rate_rad_s;
 
         // Calculate angular acceleration given: M_net = H_dot_rel + omega x H
@@ -255,7 +255,7 @@ impl Torques {
 
         // Use simple numerical estimation for integration since we're updating quickly and error should be pretty low.
         angular_rate_body_frame += angular_accel_body_frame / UPDATE_RATE_HZ;
-        self.angular_rate_rad_s = qxx_inverse * angular_accel_body_frame;
+        self.angular_rate_rad_s = qxx_inverse * angular_rate_body_frame;
 
         // Calculate time derivative of attitude given: q_dot = 0.5 * OMEGA * q
         let omega = Mat4 {
