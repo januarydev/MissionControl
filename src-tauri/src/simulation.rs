@@ -84,10 +84,9 @@ impl Simulation {
         }
 
         if self.time_source.check_run_tick(self.frontend_update_rate_hz) {
-            Some(self.frontend_update())
-        } else {
-            None
+            return Some(self.frontend_update());
         }
+        None
     }
 
     /// Create current SimulationState object from component data.
