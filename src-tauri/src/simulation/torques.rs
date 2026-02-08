@@ -168,7 +168,7 @@ impl Torques {
         let (c, c_axes) = select_moment_axes(vec3::UNIT_Z);
 
         // Calculate angular distance from body axes using the rotation matrix
-        let r = Mat3 {
+        let rotation_matrix = Mat3 {
             r1c1: a_axes.dot(vec3::UNIT_X),
             r1c2: b_axes.dot(vec3::UNIT_X),
             r1c3: c_axes.dot(vec3::UNIT_X),
@@ -182,7 +182,7 @@ impl Torques {
 
         Self {
             principal_inertia_moments_kg_m2: Vec3 { x: a, y: b, z: c },
-            inertia_axes_angle_error_rad: ((r.trace() - 1.0) / 2.0).acos(),
+            inertia_axes_angle_error_rad: ((rotation_matrix.trace() - 1.0) / 2.0).acos(),
             angular_rate_rad_s: vec3::ZERO,
             attitude: *init_attitude,
         }
