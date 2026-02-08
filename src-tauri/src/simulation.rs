@@ -123,6 +123,9 @@ impl Simulation {
             spacecraft_periapsis_altitude_km: focused_body_orbital_elements.periapsis_altitude_km,
             spacecraft_apoapsis_altitude_km: focused_body_orbital_elements.apoapsis_altitude_km,
             spacecraft_orbit_period_hr: focused_body_orbital_elements.orbit_period_hr,
+            spacecraft_attitude: *self.spacecraft_attitude.get_attitude(),
+            spacecraft_angular_rate_rad_s: *self.spacecraft_attitude.get_angular_rate(),
+            inertial_axis_angular_error_rad: self.spacecraft_attitude.get_inertial_axis_error(),
         }
     }
 }

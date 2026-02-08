@@ -64,7 +64,8 @@ export function Telemetry(props: TelemetryProps) {
           { value: TelemetryPresets.Preset1, text: "All Telemetry" },
           { value: TelemetryPresets.Preset2, text: "ECI Coordinates" },
           { value: TelemetryPresets.Preset3, text: "ECEF Coordinates" },
-          { value: TelemetryPresets.Preset4, text: "Orbital Elements" }
+          { value: TelemetryPresets.Preset4, text: "Orbital Elements" },
+          { value: TelemetryPresets.Preset5, text: "Rotational Elements" }
         ]}
       />
       <Dropdown
@@ -96,7 +97,15 @@ export function Telemetry(props: TelemetryProps) {
           { onClick: () => props.addToRowArrayCallback(TelemetryPoints.TrueAnom), text: "True Anomaly" },
           { onClick: () => props.addToRowArrayCallback(TelemetryPoints.Periapsis), text: "Periapsis Altitude" },
           { onClick: () => props.addToRowArrayCallback(TelemetryPoints.Apoapsis), text: "Apoapsis Altitude" },
-          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.Period), text: "Orbit Period" }
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.Period), text: "Orbit Period" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.AttQ1), text: "Attitude Q1" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.AttQ2), text: "Attitude Q2" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.AttQ3), text: "Attitude Q3" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.AttQ4), text: "Attitude Q4" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.OmegaX), text: "Angular Inertial Rate X" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.OmegaY), text: "Angular Inertial Rate Y" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.OmegaZ), text: "Angular Inertial Rate Z" },
+          { onClick: () => props.addToRowArrayCallback(TelemetryPoints.AxisErr), text: "Inertial Axis Error" }
         ]}
       />
       <div className="TelemetryTable">

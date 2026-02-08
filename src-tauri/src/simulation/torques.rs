@@ -282,4 +282,16 @@ impl Torques {
         self.attitude += q_dot / UPDATE_RATE_HZ;
         self.attitude.normalize();
     }
+
+    pub fn get_attitude(&self) -> &Quaternion {
+        &self.attitude
+    }
+
+    pub fn get_angular_rate(&self) -> &Vec3 {
+        &self.angular_rate_rad_s
+    }
+
+    pub fn get_inertial_axis_error(&self) -> f64 {
+        self.inertia_axes_angle_error_rad
+    }
 }

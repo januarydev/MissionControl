@@ -8,6 +8,13 @@ export type Vec3 = {
   z: number
 };
 
+export type Quaternion = {
+  x: number,
+  y: number,
+  z: number,
+  w: number
+}
+
 export type OrbitState = {
   name: string,
   positionEciKm: Vec3,
@@ -36,7 +43,10 @@ export type SimulationState = {
   spacecraftTrueAnomalyDeg: number,
   spacecraftPeriapsisAltitudeKm: number,
   spacecraftApoapsisAltitudeKm: number,
-  spacecraftOrbitPeriodHr: number
+  spacecraftOrbitPeriodHr: number,
+  spacecraftAttitude: Quaternion,
+  spacecraftAngularRateRadS: Vec3,
+  inertialAxisAngularErrorRad: number
 };
 
 export function createSimulationState() {
@@ -60,7 +70,10 @@ export function createSimulationState() {
     spacecraftTrueAnomalyDeg: 0,
     spacecraftPeriapsisAltitudeKm: 0,
     spacecraftApoapsisAltitudeKm: 0,
-    spacecraftOrbitPeriodHr: 0
+    spacecraftOrbitPeriodHr: 0,
+    spacecraftAttitude: { x: 0, y: 0, z: 0, w: 0 },
+    spacecraftAngularRateRadS: { x: 0, y: 0, z: 0 },
+    inertialAxisAngularErrorRad: 0
   }
   return rv;
 }
@@ -95,7 +108,7 @@ export function useSimulation(windowState: WindowState): UseSimulationReturnValu
       setMapCoordinates(mapCoordinates.slice(-1499).concat([llaPosition]));
     }
   }, [mapCoordinates]);
-  
+
   useEffect(() => {
     const unlistenPromise = listen<SimulationState>("update", handleSimulationUpdate);
     return () => {

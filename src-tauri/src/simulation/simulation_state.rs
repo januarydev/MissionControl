@@ -1,4 +1,4 @@
-use crate::simulation::vec3::Vec3;
+use crate::simulation::{quaternion::Quaternion, vec3::Vec3};
 
 /// Simulation state orbits sub-object.
 #[derive(Clone, serde::Serialize)]
@@ -33,4 +33,7 @@ pub struct SimulationState {
     pub spacecraft_periapsis_altitude_km: f64,
     pub spacecraft_apoapsis_altitude_km: f64,
     pub spacecraft_orbit_period_hr: f64,
+    pub spacecraft_attitude: Quaternion,
+    pub spacecraft_angular_rate_rad_s: Vec3,
+    pub inertial_axis_angular_error_rad: f64,
 }
