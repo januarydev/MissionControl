@@ -5,7 +5,8 @@ export enum TelemetryPresets {
   Preset1 = "preset1",
   Preset2 = "preset2",
   Preset3 = "preset3",
-  Preset4 = "preset4"
+  Preset4 = "preset4",
+  Preset5 = "preset5"
 }
 
 export enum TelemetryPoints {
@@ -33,7 +34,15 @@ export enum TelemetryPoints {
   TrueAnom,
   Periapsis,
   Apoapsis,
-  Period
+  Period,
+  AttQ1,
+  AttQ2,
+  AttQ3,
+  AttQ4,
+  OmegaX,
+  OmegaY,
+  OmegaZ,
+  AxisErr
 }
 
 export interface TelemetryState {
@@ -67,6 +76,14 @@ export const Preset1: TelemetryPoints[] = [
   TelemetryPoints.Periapsis,
   TelemetryPoints.Apoapsis,
   TelemetryPoints.Period,
+  TelemetryPoints.AttQ1,
+  TelemetryPoints.AttQ2,
+  TelemetryPoints.AttQ3,
+  TelemetryPoints.AttQ4,
+  TelemetryPoints.OmegaX,
+  TelemetryPoints.OmegaY,
+  TelemetryPoints.OmegaZ,
+  TelemetryPoints.AxisErr
 ];
 
 export const Preset2: TelemetryPoints[] = [
@@ -102,6 +119,17 @@ export const Preset4: TelemetryPoints[] = [
   TelemetryPoints.Period
 ];
 
+export const Preset5: TelemetryPoints[] = [
+  TelemetryPoints.AttQ1,
+  TelemetryPoints.AttQ2,
+  TelemetryPoints.AttQ3,
+  TelemetryPoints.AttQ4,
+  TelemetryPoints.OmegaX,
+  TelemetryPoints.OmegaY,
+  TelemetryPoints.OmegaZ,
+  TelemetryPoints.AxisErr
+]
+
 export function rowsFromPreset(preset: TelemetryPresets) {
   switch (preset) {
     case TelemetryPresets.Custom:
@@ -114,6 +142,8 @@ export function rowsFromPreset(preset: TelemetryPresets) {
       return Preset3;
     case TelemetryPresets.Preset4:
       return Preset4;
+    case TelemetryPresets.Preset5:
+      return Preset5;
     default:
   }
 }
@@ -276,6 +306,54 @@ export function rowDetailsFromType(type: TelemetryPoints, state: SimulationState
         value: state.spacecraftOrbitPeriodHr.toFixed(3),
         unit: "hr"
       };
+    case TelemetryPoints.AttQ1:
+      return {
+        mnemonic: "Attitude Q1",
+        value: state.spacecraftAttitude.x.toFixed(3),
+        unit: ""
+      };
+    case TelemetryPoints.AttQ2:
+      return {
+        mnemonic: "Attitude Q2",
+        value: state.spacecraftAttitude.y.toFixed(3),
+        unit: ""
+      };
+    case TelemetryPoints.AttQ3:
+      return {
+        mnemonic: "Attitude Q3",
+        value: state.spacecraftAttitude.z.toFixed(3),
+        unit: ""
+      };
+    case TelemetryPoints.AttQ4:
+      return {
+        mnemonic: "Attitude Q4",
+        value: state.spacecraftAttitude.w.toFixed(3),
+        unit: ""
+      };
+    case TelemetryPoints.OmegaX:
+      return {
+        mnemonic: "Angular Inertial Rate X",
+        value: state.spacecraftAngularRateRadS.x.toFixed(3),
+        unit: "rad/s"
+      };
+    case TelemetryPoints.OmegaY:
+      return {
+        mnemonic: "Angular Inertial Rate Y",
+        value: state.spacecraftAngularRateRadS.y.toFixed(3),
+        unit: "rad/s"
+      };
+    case TelemetryPoints.OmegaZ:
+      return {
+        mnemonic: "Angular Inertial Rate Z",
+        value: state.spacecraftAngularRateRadS.z.toFixed(3),
+        unit: "rad/s"
+      };
+    case TelemetryPoints.AxisErr:
+      return {
+        mnemonic: "Inertial Axis Error",
+        value: (state.inertialAxisAngularErrorRad * 180 / Math.PI).toFixed(3),
+        unit: "deg"
+      }
     default:
       return {
         mnemonic: "",

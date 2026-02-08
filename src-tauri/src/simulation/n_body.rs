@@ -1,17 +1,17 @@
 use crate::simulation::epoch::{MINUTES_PER_HOUR, SECONDS_PER_MINUTE};
-use crate::simulation::vec3::{self, Vec3};
 use crate::simulation::mat3::Mat3;
-use crate::simulation::{config, epoch};
 use crate::simulation::ussa76;
+use crate::simulation::vec3::{self, Vec3};
+use crate::simulation::{config, epoch};
 
 pub const UPDATE_RATE_HZ: f64 = 10.0;
 
-const GRAVITATIONAL_CONSTANT: f64 = 6.67259e-20;
-const EARTH_MASS_KG: f64 = 5.974e+24;
-const EARTH_ANGULAR_VELOCITY_DEG_S: f64 = 4.1778e-3;
-const EARTH_AVERAGE_RADIUS_KM: f64 = 6378.1;
-const EARTH_GRAV_PARAM_KM3_S2: f64 = 3.986e+5;
-const SOLAR_RADIATION_PRESSURE_N_M2: f64 = 4.56e-6;
+pub const GRAVITATIONAL_CONSTANT: f64 = 6.67259e-20;
+pub const EARTH_MASS_KG: f64 = 5.974e+24;
+pub const EARTH_ANGULAR_VELOCITY_DEG_S: f64 = 4.1778e-3;
+pub const EARTH_AVERAGE_RADIUS_KM: f64 = 6378.1;
+pub const EARTH_GRAV_PARAM_KM3_S2: f64 = 3.986e+5;
+pub const SOLAR_RADIATION_PRESSURE_N_M2: f64 = 4.56e-6;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct OrbitalElements {
@@ -36,12 +36,11 @@ fn position_ecef_km_to_lla(position_ecef_km: &Vec3) -> Vec3 {
     let m = position_ecef_km.y / r_km;
     let n = position_ecef_km.z / r_km;
     let declination = n.asin().to_degrees();
-    let right_ascension;
-    if m > 0.0 {
-        right_ascension = (l / declination.to_radians().cos()).acos().to_degrees();
+    let right_ascension = if m > 0.0 {
+        (l / declination.to_radians().cos()).acos().to_degrees()
     } else {
-        right_ascension = 360.0 - (l / declination.to_radians().cos()).acos().to_degrees();
-    }
+        360.0 - (l / declination.to_radians().cos()).acos().to_degrees()
+    };
     Vec3 {
         x: right_ascension,
         y: declination,
@@ -102,29 +101,41 @@ impl Body {
     /// Where theta = acos(r_sun dot r / ||r_sun||*||r||), theta_1 = acos(R_E / r), theta_2 = acos(R_E / r_sun).
     /// Implements p = -p_SR * u_hat where p_SR = S / c * C_R * A_s / m and u_hat is the unit vector from the Earth to the sun.
     fn solar_rad_pres_acceleration(&self, perturbation_stats: &PerturbationStats, sun_position_eci_km: &Vec3) -> Vec3 {
-        if *sun_position_eci_km == vec3::ZERO { return vec3::ZERO; }
-        let theta = (sun_position_eci_km.dot(self.position_eci_km) / (sun_position_eci_km.length() * self.position_eci_km.length())).acos().to_degrees();
+        if *sun_position_eci_km == vec3::ZERO {
+            return vec3::ZERO;
+        }
+        let theta = (sun_position_eci_km.dot(self.position_eci_km) / (sun_position_eci_km.length() * self.position_eci_km.length()))
+            .acos()
+            .to_degrees();
         let theta_1 = (EARTH_AVERAGE_RADIUS_KM / self.position_eci_km.length()).acos().to_degrees();
         let theta_2 = (EARTH_AVERAGE_RADIUS_KM / sun_position_eci_km.length()).acos().to_degrees();
-        if theta_1 + theta_2 <= theta { return vec3::ZERO; } // In Earth shadow
+        if theta_1 + theta_2 <= theta {
+            return vec3::ZERO;
+        } // In Earth shadow
         let sun_direction_unit_vector = *sun_position_eci_km / sun_position_eci_km.length();
-        -SOLAR_RADIATION_PRESSURE_N_M2 * perturbation_stats.solar_rad_pres_coef * perturbation_stats.solar_rad_pres_area_m2 / self.mass_kg * sun_direction_unit_vector
+        -SOLAR_RADIATION_PRESSURE_N_M2 * perturbation_stats.solar_rad_pres_coef * perturbation_stats.solar_rad_pres_area_m2 / self.mass_kg
+            * sun_direction_unit_vector
     }
 
     /// Implementation of Newton's law of gravitation to calculate instantaneous accelerations on all bodies provided in the vector acting on eachother.
     /// Also includes aerodynamic drag and solar radiation pressure perturbation accelerations for all bodies that have it enabled.
     /// Can be used as the basis of N-body orbit propagation using various solvers.
     /// Returns a vector of the accelerations for each body provided.
-    fn newtonian_grav_accels(bodies: &Vec<Self>) -> Vec<Vec3> {
+    fn newtonian_grav_accels(bodies: &[Self]) -> Vec<Vec3> {
         let mut result = vec![];
         for our_body in bodies.iter() {
             let mut accel = vec3::ZERO;
             for other_body in bodies.iter() {
-                if other_body == our_body { continue; }
+                if other_body == our_body {
+                    continue;
+                }
                 accel += Vec3 {
-                    x: GRAVITATIONAL_CONSTANT * other_body.mass_kg * (other_body.position_eci_km.x - our_body.position_eci_km.x) / (other_body.position_eci_km - our_body.position_eci_km).length().powi(3),
-                    y: GRAVITATIONAL_CONSTANT * other_body.mass_kg * (other_body.position_eci_km.y - our_body.position_eci_km.y) / (other_body.position_eci_km - our_body.position_eci_km).length().powi(3),
-                    z: GRAVITATIONAL_CONSTANT * other_body.mass_kg * (other_body.position_eci_km.z - our_body.position_eci_km.z) / (other_body.position_eci_km - our_body.position_eci_km).length().powi(3),
+                    x: GRAVITATIONAL_CONSTANT * other_body.mass_kg * (other_body.position_eci_km.x - our_body.position_eci_km.x)
+                        / (other_body.position_eci_km - our_body.position_eci_km).length().powi(3),
+                    y: GRAVITATIONAL_CONSTANT * other_body.mass_kg * (other_body.position_eci_km.y - our_body.position_eci_km.y)
+                        / (other_body.position_eci_km - our_body.position_eci_km).length().powi(3),
+                    z: GRAVITATIONAL_CONSTANT * other_body.mass_kg * (other_body.position_eci_km.z - our_body.position_eci_km.z)
+                        / (other_body.position_eci_km - our_body.position_eci_km).length().powi(3),
                 }
             }
             if let Some(perturbation_stats) = &our_body.perturbation_stats {
@@ -151,7 +162,7 @@ impl Body {
     /// a = f(x) (i.e., acceleration depends on position) and v = f(t,x) (i.e., velocity depends on time and position (because of acceleration)),
     ///     therefore valid for RK integration (x_n+1 = f(t_n,x_n))
     /// Returns a vector of the derivatives held in the body struct for convenience (i.e., x = dx/dt, v = dv/dt (mass untouched)).
-    fn dxdt(dt: f64, bodies: &Vec<Self>) -> Vec<Self> {
+    fn dxdt(dt: f64, bodies: &[Self]) -> Vec<Self> {
         let accelerations = Self::newtonian_grav_accels(bodies);
         let mut dxdt_dvdt = vec![];
         for idx in 0..bodies.len() {
@@ -177,11 +188,11 @@ impl Body {
     ///         y_n+1 = y_n + h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
     ///         t_n+1 = t_n + h
     ///     (Assuming t_n = 0 for instantaneous integration)
-    fn rk4_integrator(bodies: &mut Vec<&mut Self>, h: f64) {
+    fn rk4_integrator(bodies: &mut [&mut Self], h: f64) {
         let mut k1_y = vec![];
-        for idx in 0..bodies.len() {
+        (0..bodies.len()).for_each(|idx| {
             k1_y.push(bodies[idx].clone());
-        }
+        });
         let k1 = Self::dxdt(0.0, &k1_y);
 
         let mut k2_y = vec![];
@@ -221,18 +232,27 @@ impl Body {
         let k4 = Self::dxdt(h, &k4_y);
 
         for idx in 0..bodies.len() {
-            bodies[idx].position_eci_km += h / 6.0 * (k1[idx].position_eci_km + 2.0 * k2[idx].position_eci_km + 2.0 * k3[idx].position_eci_km + k4[idx].position_eci_km);
-            bodies[idx].velocity_eci_km_s += h / 6.0 * (k1[idx].velocity_eci_km_s + 2.0 * k2[idx].velocity_eci_km_s + 2.0 * k3[idx].velocity_eci_km_s + k4[idx].velocity_eci_km_s);
+            bodies[idx].position_eci_km +=
+                h / 6.0 * (k1[idx].position_eci_km + 2.0 * k2[idx].position_eci_km + 2.0 * k3[idx].position_eci_km + k4[idx].position_eci_km);
+            bodies[idx].velocity_eci_km_s +=
+                h / 6.0 * (k1[idx].velocity_eci_km_s + 2.0 * k2[idx].velocity_eci_km_s + 2.0 * k3[idx].velocity_eci_km_s + k4[idx].velocity_eci_km_s);
         }
     }
 
     /// Transform our ECI J2000 position and velocity into ECEF measurements with the correct rotation matrix.
     fn pos_vel_to_ecef(&self, julian_time: &epoch::Epoch) -> (Vec3, Vec3) {
-        let theta_deg = EARTH_ANGULAR_VELOCITY_DEG_S * ((julian_time.get_current_days() * epoch::SECONDS_PER_DAY) as f64 + julian_time.get_current_seconds());
+        let theta_deg =
+            EARTH_ANGULAR_VELOCITY_DEG_S * ((julian_time.get_current_days() * epoch::SECONDS_PER_DAY) as f64 + julian_time.get_current_seconds());
         let rotation_matrix = Mat3 {
-            r1c1: theta_deg.to_radians().cos(),     r1c2: theta_deg.to_radians().sin(), r1c3: 0.0,
-            r2c1: -(theta_deg.to_radians().sin()),  r2c2: theta_deg.to_radians().cos(), r2c3: 0.0,
-            r3c1: 0.0,                              r3c2: 0.0,                          r3c3: 1.0,
+            r1c1: theta_deg.to_radians().cos(),
+            r1c2: theta_deg.to_radians().sin(),
+            r1c3: 0.0,
+            r2c1: -(theta_deg.to_radians().sin()),
+            r2c2: theta_deg.to_radians().cos(),
+            r2c3: 0.0,
+            r3c1: 0.0,
+            r3c2: 0.0,
+            r3c3: 1.0,
         };
         (rotation_matrix * self.position_eci_km, rotation_matrix * self.velocity_eci_km_s)
     }
@@ -255,7 +275,9 @@ impl NBody {
     /// Spacecraft ECEF state vector is then converted to ECI J2000.
     pub fn new(unfocused_bodies: &Vec<config::BodyConfig>, focused_body: &config::BodyConfig) -> Self {
         let mut converted_bodies = vec![];
-        for body in unfocused_bodies { converted_bodies.push(Body::from_config(body)); }
+        for body in unfocused_bodies {
+            converted_bodies.push(Body::from_config(body));
+        }
         Self {
             earth: Body {
                 name: "Earth".to_string(),
@@ -320,26 +342,23 @@ impl NBody {
         let i = (h_vec.z / h).acos().to_degrees();
         let n_vec = vec3::UNIT_Z.cross(h_vec);
         let n = n_vec.length();
-        let omega_caps;
-        if n_vec.y >= 0.0 {
-            omega_caps = (n_vec.x / n).acos().to_degrees();
+        let omega_caps = if n_vec.y >= 0.0 {
+            (n_vec.x / n).acos().to_degrees()
         } else {
-            omega_caps = 360.0 - (n_vec.x / n).acos().to_degrees();
-        }
+            360.0 - (n_vec.x / n).acos().to_degrees()
+        };
         let e_vec = 1.0 / EARTH_GRAV_PARAM_KM3_S2 * ((v.powi(2) - EARTH_GRAV_PARAM_KM3_S2 / r) * r_vec - r * v_r * v_vec);
         let e = e_vec.length();
-        let omega;
-        if e_vec.z >= 0.0 {
-            omega = (n_vec.dot(e_vec) / (n * e)).acos().to_degrees();
+        let omega = if e_vec.z >= 0.0 {
+            (n_vec.dot(e_vec) / (n * e)).acos().to_degrees()
         } else {
-            omega = 360.0 - (n_vec.dot(e_vec) / (n * e)).acos().to_degrees();
-        }
-        let theta;
-        if v_r >= 0.0 {
-            theta = (1.0 / e * (h.powi(2) / (EARTH_GRAV_PARAM_KM3_S2 * r) - 1.0)).acos().to_degrees();
+            360.0 - (n_vec.dot(e_vec) / (n * e)).acos().to_degrees()
+        };
+        let theta = if v_r >= 0.0 {
+            (1.0 / e * (h.powi(2) / (EARTH_GRAV_PARAM_KM3_S2 * r) - 1.0)).acos().to_degrees()
         } else {
-            theta = 360.0 - (1.0 / e * (h.powi(2) / (EARTH_GRAV_PARAM_KM3_S2 * r) - 1.0)).acos().to_degrees();
-        }
+            360.0 - (1.0 / e * (h.powi(2) / (EARTH_GRAV_PARAM_KM3_S2 * r) - 1.0)).acos().to_degrees()
+        };
         let r_p = h.powi(2) / EARTH_GRAV_PARAM_KM3_S2 / (1.0 + e);
         let r_a = h.powi(2) / EARTH_GRAV_PARAM_KM3_S2 / (1.0 - e);
         let a = 0.5 * (r_p + r_a);

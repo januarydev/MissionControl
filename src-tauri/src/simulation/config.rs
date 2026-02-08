@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::simulation::vec3::Vec3;
+use crate::simulation::{mat3::Mat3, quaternion::Quaternion, vec3::Vec3};
 
 /// Simulated time epoch sub-config object schema.
 #[derive(Debug, serde::Deserialize)]
@@ -30,6 +30,8 @@ pub struct BodyConfig {
     pub position_eci_km: Vec3,
     pub velocity_eci_km_s: Vec3,
     pub perturbation_stats: Option<PerturbationConfig>,
+    pub q_inertial_to_body: Option<Quaternion>,
+    pub inertia_kg_m2: Option<Mat3>,
 }
 
 /// Config file schema for load.

@@ -1,13 +1,16 @@
 const PAUSE_LOOP_HZ: f64 = 10.0;
 
 mod config;
-mod psuedo_real_time;
 mod epoch;
-mod n_body;
-mod ussa76;
-mod simulation_state;
-mod vec3;
 mod mat3;
+mod mat4;
+mod n_body;
+mod psuedo_real_time;
+mod quaternion;
+mod simulation_state;
+mod torques;
+mod ussa76;
+mod vec3;
 
 /// Main program state object.
 /// Collection of all components and handles passing data between them.
@@ -18,6 +21,7 @@ pub struct Simulation {
     time_source: psuedo_real_time::PseudoRealTime,
     simulated_time: epoch::Epoch,
     orbit_propagator: n_body::NBody,
+    spacecraft_attitude: torques::Torques,
 }
 
 impl Simulation {
@@ -30,15 +34,25 @@ impl Simulation {
             frontend_update_rate_hz: config.frontend_update_rate_hz as f64,
             time_source: psuedo_real_time::PseudoRealTime::new(config.base_rate_hz as f64),
             simulated_time: epoch::Epoch::from_calendar(
-                config.initial_time.year, config.initial_time.month, config.initial_time.day,
-                config.initial_time.hour, config.initial_time.minute, config.initial_time.second,
+                config.initial_time.year,
+                config.initial_time.month,
+                config.initial_time.day,
+                config.initial_time.hour,
+                config.initial_time.minute,
+                config.initial_time.second,
             ),
             orbit_propagator: n_body::NBody::new(&config.unfocused_bodies, &config.focused_body),
+            spacecraft_attitude: torques::Torques::new(
+                &config.focused_body.q_inertial_to_body.unwrap(),
+                &config.focused_body.inertia_kg_m2.unwrap(),
+            ),
         }
     }
 
     /// Set the pause state to true.
-    pub fn pause(&mut self) { self.paused = true; }
+    pub fn pause(&mut self) {
+        self.paused = true;
+    }
 
     /// Set the pause state to false and pass the time multipler to pseudo_real_time.
     pub fn run(&mut self, time_multiplier: f64) {
@@ -59,17 +73,31 @@ impl Simulation {
 
         self.time_source.wait_for_sync();
 
-        if self.time_source.check_run_tick(epoch::UPDATE_RATE_HZ) {self.simulated_time.update();}
-        if self.time_source.check_run_tick(n_body::UPDATE_RATE_HZ) {self.orbit_propagator.update();}
+        if self.time_source.check_run_tick(epoch::UPDATE_RATE_HZ) {
+            self.simulated_time.update();
+        }
+        if self.time_source.check_run_tick(n_body::UPDATE_RATE_HZ) {
+            self.orbit_propagator.update();
+        }
+        if self.time_source.check_run_tick(torques::UPDATE_RATE_HZ) {
+            self.spacecraft_attitude.update(&self.orbit_propagator.get_focused_body().position_eci_km);
+        }
 
-        if self.time_source.check_run_tick(self.frontend_update_rate_hz) { Some(self.frontend_update()) } else { None }
+        if self.time_source.check_run_tick(self.frontend_update_rate_hz) {
+            return Some(self.frontend_update());
+        }
+        None
     }
 
     /// Create current SimulationState object from component data.
     fn frontend_update(&self) -> simulation_state::SimulationState {
         let mut bodies = vec![];
         for body in self.orbit_propagator.get_unfocused_bodies() {
-            bodies.push(simulation_state::OrbitState { name: body.name.clone(), position_eci_km: body.position_eci_km, velocity_eci_km_s: body.velocity_eci_km_s });
+            bodies.push(simulation_state::OrbitState {
+                name: body.name.clone(),
+                position_eci_km: body.position_eci_km,
+                velocity_eci_km_s: body.velocity_eci_km_s,
+            });
         }
         let focused_body = self.orbit_propagator.get_focused_body();
         let focused_body_orbital_elements = self.orbit_propagator.get_focused_body_orbital_elements(&self.simulated_time);
@@ -94,6 +122,9 @@ impl Simulation {
             spacecraft_periapsis_altitude_km: focused_body_orbital_elements.periapsis_altitude_km,
             spacecraft_apoapsis_altitude_km: focused_body_orbital_elements.apoapsis_altitude_km,
             spacecraft_orbit_period_hr: focused_body_orbital_elements.orbit_period_hr,
+            spacecraft_attitude: *self.spacecraft_attitude.get_attitude(),
+            spacecraft_angular_rate_rad_s: *self.spacecraft_attitude.get_angular_rate(),
+            inertial_axis_angular_error_rad: self.spacecraft_attitude.get_inertial_axis_error(),
         }
     }
 }

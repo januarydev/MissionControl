@@ -1,5 +1,5 @@
 {
-  "$schema":"https://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "properties": {
     "base_rate_hz": {
       "description": "Simulation base step rate, hz",
@@ -63,16 +63,60 @@
     },
     "unfocused_bodies": {
       "description": "Array of bodies to include in background simulation EXCLUDING EARTH (always included by default)",
-      "type":"array",
+      "type": "array",
       "items": {
-        "type":"object",
         "$ref": "#/$defs/body"
       }
     },
     "focused_body": {
       "description": "Description of the body that can be controlled with commands and is focused for telemetry.",
-      "type":"object",
-      "$ref": "#/$defs/body"
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/body/properties/name"
+        },
+        "mass_kg": {
+          "$ref": "#/$defs/body/properties/mass_kg"
+        },
+        "position_eci_km": {
+          "$ref": "#/$defs/body/properties/position_eci_km"
+        },
+        "velocity_eci_km_s": {
+          "$ref": "#/$defs/body/properties/velocity_eci_km_s"
+        },
+        "perturbation_stats": {
+          "$ref": "#/$defs/body/properties/perturbation_stats"
+        },
+        "q_inertial_to_body": {
+          "description": "Initial (normalized) quaternion from inertial frame to body attitude forward direction in [x, y, z, w] order.",
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          }
+        },
+        "inertia_kg_m2": {
+          "description": "Moments of (row-major) inertia tensor relative to body frame with origin at center of mass, kgm^2.",
+          "type": "array",
+          "minItems": 9,
+          "maxItems": 9,
+          "items": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "mass_kg",
+        "position_eci_km",
+        "velocity_eci_km_s",
+        "perturbation_stats",
+        "q_inertial_to_body",
+        "inertia_kg_m2"
+      ]
     }
   },
   "required": [
@@ -84,6 +128,7 @@
   ],
   "$defs": {
     "body": {
+      "type": "object",
       "properties": {
         "name": {
           "description": "Body name",
@@ -99,14 +144,18 @@
           "type": "array",
           "minItems": 3,
           "maxItems": 3,
-          "items": {"type": "number"}
+          "items": {
+            "type": "number"
+          }
         },
         "velocity_eci_km_s": {
           "description": "Velocity of the body at simulation start in J2000 ECI, km/s",
           "type": "array",
           "minItems": 3,
           "maxItems": 3,
-          "items": {"type": "number"}
+          "items": {
+            "type": "number"
+          }
         },
         "perturbation_stats": {
           "description": "Optional parameters for perturbation models (will not include perturbation modelling for body if not present).",

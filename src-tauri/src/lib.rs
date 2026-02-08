@@ -11,11 +11,9 @@ const CONFIG_FILENAME: &str = "config.json";
 ///     to the frontend at configured regular intervals.
 #[tauri::command]
 fn start_simulation(app: tauri::AppHandle) {
-    std::thread::spawn(move || {
-        loop {
-            if let Some(state) = app.state::<SimSync>().lock().unwrap().step() {
-                app.emit("update", state).unwrap();
-            }
+    std::thread::spawn(move || loop {
+        if let Some(state) = app.state::<SimSync>().lock().unwrap().step() {
+            app.emit("update", state).unwrap();
         }
     });
 }
