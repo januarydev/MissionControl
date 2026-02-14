@@ -1,10 +1,10 @@
-import { JSX, useRef, useState } from "react";
+import { JSX, useState } from "react";
 import "./App.css";
 import { Panel } from "./components/Panel";
 import { Commanding } from "./components/Commanding";
 import { Telemetry } from "./components/Telemetry";
 import { rowsFromPreset, TelemetryPresets, TelemetryState } from "./types/TelemetryTypes.ts";
-import { Graphing } from "./components/Graphing";
+import { Graphing, GraphingState } from "./components/Graphing";
 import { Mapping } from "./components/Mapping";
 import { OrbitVis } from "./components/OrbitVis";
 import { AttitudeVis } from "./components/AttitudeVis";
@@ -17,7 +17,7 @@ import { ToolBar } from "./components/ToolBar.tsx";
 import { PanelType } from "./types/Panel.ts";
 import { TimeControls } from "./components/TimeControls.tsx";
 
-type BodyData = TelemetryState;
+type BodyData = TelemetryState | GraphingState;
 
 interface PanelData {
   panelType: PanelType;
@@ -49,7 +49,7 @@ function App() {
     return panelArray.map(p => p.zindex).reduce((prev, curr) => Math.max(prev, curr), 0);
   };
 
-  const addToPanelArray = (panelType: PanelType, bodyData?: TelemetryState) => {
+  const addToPanelArray = (panelType: PanelType, bodyData?: BodyData) => {
     setPanelArray(arr => {
       const newArray = structuredClone(arr);
       newArray.push({
@@ -82,20 +82,22 @@ function App() {
       title: "Telemetry",
       iconId: "table",
       onRender: (index, bodyData) => <Telemetry
-        telemetryState={bodyData!}
+        telemetryState={bodyData! as TelemetryState}
         addToRowArrayCallback={point => {
           const panels = structuredClone(panelArray);
-          panels[index].bodyData!.rowTypes.push(point);
+          const bodyData = panels[index].bodyData! as TelemetryState;
+          bodyData.rowTypes.push(point);
           setPanelArray(panels);
         }}
         removeFromRowArrayCallback={id => {
           const panels = structuredClone(panelArray);
-          panels[index].bodyData!.rowTypes.splice(id, 1);
+          const bodyData = panels[index].bodyData! as TelemetryState;
+          bodyData.rowTypes.splice(id, 1);
           setPanelArray(panels);
         }}
         updatePresetCallback={state => {
           const panels = structuredClone(panelArray);
-          const bodyData = panels[index].bodyData!;
+          const bodyData = panels[index].bodyData! as TelemetryState;
           bodyData.rowTypes = rowsFromPreset(state)!;
           bodyData.preset = state;
           setPanelArray(panels);
@@ -106,7 +108,22 @@ function App() {
       panelType: PanelType.GraphingPanel,
       title: "Graphing",
       iconId: "chart-line",
-      onRender: () => <Graphing />,
+      onRender: (index, bodyData) => <Graphing
+        graphingState={bodyData! as GraphingState}
+        addToPlotArrayCallback={point => {
+          const panels = structuredClone(panelArray);
+          const bodyData = panels[index].bodyData! as GraphingState;
+          bodyData.types.push(point);
+          setPanelArray(panels);
+        }}
+        removeFromPlotArrayCallback={id => {
+          const panels = structuredClone(panelArray);
+          const bodyData = panels[index].bodyData! as GraphingState;
+          bodyData.types.splice(id, 1);
+          bodyData.plots.splice(id, 1);
+          setPanelArray(panels);
+        }}
+      />,
       allowsClosing: true
     },
     {
@@ -142,7 +159,7 @@ function App() {
   const panelInfoByType = new Map<PanelType, PanelInfo>(panelInfo.map(panel => [panel.panelType, panel]));
 
   return (
-    <main className="container" style={{cursor: GetCursorStyleFromWindow(windowState)}}>
+    <main className="container" style={{ cursor: GetCursorStyleFromWindow(windowState) }}>
       <ToolBar onPanelRequested={(panelType) => {
         switch (panelType) {
           case PanelType.TelemetryPanel:
@@ -150,6 +167,8 @@ function App() {
             break;
           case PanelType.CommandingPanel:
           case PanelType.GraphingPanel:
+            addToPanelArray(panelType, { types: [], plots: [] });
+            break;
           case PanelType.MappingPanel:
           case PanelType.OrbitVisPanel:
           case PanelType.AttitudeVisPanel:
@@ -157,14 +176,14 @@ function App() {
             addToPanelArray(panelType);
             break;
         }
-      }}/>
+      }} />
       <SimulationContext value={simulationState}>
         <div className="WorkArea">
           <div className="WorkAreaMenuBar">
             <div className="RunState">
               {simulationState?.paused ? "Status: Paused" : `Status: Running (${simulationState?.timeMultiplier}x)`}
             </div>
-            <TimeControls/>
+            <TimeControls />
           </div>
           <WindowContext value={windowState}>
             <Pannable
@@ -176,9 +195,9 @@ function App() {
                     relativeX: dx,
                     relativeY: dy,
                     scale: st.scale
-                }});
+                  }
+                });
               }}
-
               onApplyRelativeCameraPosition={(dx, dy) => {
                 setCameraState((st: CameraState) => {
                   return {
@@ -187,7 +206,8 @@ function App() {
                     relativeX: 0,
                     relativeY: 0,
                     scale: st.scale
-                }});
+                  }
+                });
               }}
             >
               <div className="DisplayArea">
@@ -207,9 +227,9 @@ function App() {
                         title={panelInfo.title}
                         onClose={() => {
                           if (panelInfo.allowsClosing) {
-                            removeFromPanelArray(index)}
+                            removeFromPanelArray(index)
                           }
-                        }
+                        }}
                         zindex={panelData.zindex}
                         onGrabMove={(dx, dy) => {
                           setPanelArray(arr => {

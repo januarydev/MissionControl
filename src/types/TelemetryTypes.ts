@@ -150,216 +150,253 @@ export function rowsFromPreset(preset: TelemetryPresets) {
 
 export interface RowDetails {
   mnemonic: string;
-  value: number | string;
   unit: string;
 }
 
-export function rowDetailsFromType(type: TelemetryPoints, state: SimulationState): RowDetails {
+export function rowDetailsFromType(type: TelemetryPoints): RowDetails {
   switch (type) {
     case TelemetryPoints.ElapsedTime:
       return {
         mnemonic: "Elapsed Time",
-        value: state.elapsedTimeS.toFixed(3),
         unit: "s"
       };
     case TelemetryPoints.PosEciX:
       return {
         mnemonic: "Position ECI X",
-        value: state.spacecraftPositionEciKm.x.toFixed(3),
         unit: "km"
       };
     case TelemetryPoints.PosEciY:
       return {
         mnemonic: "Position ECI Y",
-        value: state.spacecraftPositionEciKm.y.toFixed(3),
         unit: "km"
       };
     case TelemetryPoints.PosEciZ:
       return {
         mnemonic: "Position ECI Z",
-        value: state.spacecraftPositionEciKm.z.toFixed(3),
         unit: "km"
       };
     case TelemetryPoints.VelEciX:
       return {
         mnemonic: "Velocity ECI X",
-        value: state.spacecraftVelocityEciKmS.x.toFixed(3),
         unit: "km/s"
       };
     case TelemetryPoints.VelEciY:
       return {
         mnemonic: "Velocity ECI Y",
-        value: state.spacecraftVelocityEciKmS.y.toFixed(3),
         unit: "km/s"
       };
     case TelemetryPoints.VelEciZ:
       return {
         mnemonic: "Velocity ECI Z",
-        value: state.spacecraftVelocityEciKmS.z.toFixed(3),
         unit: "km/s"
       };
     case TelemetryPoints.PosEcefX:
       return {
         mnemonic: "Position ECEF X",
-        value: state.spacecraftPositionEcefKm.x.toFixed(3),
         unit: "km"
       };
     case TelemetryPoints.PosEcefY:
       return {
         mnemonic: "Position ECEF Y",
-        value: state.spacecraftPositionEcefKm.y.toFixed(3),
         unit: "km"
       };
     case TelemetryPoints.PosEcefZ:
       return {
         mnemonic: "Position ECEF Z",
-        value: state.spacecraftPositionEcefKm.z.toFixed(3),
         unit: "km"
       };
     case TelemetryPoints.VelEcefX:
       return {
         mnemonic: "Velocity ECEF X",
-        value: state.spacecraftVelocityEcefKmS.x.toFixed(3),
         unit: "km/s"
       };
     case TelemetryPoints.VelEcefY:
       return {
         mnemonic: "Velocity ECEF Y",
-        value: state.spacecraftVelocityEcefKmS.y.toFixed(3),
         unit: "km/s"
       };
     case TelemetryPoints.VelEcefZ:
       return {
         mnemonic: "Velocity ECEF Z",
-        value: state.spacecraftVelocityEcefKmS.z.toFixed(3),
         unit: "km/s"
       };
     case TelemetryPoints.RightAscens:
       return {
         mnemonic: "Right Ascension",
-        value: state.spacecraftPositionLla.x.toFixed(3),
         unit: "deg"
       };
     case TelemetryPoints.Declination:
       return {
         mnemonic: "Declination",
-        value: state.spacecraftPositionLla.y.toFixed(3),
         unit: "deg"
       };
     case TelemetryPoints.Elevation:
       return {
         mnemonic: "Elevation",
-        value: state.spacecraftPositionLla.z.toFixed(3),
         unit: "km"
       };
     case TelemetryPoints.SAM:
       return {
         mnemonic: "SAM",
-        value: state.spacecraftSpecificAngularMomentumKm2S.toFixed(3),
         unit: "km2/s"
       };
     case TelemetryPoints.Inclination:
       return {
         mnemonic: "Inclination",
-        value: state.spacecraftInclinationDeg.toFixed(3),
         unit: "deg"
       };
     case TelemetryPoints.RAAN:
       return {
         mnemonic: "RAAN",
-        value: state.spacecraftRightAscensionAscendingNodeDeg.toFixed(3),
         unit: "deg"
       };
     case TelemetryPoints.Eccentricity:
       return {
         mnemonic: "Eccentricity",
-        value: state.spacecraftEccentricity.toFixed(3),
         unit: ""
       };
     case TelemetryPoints.AoP:
       return {
         mnemonic: "Argument of Perigee",
-        value: state.spacecraftArgumentOfPerigeeDeg.toFixed(3),
         unit: "deg"
       };
     case TelemetryPoints.TrueAnom:
       return {
         mnemonic: "True Anomaly",
-        value: state.spacecraftTrueAnomalyDeg.toFixed(3),
         unit: "deg"
       };
     case TelemetryPoints.Periapsis:
       return {
         mnemonic: "Periapsis Altitude",
-        value: state.spacecraftPeriapsisAltitudeKm.toFixed(3),
         unit: "km"
       };
     case TelemetryPoints.Apoapsis:
       return {
         mnemonic: "Apoapsis Altitude",
-        value: state.spacecraftApoapsisAltitudeKm.toFixed(3),
         unit: "km"
       };
     case TelemetryPoints.Period:
       return {
         mnemonic: "Orbit Period",
-        value: state.spacecraftOrbitPeriodHr.toFixed(3),
         unit: "hr"
       };
     case TelemetryPoints.AttQ1:
       return {
         mnemonic: "Attitude Q1",
-        value: state.spacecraftAttitude.x.toFixed(3),
         unit: ""
       };
     case TelemetryPoints.AttQ2:
       return {
         mnemonic: "Attitude Q2",
-        value: state.spacecraftAttitude.y.toFixed(3),
         unit: ""
       };
     case TelemetryPoints.AttQ3:
       return {
         mnemonic: "Attitude Q3",
-        value: state.spacecraftAttitude.z.toFixed(3),
         unit: ""
       };
     case TelemetryPoints.AttQ4:
       return {
         mnemonic: "Attitude Q4",
-        value: state.spacecraftAttitude.w.toFixed(3),
         unit: ""
       };
     case TelemetryPoints.OmegaX:
       return {
         mnemonic: "Angular Inertial Rate X",
-        value: state.spacecraftAngularRateRadS.x.toFixed(3),
         unit: "rad/s"
       };
     case TelemetryPoints.OmegaY:
       return {
         mnemonic: "Angular Inertial Rate Y",
-        value: state.spacecraftAngularRateRadS.y.toFixed(3),
         unit: "rad/s"
       };
     case TelemetryPoints.OmegaZ:
       return {
         mnemonic: "Angular Inertial Rate Z",
-        value: state.spacecraftAngularRateRadS.z.toFixed(3),
         unit: "rad/s"
       };
     case TelemetryPoints.AxisErr:
       return {
         mnemonic: "Inertial Axis Error",
-        value: (state.inertialAxisAngularErrorRad * 180 / Math.PI).toFixed(3),
         unit: "deg"
       }
     default:
       return {
         mnemonic: "",
-        value: 0,
         unit: ""
       }
   }
 }
 
+export function rowValueFromType(type: TelemetryPoints, state: SimulationState): number {
+  switch (type) {
+    case TelemetryPoints.ElapsedTime:
+      return state.elapsedTimeS;
+    case TelemetryPoints.PosEciX:
+      return state.spacecraftPositionEciKm.x;
+    case TelemetryPoints.PosEciY:
+      return state.spacecraftPositionEciKm.y;
+    case TelemetryPoints.PosEciZ:
+      return state.spacecraftPositionEciKm.z;
+    case TelemetryPoints.VelEciX:
+      return state.spacecraftVelocityEciKmS.x;
+    case TelemetryPoints.VelEciY:
+      return state.spacecraftVelocityEciKmS.y;
+    case TelemetryPoints.VelEciZ:
+      return state.spacecraftVelocityEciKmS.z;
+    case TelemetryPoints.PosEcefX:
+      return state.spacecraftPositionEcefKm.x;
+    case TelemetryPoints.PosEcefY:
+      return state.spacecraftPositionEcefKm.y;
+    case TelemetryPoints.PosEcefZ:
+      return state.spacecraftPositionEcefKm.z;
+    case TelemetryPoints.VelEcefX:
+      return state.spacecraftVelocityEcefKmS.x;
+    case TelemetryPoints.VelEcefY:
+      return state.spacecraftVelocityEcefKmS.y;
+    case TelemetryPoints.VelEcefZ:
+      return state.spacecraftVelocityEcefKmS.z;
+    case TelemetryPoints.RightAscens:
+      return state.spacecraftPositionLla.x;
+    case TelemetryPoints.Declination:
+      return state.spacecraftPositionLla.y;
+    case TelemetryPoints.Elevation:
+      return state.spacecraftPositionLla.z;
+    case TelemetryPoints.SAM:
+      return state.spacecraftSpecificAngularMomentumKm2S;
+    case TelemetryPoints.Inclination:
+      return state.spacecraftInclinationDeg;
+    case TelemetryPoints.RAAN:
+      return state.spacecraftRightAscensionAscendingNodeDeg;
+    case TelemetryPoints.Eccentricity:
+      return state.spacecraftEccentricity;
+    case TelemetryPoints.AoP:
+      return state.spacecraftArgumentOfPerigeeDeg;
+    case TelemetryPoints.TrueAnom:
+      return state.spacecraftTrueAnomalyDeg;
+    case TelemetryPoints.Periapsis:
+      return state.spacecraftPeriapsisAltitudeKm;
+    case TelemetryPoints.Apoapsis:
+      return state.spacecraftApoapsisAltitudeKm;
+    case TelemetryPoints.Period:
+      return state.spacecraftOrbitPeriodHr;
+    case TelemetryPoints.AttQ1:
+      return state.spacecraftAttitude.x;
+    case TelemetryPoints.AttQ2:
+      return state.spacecraftAttitude.y;
+    case TelemetryPoints.AttQ3:
+      return state.spacecraftAttitude.z;
+    case TelemetryPoints.AttQ4:
+      return state.spacecraftAttitude.w;
+    case TelemetryPoints.OmegaX:
+      return state.spacecraftAngularRateRadS.x;
+    case TelemetryPoints.OmegaY:
+      return state.spacecraftAngularRateRadS.y;
+    case TelemetryPoints.OmegaZ:
+      return state.spacecraftAngularRateRadS.z;
+    case TelemetryPoints.AxisErr:
+      return state.inertialAxisAngularErrorRad * 180 / Math.PI;
+    default:
+      return 0;
+  }
+}

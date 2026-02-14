@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { rowDetailsFromType, TelemetryPoints, TelemetryPresets, TelemetryState } from "../types/TelemetryTypes"
+import { rowDetailsFromType, rowValueFromType, TelemetryPoints, TelemetryPresets, TelemetryState } from "../types/TelemetryTypes"
 import { IconButton } from "./IconButton";
 import { SimulationContext } from "../types/Simulation";
 import { Dropdown } from "./Dropdown";
@@ -41,13 +41,13 @@ export function Telemetry(props: TelemetryProps) {
   const simulationState = useContext(SimulationContext);
 
   const createRow = (point: TelemetryPoints, index: number) => {
-    const rowDetails = rowDetailsFromType(point, simulationState);
+    const rowDetails = rowDetailsFromType(point);
     return (
       <Row
         key={index}
         onClick={() => props.removeFromRowArrayCallback(index)}
         mnemonic={rowDetails.mnemonic}
-        value={rowDetails.value}
+        value={rowValueFromType(point, simulationState).toFixed(3)}
         unit={rowDetails.unit}
       />
     );
