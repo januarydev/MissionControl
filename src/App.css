@@ -195,6 +195,7 @@ button:hover {
 
 .DropdownLabel {
   display: flex;
+  margin-left: 0.25em;
   justify-content: space-between;
 }
 
@@ -270,6 +271,10 @@ button:hover {
 
 .CloseRowIcon {
   width: 1em;
+}
+
+.GraphingPlotBackground {
+  fill: var(--background-color-accent-1);
 }
 
 .MappingContainer {

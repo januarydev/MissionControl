@@ -3,7 +3,7 @@ import "./App.css";
 import { Panel } from "./components/Panel";
 import { Commanding } from "./components/Commanding";
 import { Telemetry } from "./components/Telemetry";
-import { rowsFromPreset, TelemetryPresets, TelemetryState } from "./types/TelemetryTypes.ts";
+import { rowDetailsFromType, rowsFromPreset, TelemetryPresets, TelemetryState } from "./types/TelemetryTypes.ts";
 import { Graphing, GraphingState } from "./components/Graphing";
 import { Mapping } from "./components/Mapping";
 import { OrbitVis } from "./components/OrbitVis";
@@ -113,7 +113,13 @@ function App() {
         addToPlotArrayCallback={point => {
           const panels = structuredClone(panelArray);
           const bodyData = panels[index].bodyData! as GraphingState;
+          const details = rowDetailsFromType(point);
           bodyData.types.push(point);
+          bodyData.plots.push({
+            mnemonic: details.mnemonic,
+            unit: details.unit,
+            data: [],
+          })
           setPanelArray(panels);
         }}
         removeFromPlotArrayCallback={id => {
