@@ -100,7 +100,7 @@ export function Graphing(props: GraphingProps) {
       <svg width={width} height={height}>
         <g ref={gx} transform={`translate(0, ${height - marginBottom})`} />
         <g ref={gy} transform={`translate(${marginLeft}, 0)`} />
-        {props.graphingState.plots[0] != null && <path fill="none" stroke="white" strokeWidth="1.25" d={lineGenerator(props.graphingState.plots[0].data)!} />}
+        {props.graphingState.plots.map((plot, index) => <path key={index} fill="none" stroke="white" strokeWidth="1.25" d={lineGenerator(plot.data)!} />)}
       </svg>
     </div >
   );
