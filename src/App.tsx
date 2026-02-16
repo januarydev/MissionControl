@@ -16,6 +16,7 @@ import { Nole } from "./components/Nole";
 import { ToolBar } from "./components/ToolBar.tsx";
 import { PanelType } from "./types/Panel.ts";
 import { TimeControls } from "./components/TimeControls.tsx";
+import { Scripting } from "./components/Scripting.tsx";
 
 type BodyData = TelemetryState | GraphingState;
 
@@ -133,6 +134,13 @@ function App() {
       allowsClosing: true
     },
     {
+      panelType: PanelType.ScriptingPanel,
+      title: "Scripting",
+      iconId: "console",
+      onRender: () => <Scripting />,
+      allowsClosing: true
+    },
+    {
       panelType: PanelType.MappingPanel,
       title: "Mapping",
       iconId: "map",
@@ -175,6 +183,7 @@ function App() {
           case PanelType.GraphingPanel:
             addToPanelArray(panelType, { types: [], plots: [] });
             break;
+          case PanelType.ScriptingPanel:
           case PanelType.MappingPanel:
           case PanelType.OrbitVisPanel:
           case PanelType.AttitudeVisPanel:
