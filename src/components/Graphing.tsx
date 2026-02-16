@@ -37,26 +37,16 @@ export function Graphing(props: GraphingProps) {
   const labelMarginBottom = 7;
   const transition = 250;
   const lineColors = [
-    "#d55948",
-    "#42c87f",
-    "#583586",
-    "#91b23e",
-    "#6d71d8",
-    "#caa331",
-    "#5e8bd5",
-    "#c57429",
-    "#bd73ca",
-    "#6fb95c",
-    "#872762",
-    "#43c8ac",
-    "#ce5183",
-    "#62ac6a",
-    "#d471b2",
-    "#537022",
-    "#be4a5b",
-    "#b7a650",
-    "#8b351d",
-    "#c2814c"
+    "#62a553",
+    "#5297e7",
+    "#c8473a",
+    "#45c097",
+    "#d36925",
+    "#3963a9",
+    "#89bc3c",
+    "#c84a65",
+    "#d0aa3a",
+    "#aa7a3e"
   ];
 
   const numPlots = props.graphingState.plots.length;
@@ -126,11 +116,18 @@ export function Graphing(props: GraphingProps) {
         ]}
       />
       <svg className="GraphingPlot" width={width} height={height}>
-        <rect className="GraphingPlotBackground" x={marginLeft} y={marginTop} width={width - marginLeft - marginRight} height={height - marginTop - marginBottom} />
+        <rect
+          className="GraphingPlotBackground"
+          x={marginLeft}
+          y={marginTop}
+          width={width - marginLeft - marginRight}
+          height={height - marginTop - marginBottom}
+        />
         <g ref={gx} transform={`translate(0, ${height - marginBottom})`} />
         <g ref={gy} transform={`translate(${marginLeft}, 0)`} />
         <text textAnchor="middle" x={(width + marginLeft) / 2} y={height - labelMarginBottom} fill="white">Elapsed Time (s)</text>
-        {props.graphingState.plots.map((plot, index) => <path key={index} fill="none" stroke={lineColors[index]} strokeWidth="1.25" d={lineGenerator(plot.data)!} />)}
+        {props.graphingState.plots.map((plot, index) =>
+          <path key={index} fill="none" stroke={lineColors[index % lineColors.length]} strokeWidth="1.25" d={lineGenerator(plot.data)!} />)}
       </svg>
     </div >
   );
