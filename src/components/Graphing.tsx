@@ -1,7 +1,8 @@
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { rowDetailsFromType, rowValueFromType, TelemetryPoints } from "../types/TelemetryTypes";
 import { Dropdown } from "./Dropdown";
 import { SimulationContext } from "../types/Simulation";
+import * as d3 from "d3";
 
 interface Plot {
   mnemonic: string;
@@ -38,6 +39,21 @@ export function Graphing(props: GraphingProps) {
   props.graphingState.plots.map((plot, index) => {
     plot.data.push([simulationState.elapsedTimeS, rowValueFromType(props.graphingState.types[index], simulationState)]);
   });
+
+  const width = 640;
+  const height = 400;
+  const marginTop = 20;
+  const marginRight = 20;
+  const marginBottom = 30;
+  const marginLeft = 40;
+
+  const gx = useRef<SVGSVGElement>(null);
+  const gy = useRef<SVGSVGElement>(null);
+  const x = d3.scaleLinear().domain([0, 100]).range([marginLeft, width - marginRight]);
+  const y = d3.scaleLinear().domain([0, 100]).range([height - marginBottom, marginTop]);
+  useEffect(() => void d3.select(gx.current!).call(d3.axisBottom(x)), [gx, x]);
+  useEffect(() => void d3.select(gy.current!).call(d3.axisLeft(y)), [gy, y]);
+  const lineGenerator = d3.line((data) => x(data[0]), (data) => y(data[1])).curve(d3.curveCatmullRom.alpha(0.5));
 
   return (
     <div className="GraphingContainer">
@@ -81,6 +97,11 @@ export function Graphing(props: GraphingProps) {
           { onClick: () => props.addToPlotArrayCallback(TelemetryPoints.AxisErr), text: "Inertial Axis Error" }
         ]}
       />
-    </div>
+      <svg width={width} height={height}>
+        <g ref={gx} transform={`translate(0, ${height - marginBottom})`} />
+        <g ref={gy} transform={`translate(${marginLeft}, 0)`} />
+        {props.graphingState.plots[0] != null && <path fill="none" stroke="white" strokeWidth="1.25" d={lineGenerator(props.graphingState.plots[0].data)!} />}
+      </svg>
+    </div >
   );
 }
