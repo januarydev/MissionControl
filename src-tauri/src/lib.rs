@@ -1,9 +1,9 @@
 mod simulation;
 
-use tauri::{Emitter, Manager};
+use tauri::{path::BaseDirectory, Emitter, Manager};
 
 type SimSync = std::sync::Mutex<simulation::Simulation>;
-const CONFIG_FILENAME: &str = "config.json";
+const CONFIG_FILENAME: &str = "config/config.json";
 
 /// Invoked on frontend mount.
 /// Spawn the main execution thread.
@@ -36,9 +36,16 @@ fn run_time(app: tauri::AppHandle, time_multiplier: f64) {
 /// Setup all command callbacks.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Set environment variable to fix wayland protocol error
+    std::env::set_var("__NV_DISABLE_EXPLICIT_SYNC", "1");
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .manage(std::sync::Mutex::new(simulation::Simulation::new(CONFIG_FILENAME)))
+        .setup(|app| {
+            let config_path = app.path().resolve(CONFIG_FILENAME, BaseDirectory::Resource)?;
+            app.manage(std::sync::Mutex::new(simulation::Simulation::new(config_path.to_str().unwrap())));
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![start_simulation, pause_time, run_time])
         .run(tauri::generate_context!())
         .expect("Error while running tauri application");
