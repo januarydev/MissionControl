@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "missioncontrol",
-  "version": "0.1.0",
-  "identifier": "com.yanjan.missioncontrol",
+  "productName": "mission-control",
+  "version": "0.0.1",
+  "identifier": "com.yanjan.mission-control",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
   "app": {
     "windows": [
       {
-        "title": "missioncontrol",
+        "title": "mission-control",
         "width": 1280,
         "height": 720
       }
