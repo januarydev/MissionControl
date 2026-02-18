@@ -2,6 +2,30 @@
 
 A cross-platform spacecraft mission control simulator implemented with Tauri, React, and D3.
 
+![Preview](./data/preview.png)
+
+## Planned Functionality
+
+| Function | Context | State | Description |
+| --- | --- | --- | --- |
+| Configuration | Backend | :heavy_check_mark: Complete | Load initial simulation state from config file. |
+| Scheduler | Backend | :heavy_check_mark: Complete | Runs backend functions at specified rates. |
+| Time Source | Backend | :heavy_check_mark: Complete | Pseudo real time source for simulation propagation. |
+| Epoch Time | Backend | :heavy_check_mark: Complete | Simulated time propagator. |
+| Orbit Propagator | Backend | :heavy_check_mark: Complete | N-body orbit propagator with basic perturbations. |
+| Attitude Dynamics | Backend | :heavy_check_mark: Complete | Torque-free rotational motion propgator. |
+| Pointing | Backend | :x: Unstarted | Reaction wheel / gyro control torque input. |
+| Maneuvering | Backend | :x: Unstarted | Propulsion-driven orbit maneuvering input. |
+| Panelling System | Frontend | :heavy_check_mark: Complete | Dynamic window panelling GUI. |
+| Commanding | Frontend | :x: Unstarted | Framework to send commands to spacecraft backend. |
+| Telemetry | Frontend | :heavy_check_mark: Complete | Customizable telemetry tables with presets. |
+| Graphing | Frontend | :heavy_check_mark: Complete | Customizable telemetry graphs. |
+| Scripting | Frontend | :x: Unstarted | Scripting framework to send commands and monitor telemetry. |
+| Mapping | Frontend | :heavy_check_mark: Complete | Orbit mapping visualization. |
+| Orbit Vis | Frontend | :heavy_check_mark: Complete | Orbit globe visualization (dynamic SVG). |
+| Attitude Vis | Frontend | :x: Unstarted | Attitude artificial horizon / navball visualization (dynamic SVG). |
+| Gameplay / Levels | All | :x: Unstarted | Goal-oriented gameplay with loadable levels. |
+
 ## Orbit Propagator and Initial Conditions
 
 The orbit propagator for this project is a rough n-body discrete Newtonian model, supporting all bodies added to the config file plus the Earth (mandatory) with optional aerodynamic drag (using the USSA76 atmosphereic density model) and solar radiation pressure (assuming solar constant at ~1AU) perturbations. All data is stored internally in ECI J2000 cartesian coordinates. Starting numbers are generated using the Skyfield python library and the NASA JPL development ephemeris `de440s`, issued in 2020 and valid for dates 1849-2150 (found at the [NASA PDS Navigation Node](https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/) and stored locally for version control). The default output of skyfield's observers can be used as it is stored in ICRS, as noted in the Skyfield documentation:
