@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef } from "react";
 import { rowValueFromType, TelemetryPoints } from "../types/TelemetryTypes";
 import { Dropdown } from "./Dropdown";
 import { SimulationContext } from "../types/Simulation";
+import { IconButton } from "./IconButton";
 import * as d3 from "d3";
 
 interface Plot {
@@ -35,6 +36,7 @@ export function Graphing(props: GraphingProps) {
   const marginBottom = 50;
   const marginLeft = 50;
   const labelMarginBottom = 7;
+  const legendSize = 10;
   const transition = 250;
   const lineColors = [
     "#62a553",
@@ -50,8 +52,8 @@ export function Graphing(props: GraphingProps) {
   ];
 
   const numPlots = props.graphingState.plots.length;
-  var xDomain = numPlots == 0 ? [0, 0] : [Infinity, -Infinity];
-  var yDomain = numPlots == 0 ? [0, 0] : [Infinity, -Infinity];
+  var xDomain = numPlots === 0 ? [0, 0] : [Infinity, -Infinity];
+  var yDomain = numPlots === 0 ? [0, 0] : [Infinity, -Infinity];
   props.graphingState.plots.map((plot) => {
     const xVals = plot.data.map((tuple) => tuple[0]);
     const yVals = plot.data.map((tuple) => tuple[1]);
@@ -129,6 +131,17 @@ export function Graphing(props: GraphingProps) {
         {props.graphingState.plots.map((plot, index) =>
           <path key={index} fill="none" stroke={lineColors[index % lineColors.length]} strokeWidth="1.25" d={lineGenerator(plot.data)!} />)}
       </svg>
+      <div className="GraphingLegend">
+        {props.graphingState.plots.map((plot, index) =>
+          <div className="GraphingLegendEntry" key={index}>
+            <svg width={legendSize} height={legendSize}>
+              <rect width={legendSize} height={legendSize} fill={lineColors[index % lineColors.length]} />
+            </svg>
+            {plot.mnemonic}, {plot.unit}
+            <IconButton id="close-box" hoverFill="red" onClick={() => { props.removeFromPlotArrayCallback(index) }} />
+          </div>
+        )}
+      </div>
     </div >
   );
 }

@@ -273,8 +273,30 @@ button:hover {
   width: 1em;
 }
 
+.GraphingContainer {
+  position: relative;
+}
+
 .GraphingPlotBackground {
   fill: var(--background-color-accent-1);
+}
+
+.GraphingLegend {
+  position: absolute;
+  top: 50px;
+  right: 37px;
+  border: 1px solid white;
+  border-radius: 0.25em;
+  padding: 0.25em;
+  color: var(--text-color-accent-2);
+  background-color: var(--background-color-accent-2);
+}
+
+.GraphingLegendEntry {
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  gap: 0.25em;
 }
 
 .MappingContainer {
