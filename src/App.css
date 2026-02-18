@@ -274,29 +274,26 @@ button:hover {
 }
 
 .GraphingContainer {
-  position: relative;
-}
-
-.GraphingPlotBackground {
-  fill: var(--background-color-accent-1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
 }
 
 .GraphingLegend {
-  position: absolute;
-  top: 50px;
-  right: 37px;
-  border: 1px solid white;
-  border-radius: 0.25em;
-  padding: 0.25em;
-  color: var(--text-color-accent-2);
-  background-color: var(--background-color-accent-2);
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 640px;
+  justify-content: space-around;
 }
 
 .GraphingLegendEntry {
   display: flex;
   align-items: center;
-  justify-content: right;
   gap: 0.25em;
+}
+
+.GraphingPlotBackground {
+  fill: var(--background-color-accent-1);
 }
 
 .MappingContainer {

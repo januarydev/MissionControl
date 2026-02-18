@@ -31,7 +31,7 @@ export function Graphing(props: GraphingProps) {
 
   const width = 640;
   const height = 400;
-  const marginTop = 20;
+  const marginTop = 0;
   const marginRight = 30;
   const marginBottom = 50;
   const marginLeft = 50;
@@ -117,6 +117,17 @@ export function Graphing(props: GraphingProps) {
           { onClick: () => props.addToPlotArrayCallback(TelemetryPoints.AxisErr), text: "Inertial Axis Error" }
         ]}
       />
+      <div className="GraphingLegend">
+        {props.graphingState.plots.map((plot, index) =>
+          <div className="GraphingLegendEntry" key={index}>
+            <svg width={legendSize} height={legendSize}>
+              <rect width={legendSize} height={legendSize} fill={lineColors[index % lineColors.length]} />
+            </svg>
+            {plot.mnemonic}{plot.unit !== "" ? `, ${plot.unit}` : ""}
+            <IconButton id="close-box" hoverFill="red" onClick={() => { props.removeFromPlotArrayCallback(index) }} />
+          </div>
+        )}
+      </div>
       <svg className="GraphingPlot" width={width} height={height}>
         <rect
           className="GraphingPlotBackground"
@@ -131,17 +142,6 @@ export function Graphing(props: GraphingProps) {
         {props.graphingState.plots.map((plot, index) =>
           <path key={index} fill="none" stroke={lineColors[index % lineColors.length]} strokeWidth="1.25" d={lineGenerator(plot.data)!} />)}
       </svg>
-      <div className="GraphingLegend">
-        {props.graphingState.plots.map((plot, index) =>
-          <div className="GraphingLegendEntry" key={index}>
-            <svg width={legendSize} height={legendSize}>
-              <rect width={legendSize} height={legendSize} fill={lineColors[index % lineColors.length]} />
-            </svg>
-            {plot.mnemonic}, {plot.unit}
-            <IconButton id="close-box" hoverFill="red" onClick={() => { props.removeFromPlotArrayCallback(index) }} />
-          </div>
-        )}
-      </div>
     </div >
   );
 }
