@@ -45,6 +45,11 @@ const buttons: ToolButton[] = [
     panelType: PanelType.GraphingPanel
   },
   {
+    text: "Scripting",
+    svgIconId: "console",
+    panelType: PanelType.ScriptingPanel
+  },
+  {
     text: "Mapping",
     svgIconId: "map",
     panelType: PanelType.MappingPanel
@@ -66,7 +71,7 @@ export function ToolBar(props: ToolBarProps) {
     <div className="ToolBar">
       <div className="ToolBarTitle">MissionControl</div>
       <div className="ToolBarButtons">
-        {buttons.map((button, index) => 
+        {buttons.map((button, index) =>
           <ToolButton
             key={index}
             text={button.text}

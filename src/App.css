@@ -195,6 +195,7 @@ button:hover {
 
 .DropdownLabel {
   display: flex;
+  margin-left: 0.25em;
   justify-content: space-between;
 }
 
@@ -270,6 +271,29 @@ button:hover {
 
 .CloseRowIcon {
   width: 1em;
+}
+
+.GraphingContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+
+.GraphingLegend {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 640px;
+  justify-content: space-around;
+}
+
+.GraphingLegendEntry {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+}
+
+.GraphingPlotBackground {
+  fill: var(--background-color-accent-1);
 }
 
 .MappingContainer {
