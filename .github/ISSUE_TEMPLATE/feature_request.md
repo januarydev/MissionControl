@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: 'REQUEST: <Summary>'
+title: 'ENHANCEMENT: <Summary>'
 labels: enhancement, state:new, type:reported
 assignees: ''
 
